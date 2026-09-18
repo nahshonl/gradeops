@@ -354,6 +354,7 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
     <nav class="tabs" role="tablist" id="tabBar">
       <button class="tab" role="tab" data-view="overview" aria-selected="true">Overview</button>
       <button class="tab" role="tab" data-view="lab" aria-selected="false">GPA Lab</button>
+      <button class="tab" role="tab" data-view="intel" aria-selected="false">Intel</button>
       <button class="tab" role="tab" data-view="igp" aria-selected="false">Admissions · IGP 2026</button>
     </nav>
     <main id="view"></main>
@@ -1185,6 +1186,330 @@ function viewLab(root) {
   root.append(grid);
 }
 
+/* ================= intel: forecasts, streaks, counterfactuals ================= */
+function qtile(sorted, p) { return sorted[Math.max(0, Math.min(sorted.length - 1, Math.round(p * (sorted.length - 1))))]; }
+
+function gradeDistCU(data) {
+  const w = {}; let tot = 0;
+  for (const s of data.semesters) for (const m of s.modules)
+    if (isGraded(m.grade)) { w[m.grade] = (w[m.grade] || 0) + m.cu; tot += m.cu; }
+  return { w, tot };
+}
+function plannedBlocks() {
+  const pl = S.planner.filter(p => p.cu > 0);
+  return pl.length ? pl.map(p => p.cu) : [4, 4, 4, 4, 4];
+}
+function monteCarlo(base, blocks, dist, trials) {
+  const cum = []; let acc = 0;
+  for (const g of Object.keys(dist.w)) { acc += dist.w[g] / dist.tot; cum.push([acc, g]); }
+  const out = new Array(trials);
+  for (let t = 0; t < trials; t++) {
+    let pts = base.cumPts, cu = base.cumCU;
+    for (const b of blocks) {
+      const r = Math.random();
+      let g = cum[cum.length - 1][1];
+      for (const [c, gg] of cum) { if (r <= c) { g = gg; break; } }
+      pts += gp(g) * b; cu += b;
+    }
+    out[t] = pts / cu;
+  }
+  out.sort((a, b) => a - b);
+  return out;
+}
+
+function histChart(container, sims) {
+  container.textContent = "";
+  const W = Math.max(300, container.clientWidth || 560), H = 200;
+  const m = { t: 30, r: 10, b: 26, l: 10 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const lo = sims[0], hi = sims[sims.length - 1];
+  if (hi - lo < 1e-6) {
+    container.append(el("div", { class: "fine", text: "Every simulation lands on " + lo.toFixed(4) + " — your grade history has no variance to sample from. Impressive, honestly." }));
+    return;
+  }
+  const NB = 26, bw = (hi - lo) / NB;
+  const bins = new Array(NB).fill(0);
+  for (const v of sims) bins[Math.min(NB - 1, Math.floor((v - lo) / bw))]++;
+  const maxB = Math.max(...bins);
+  const svg = sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Simulated graduating CGPA distribution" });
+  svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih, stroke: "var(--baseline)", "stroke-width": 1 }));
+  const blue = cssVar("--viz-blue") || "#3987e5";
+  const X = v => m.l + (v - lo) / (hi - lo) * iw;
+  const colW = Math.min(24, iw / NB - 2);
+  bins.forEach((n, i) => {
+    if (!n) return;
+    const x = m.l + (i + 0.5) * (iw / NB) - colW / 2;
+    const h = Math.max(2, n / maxB * (ih - 4));
+    const y = m.t + ih - h;
+    svg.append(sv("rect", { x, y, width: colW, height: h, rx: 3, fill: blue }));
+    const hit = sv("rect", { x: m.l + i * (iw / NB), y: m.t, width: iw / NB, height: ih, fill: "transparent" });
+    const b0 = lo + i * bw, b1 = b0 + bw;
+    hit.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+      box.append(el("div", { class: "tt-title", text: b0.toFixed(3) + " – " + b1.toFixed(3) }));
+      ttRow(box, blue, "of simulations", (n / sims.length * 100).toFixed(1) + "%");
+    }));
+    hit.addEventListener("pointerleave", hideTip);
+    svg.append(hit);
+  });
+  const marks = [["P10", qtile(sims, 0.10)], ["median", qtile(sims, 0.50)], ["P90", qtile(sims, 0.90)]];
+  marks.forEach(([lab, v], i) => {
+    svg.append(sv("line", { x1: X(v), x2: X(v), y1: m.t - 4, y2: m.t + ih, stroke: "var(--viz-violet)", "stroke-width": 1.5, "stroke-dasharray": i === 1 ? "" : "3 3" }));
+    // P10 label sits left of its line, P90 right-clamped, median centered
+    const anchor = i === 0 ? "end" : i === 2 ? (X(v) + 74 > W ? "end" : "start") : "middle";
+    const tx = i === 0 ? X(v) - 5 : i === 2 ? (anchor === "end" ? X(v) - 5 : X(v) + 5) : Math.max(80, Math.min(W - 80, X(v)));
+    svg.append(sv("text", { x: tx, y: m.t - 10, "text-anchor": anchor, class: i === 1 ? "lab-strong" : "lab-mid", style: "font-variant-numeric:tabular-nums" }, lab + " " + v.toFixed(3)));
+  });
+  [lo, hi].forEach((v, i) => svg.append(sv("text", { x: i ? W - m.r : m.l, y: H - 8, "text-anchor": i ? "end" : "start", style: "font-variant-numeric:tabular-nums" }, v.toFixed(3))));
+  container.append(svg);
+}
+
+function coneChart(container, sems, proj) {
+  container.textContent = "";
+  const W = Math.max(280, container.clientWidth || 420), H = 210;
+  const m = { t: 14, r: 66, b: 26, l: 40 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const n = sems.length;
+  const vals = sems.map(s => s.cgpa).concat([proj.floor, proj.ceil]);
+  const lo = Math.floor((Math.min(...vals) - 0.05) * 20) / 20, hi = 4.0;
+  const X = i => m.l + (i / n) * iw;
+  const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ih;
+  const svg = sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Projected CGPA range for the final semester" });
+  for (let v = Math.ceil(lo * 10) / 10; v <= hi + 1e-9; v += 0.1) {
+    v = Math.round(v * 100) / 100;
+    svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+    svg.append(sv("text", { x: m.l - 8, y: Y(v) + 3.5, "text-anchor": "end", style: "font-variant-numeric:tabular-nums" }, v.toFixed(1)));
+  }
+  sems.forEach((s, i) => svg.append(sv("text", { x: X(i), y: H - 8, "text-anchor": "middle" }, "S" + s.sem)));
+  svg.append(sv("text", { x: X(n), y: H - 8, "text-anchor": "middle", class: "lab-strong" }, "S" + (sems[n - 1].sem + 1) + "*"));
+  const violet = cssVar("--viz-violet") || "#9085e9";
+  const lastX = X(n - 1), lastY = Y(sems[n - 1].cgpa);
+  svg.append(sv("polygon", {
+    points: `${lastX},${lastY} ${X(n)},${Y(proj.ceil)} ${X(n)},${Y(proj.floor)}`,
+    fill: violet, opacity: 0.1,
+  }));
+  const hist = sems.map((s, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(s.cgpa).toFixed(1)).join(" ");
+  svg.append(sv("path", { d: hist, fill: "none", stroke: violet, "stroke-width": 2.5, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  const branches = [["ceil", proj.ceil, "all A"], ["exp", proj.exp, "your average"], ["floor", proj.floor, "all B"]];
+  for (const [, v] of branches)
+    svg.append(sv("path", { d: `M${lastX} ${lastY} L${X(n)} ${Y(v)}`, fill: "none", stroke: violet, "stroke-width": 1.5, "stroke-dasharray": "4 4" }));
+  sems.forEach((s, i) => svg.append(sv("circle", { cx: X(i), cy: Y(s.cgpa), r: 3.5, fill: violet, stroke: "var(--surface)", "stroke-width": 2 })));
+  // end labels, collision-spread
+  const labs = branches.map(([, v, note]) => ({ v, note, y: Y(v) })).sort((a, b) => a.y - b.y);
+  for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 13) labs[i].y = labs[i - 1].y + 13;
+  for (const L of labs) {
+    svg.append(sv("circle", { cx: X(n), cy: Y(L.v), r: 3.5, fill: violet, stroke: "var(--surface)", "stroke-width": 2 }));
+    svg.append(sv("text", { x: X(n) + 8, y: L.y + 3.5, class: "lab-mid", style: "font-variant-numeric:tabular-nums" }, L.v.toFixed(3)));
+  }
+  const hit = sv("rect", { x: lastX, y: m.t, width: iw / n + m.r, height: ih, fill: "transparent" });
+  hit.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+    box.append(el("div", { class: "tt-title", text: "Final semester · " + proj.cu + " CU assumed" }));
+    for (const [, v, note] of branches) ttRow(box, violet, note, v.toFixed(4));
+  }));
+  hit.addEventListener("pointerleave", hideTip);
+  svg.append(hit);
+  container.append(svg);
+}
+
+const DISCIPLINES = [
+  { key: "Cyber core", rx: /SECUR|HACK|FORENSIC|MALWARE|CRYPT|THREAT|CYBER|PEN.?TEST|GOVERNANCE/i },
+  { key: "Internship & capstone", rx: /INTERNSHIP|PROJECT/i },
+  { key: "Tech foundations", rx: /PROGRAM|SCRIPT|NETWORK|SERVER|DATA|COMPUT|MATH|DESIGN|SOFTWARE|IT PROFESSIONALS|\bAI\b/i },
+];
+function classifyModule(name) {
+  for (const d of DISCIPLINES) if (d.rx.test(name)) return d.key;
+  return "General studies";
+}
+
+function viewIntel(root) {
+  const base = computeAll(S.data, null, null);
+  const sems = base.sems;
+  const cgpa = base.cgpa;
+  const blocks = plannedBlocks();
+  const P = blocks.reduce((a, b) => a + b, 0);
+
+  /* streaks */
+  const seq = [];
+  for (const s of sems) for (const mo of s.modules) if (isGraded(mo.grade)) seq.push({ mo, sem: s });
+  let longest = 0, run = 0;
+  for (const x of seq) { if (gp(x.mo.grade) === 4) { run++; longest = Math.max(longest, run); } else run = 0; }
+  let cur = 0, lastBreak = null;
+  for (let i = seq.length - 1; i >= 0; i--) {
+    if (gp(seq[i].mo.grade) === 4) cur++;
+    else { lastBreak = seq[i]; break; }
+  }
+
+  /* clutch */
+  let hPts = 0, hCU = 0, lPts = 0, lCU = 0;
+  for (const x of seq) {
+    if (x.mo.cu >= 4) { hPts += gp(x.mo.grade) * x.mo.cu; hCU += x.mo.cu; }
+    else { lPts += gp(x.mo.grade) * x.mo.cu; lCU += x.mo.cu; }
+  }
+  const heavy = hCU ? hPts / hCU : null, light = lCU ? lPts / lCU : null;
+
+  /* volatility */
+  const gpas = sems.map(s => s.gpa).filter(v => v != null);
+  const mean = gpas.reduce((a, b) => a + b, 0) / gpas.length;
+  const sigma = Math.sqrt(gpas.reduce((a, b) => a + (b - mean) ** 2, 0) / gpas.length);
+  let rebound = null;
+  for (let i = 1; i < sems.length; i++) {
+    if (sems[i].gpa == null || sems[i - 1].gpa == null) continue;
+    const d = sems[i].gpa - sems[i - 1].gpa;
+    if (!rebound || d > rebound.d) rebound = { d, from: sems[i - 1], to: sems[i] };
+  }
+
+  /* KPI row */
+  const kpis = el("div", { class: "kpis" });
+  const kpi = (lbl, val, extra) => {
+    const k = el("div", { class: "kpi" });
+    k.append(el("div", { class: "lbl", text: lbl }), el("div", { class: "val", text: val }));
+    if (extra) k.append(el("div", { class: "delta", text: extra }));
+    kpis.append(k);
+  };
+  kpi("Longest A-or-better run", String(longest), "consecutive graded modules at 4.0");
+  kpi("Current run", String(cur), lastBreak
+    ? "unbroken since " + (lastBreak.sem.exam || "Sem " + lastBreak.sem.sem) + " (" + lastBreak.mo.grade + " in " + lastBreak.mo.name.split(" ").slice(0, 2).join(" ").toLowerCase() + ")"
+    : "never broken");
+  kpi("Clutch factor", heavy == null ? "—" : heavy.toFixed(2), light == null ? "no light modules" :
+    "heavy (≥4 CU) vs " + light.toFixed(2) + " on light — " + (heavy >= light ? "you rise under load" : "light modules are your friend"));
+  kpi("Consistency σ", sigma.toFixed(3), sigma < 0.05 ? "rock steady across semesters" : sigma < 0.15 ? "steady with a wobble" : "spiky semesters");
+  root.append(kpis);
+
+  const grid = el("div", { class: "grid" });
+
+  /* Monte Carlo forecast */
+  const dist = gradeDistCU(S.data);
+  const pMC = el("div", { class: "panel span-7" });
+  pMC.append(el("h3", { text: "Graduation forecast" }));
+  pMC.append(el("p", { class: "sub", text: "6,000 simulated final semesters — each module's grade drawn from your own record, weighted by credit units. Assumes " + (S.planner.filter(p => p.cu > 0).length ? "your planned modules (" + P + " CU)." : "5 × 4 CU modules; set real ones in the GPA Lab planner.") }));
+  const mcBox = el("div", { class: "chart-wrap" });
+  pMC.append(mcBox);
+  grid.append(pMC);
+
+  /* projection cone */
+  const proj = {
+    cu: P,
+    ceil: (base.cumPts + 4 * P) / (base.cumCU + P),
+    exp: (base.cumPts + cgpa * P) / (base.cumCU + P),
+    floor: (base.cumPts + 3 * P) / (base.cumCU + P),
+  };
+  const pCone = el("div", { class: "panel span-5" });
+  pCone.append(el("h3", { text: "Projection cone" }));
+  pCone.append(el("p", { class: "sub", text: "Where the final semester can take the CGPA — perfect run, your average, or an all-B slump." }));
+  const coneBox = el("div", { class: "chart-wrap" });
+  pCone.append(coneBox);
+  pCone.append(el("div", { class: "legend" },
+    el("span", { class: "key" }, el("i", { class: "line", style: "border-color:var(--viz-violet)" }), "Actual CGPA"),
+    el("span", { class: "key" }, el("i", { class: "line", style: "border-color:var(--viz-violet);border-top-style:dashed" }), "Projected"),
+  ));
+  grid.append(pCone);
+
+  /* discipline report */
+  const pDisc = el("div", { class: "panel span-6" });
+  pDisc.append(el("h3", { text: "Discipline report" }), el("p", { class: "sub", text: "CU-weighted GPA by module family — keyword-classified, hover for the roster." }));
+  const cats = new Map();
+  for (const x of seq) {
+    const key = classifyModule(x.mo.name);
+    if (!cats.has(key)) cats.set(key, { pts: 0, cu: 0, mods: [] });
+    const c = cats.get(key);
+    c.pts += gp(x.mo.grade) * x.mo.cu; c.cu += x.mo.cu; c.mods.push(x.mo);
+  }
+  const catRows = [...cats.entries()].map(([key, c]) => ({ key, gpa: c.pts / c.cu, cu: c.cu, mods: c.mods }))
+    .sort((a, b) => b.gpa - a.gpa);
+  for (const c of catRows) {
+    const row = el("div", { class: "course", style: "grid-template-columns:minmax(130px,1fr) minmax(110px,1fr) auto" });
+    row.append(el("div", { class: "cn", text: c.key }));
+    const stripCell = el("div", { class: "strip-cell" });
+    const strip = el("div", { class: "range-strip" });
+    const pct = v => Math.max(0, Math.min(100, (v - 3.0) / 1.0 * 100));
+    strip.append(el("div", { class: "track" }), el("div", { class: "you", style: "left:" + pct(c.gpa) + "%" }));
+    stripCell.append(strip);
+    row.append(stripCell);
+    row.append(el("span", { class: "figures", text: c.gpa.toFixed(4) + " · " + c.cu + " CU" }));
+    row.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+      box.append(el("div", { class: "tt-title", text: c.key + " · " + c.mods.length + " modules" }));
+      for (const mo of c.mods.slice(0, 8)) ttRow(box, null, mo.name.toLowerCase().slice(0, 30), mo.grade);
+      if (c.mods.length > 8) box.append(el("div", { class: "tt-row" }, el("span", { class: "lbl", text: "+" + (c.mods.length - 8) + " more" })));
+    }));
+    row.addEventListener("pointerleave", hideTip);
+    pDisc.append(row);
+  }
+  grid.append(pDisc);
+
+  /* milestone ladder */
+  const pMile = el("div", { class: "panel span-6" });
+  pMile.append(el("h3", { text: "Milestone ladder" }), el("p", { class: "sub", text: "What each CGPA milestone costs — as a final-semester average over " + P + " CU, or as one-step grade swaps (4-CU B+→A ≈ +" + (2 / base.cumCU).toFixed(4) + ") on past modules." }));
+  const targets = [3.85, 3.88, 3.90, 3.92, 3.95, 4.00].filter(t => t > cgpa + 1e-4).slice(0, 4);
+  const mtbl = el("table", { class: "data" });
+  mtbl.append(el("thead", null, el("tr", null,
+    el("th", { text: "Target" }), el("th", { class: "num", text: "Final-sem avg needed" }),
+    el("th", { class: "num", text: "≈ past swaps" }), el("th", { text: "Verdict" }))));
+  const mtb = el("tbody");
+  for (const t of targets) {
+    const needAvg = (t * (base.cumCU + P) - base.cumPts) / P;
+    const swaps = Math.ceil((t - cgpa) * base.cumCU / 2 - 1e-9);
+    const verdict = needAvg <= 4.0001
+      ? (needAvg <= cgpa ? "cruising distance" : "reachable — " + (LADDER.find(g => gp(g) >= needAvg) || "A") + " average")
+      : "not this semester";
+    mtb.append(el("tr", null,
+      el("td", { class: "mono", text: t.toFixed(2) }),
+      el("td", { class: "num", text: needAvg <= 4.0001 ? needAvg.toFixed(3) : ">4.0" }),
+      el("td", { class: "num", text: String(swaps) }),
+      el("td", { text: verdict })));
+  }
+  mtbl.append(mtb);
+  pMile.append(el("div", { style: "overflow-x:auto" }, mtbl));
+  if (!targets.length) pMile.append(el("div", { class: "fine", text: "You're above every milestone we track. Go outside, touch grass." }));
+  grid.append(pMile);
+
+  /* load-bearing */
+  const pLoad = el("div", { class: "panel span-6" });
+  pLoad.append(el("h3", { text: "Load-bearing semesters" }), el("p", { class: "sub", text: "How much of the CGPA each semester carries (share of graded credit units)." }));
+  const maxShare = Math.max(...sems.map(s => s.gradedCU));
+  for (const s of sems) {
+    const share = s.gradedCU / base.cumCU * 100;
+    const row = el("div", { class: "hbar-row" });
+    row.append(el("div", { class: "nm" }, "Sem " + s.sem, el("span", { class: "g", text: (s.gpa != null ? s.gpa.toFixed(2) : "—") + " GPA" })));
+    const track = el("div", { class: "hbar-track" });
+    track.append(el("div", { class: "hbar", style: "width:" + (s.gradedCU / maxShare * 100) + "%" }));
+    row.append(track, el("div", { class: "v", text: share.toFixed(1) + "%" }));
+    row.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+      box.append(el("div", { class: "tt-title", text: "Semester " + s.sem }));
+      ttRow(box, cssVar("--viz-blue"), "of your CGPA's weight", share.toFixed(1) + "%");
+      ttRow(box, null, "graded credit units", String(s.gradedCU));
+    }));
+    row.addEventListener("pointerleave", hideTip);
+    pLoad.append(row);
+  }
+  grid.append(pLoad);
+
+  /* counterfactuals & tolerances */
+  const pCF = el("div", { class: "panel span-6" });
+  pCF.append(el("h3", { text: "Counterfactuals & tolerances" }));
+  const facts = el("div", { class: "stat-strip", style: "margin-top:10px" });
+  const worst = [...sems].filter(s => s.gpa != null).sort((a, b) => a.gpa - b.gpa)[0];
+  const best = [...sems].filter(s => s.gpa != null).sort((a, b) => b.gpa - a.gpa)[0];
+  const without = s => (base.cumPts - s.pts) / (base.cumCU - s.gradedCU);
+  const fact = (html) => { const f = el("div", { class: "fact" }); f.innerHTML = html; facts.append(f); };
+  if (worst && base.cumCU > worst.gradedCU) fact(`Time machine: erase Sem ${worst.sem} → CGPA <b>${without(worst).toFixed(4)}</b>`);
+  if (best && best !== worst && base.cumCU > best.gradedCU) fact(`Erase your best (Sem ${best.sem}) → <b>${without(best).toFixed(4)}</b>`);
+  if (rebound && rebound.d > 0.0005) fact(`Biggest rebound: <b>+${rebound.d.toFixed(2)}</b> from Sem ${rebound.from.sem} to Sem ${rebound.to.sem}`);
+  for (const T of [3.8, 3.7, 3.5]) {
+    if (cgpa <= T) continue;
+    const x = (base.cumPts + cgpa * P - T * (base.cumCU + P)) / cgpa;
+    const cap = Math.max(0, Math.min(P, Math.floor(x * 2) / 2));
+    fact(`Failure immunity: fail up to <b>${cap} CU</b> next sem (rest at your average) and stay ≥ <b>${T.toFixed(1)}</b>`);
+  }
+  pCF.append(facts);
+  pCF.append(el("p", { class: "fine", style: "margin:10px 0 0", text: "Counterfactuals are for perspective, not planning — the registrar has no delete key." }));
+  grid.append(pCF);
+
+  root.append(grid);
+  requestAnimationFrame(() => {
+    if (dist.tot > 0) histChart(mcBox, monteCarlo(base, blocks, dist, 6000));
+    coneChart(coneBox, sems, proj);
+  });
+}
+
 /* ================= IGP data (AY2025/26 intake — 2026 exercise guide) ================= */
 /* Sources: NTU official IGP PDF (AY2025-26); NUS/SMU consolidated from universities.sg
    & Éclat 2026 guides. 10th/90th percentile poly GPA of admitted students. */
@@ -1319,6 +1644,51 @@ function viewIGP(root) {
     kpi.append(k2);
     board.append(kpi);
 
+    /* eligibility curve + final-semester unlocks */
+    const effTh = c => c.p10 - (S.igp.bonus && c.uni === "NUS" && !c.interview ? NUS_BONUS : 0);
+    const curveGrid = el("div", { class: "grid", style: "margin-bottom:2px" });
+    const pCurve = el("div", { class: "panel span-7" });
+    pCurve.append(el("h3", { text: "Eligibility curve" }),
+      el("p", { class: "sub", text: "Programmes in profile at every GPA — the slope shows why each 0.01 matters around yours." }));
+    const curveBox = el("div", { class: "chart-wrap" });
+    pCurve.append(curveBox);
+    curveGrid.append(pCurve);
+
+    const pUnlock = el("div", { class: "panel span-5" });
+    pUnlock.append(el("h3", { text: "Final-semester unlocks" }));
+    const blocks = plannedBlocks();
+    const P = blocks.reduce((a, b) => a + b, 0);
+    const ceil = (base.cumPts + 4 * P) / (base.cumCU + P);
+    const newly = IGP.filter(c => effTh(c) > base.cgpa + 1e-9 && effTh(c) <= ceil + 1e-9)
+      .sort((a, b) => effTh(a) - effTh(b));
+    const sub = el("p", { class: "sub" });
+    sub.textContent = "A perfect 4.0 across your " + P + " remaining CU lands you at " + ceil.toFixed(4) +
+      (newly.length ? " — newly in profile:" : " — no extra programmes unlock, but every one below gets safer.");
+    pUnlock.append(sub);
+    if (newly.length) {
+      const chips = el("div", { class: "stat-strip" });
+      for (const c of newly) chips.append(el("span", { class: "chip", style: "color:var(--st-good)", text: c.uni + " · " + c.name }));
+      pUnlock.append(chips);
+    }
+    const stillOut = IGP.filter(c => effTh(c) > base.cgpa + 1e-9)
+      .sort((a, b) => effTh(a) - effTh(b)).slice(0, 8);
+    if (stillOut.length) {
+      pUnlock.append(el("hr", { class: "divider" }));
+      pUnlock.append(el("p", { class: "sub", style: "margin-bottom:6px", text: "What each one takes next semester (avg over " + P + " CU, from your transcript CGPA):" }));
+      for (const c of stillOut) {
+        const t = effTh(c);
+        const needAvg = (t * (base.cumCU + P) - base.cumPts) / P;
+        const row = el("div", { class: "sens-row" });
+        row.append(el("span", { style: "min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap", title: c.uni + " " + c.name },
+          c.uni + " · " + c.name + " ", el("span", { class: "gp", text: t.toFixed(2) })));
+        row.append(el("span", { class: "d " + (needAvg <= 4.0001 ? "up" : "down"), text: needAvg <= 4.0001 ? "≥ " + needAvg.toFixed(2) + " avg" : "beyond one sem" }));
+        pUnlock.append(row);
+      }
+    }
+    curveGrid.append(pUnlock);
+    board.append(curveGrid);
+    eligCurve(curveBox, gpa, effTh);
+
     for (const uni of ["NUS", "NTU", "SMU"]) {
       if (S.igp.filter !== "all" && S.igp.filter !== uni) continue;
       const list = IGP.filter(c => c.uni === uni).sort((a, b) => b.p10 - a.p10);
@@ -1334,6 +1704,57 @@ function viewIGP(root) {
 
   function effGPA(gpa, c) {
     return gpa + (S.igp.bonus && c.uni === "NUS" && !c.interview ? NUS_BONUS : 0);
+  }
+
+  function eligCurve(container, gpa, effTh) {
+    container.textContent = "";
+    const W = Math.max(300, container.clientWidth || 560), H = 220;
+    const m = { t: 14, r: 14, b: 26, l: 34 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const lo = 3.1, hi = 4.0, N = IGP.length;
+    const ths = IGP.map(effTh).sort((a, b) => a - b);
+    const count = g => { let n = 0; for (const t of ths) { if (t <= g + 1e-9) n++; else break; } return n; };
+    const X = v => m.l + (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * iw;
+    const Y = n => m.t + (1 - n / N) * ih;
+    const svg = sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Programmes in profile by GPA" });
+    for (const n of [0, 15, 30, 45, N]) {
+      svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(n), y2: Y(n), stroke: "var(--grid)", "stroke-width": 1 }));
+      svg.append(sv("text", { x: m.l - 7, y: Y(n) + 3.5, "text-anchor": "end", style: "font-variant-numeric:tabular-nums" }, String(n)));
+    }
+    for (let v = 3.1; v <= 4.001; v += 0.1) {
+      v = Math.round(v * 10) / 10;
+      svg.append(sv("text", { x: X(v), y: H - 8, "text-anchor": "middle", style: "font-variant-numeric:tabular-nums" }, v.toFixed(1)));
+    }
+    const blue = cssVar("--viz-blue") || "#3987e5";
+    let d = `M${X(lo)} ${Y(count(lo))}`;
+    for (const t of [...new Set(ths)]) {
+      if (t < lo || t > hi) continue;
+      d += ` L${X(t)} ${Y(count(t - 0.0001))} L${X(t)} ${Y(count(t))}`;
+    }
+    d += ` L${X(hi)} ${Y(count(hi))}`;
+    svg.append(sv("path", { d, fill: "none", stroke: blue, "stroke-width": 2, "stroke-linejoin": "round" }));
+    const yourN = count(gpa);
+    svg.append(sv("line", { x1: X(gpa), x2: X(gpa), y1: m.t, y2: m.t + ih, stroke: "var(--accent)", "stroke-width": 1.5 }));
+    svg.append(sv("circle", { cx: X(gpa), cy: Y(yourN), r: 5, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 2 }));
+    const anchorEnd = X(gpa) > W - 120;
+    svg.append(sv("text", { x: X(gpa) + (anchorEnd ? -8 : 8), y: m.t + 10, "text-anchor": anchorEnd ? "end" : "start", class: "lab-strong", style: "font-variant-numeric:tabular-nums" }, "you " + gpa.toFixed(2) + " · " + yourN + " in profile"));
+    const hair = sv("line", { y1: m.t, y2: m.t + ih, stroke: "var(--baseline)", "stroke-width": 1, visibility: "hidden" });
+    svg.append(hair);
+    const hit = sv("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent" });
+    hit.addEventListener("pointermove", e => {
+      const rect = svg.getBoundingClientRect();
+      const g = Math.round((lo + (e.clientX - rect.left - m.l) / iw * (hi - lo)) * 100) / 100;
+      if (g < lo || g > hi) { hair.setAttribute("visibility", "hidden"); hideTip(); return; }
+      hair.setAttribute("x1", X(g)); hair.setAttribute("x2", X(g)); hair.setAttribute("visibility", "visible");
+      showTip(e.clientX, e.clientY, box => {
+        box.append(el("div", { class: "tt-title", text: "GPA " + g.toFixed(2) }));
+        ttRow(box, blue, "programmes in profile", String(count(g)));
+        ttRow(box, cssVar("--accent"), "your gap", fmtD(g - gpa, 2));
+      });
+    });
+    hit.addEventListener("pointerleave", () => { hair.setAttribute("visibility", "hidden"); hideTip(); });
+    svg.append(hit);
+    container.append(svg);
   }
 
   function courseRow(c, gpa) {
@@ -1428,6 +1849,7 @@ function render() {
   document.querySelectorAll("#tabBar .tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === S.view)));
   if (S.view === "overview") viewOverview(root);
   else if (S.view === "lab") viewLab(root);
+  else if (S.view === "intel") viewIntel(root);
   else viewIGP(root);
 }
 
@@ -1468,7 +1890,7 @@ addEventListener("drop", e => {
 
 /* responsive re-render for SVG charts */
 let rsT;
-addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(() => { if (S.view === "overview") render(); }, 160); });
+addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(render, 160); });
 
 /* test hook: parse pre-extracted lines without a PDF (used in CI/self-test) */
 window.__gradeops = { parseTranscript, computeAll, extractPageLines, handleFile, S, mount };
