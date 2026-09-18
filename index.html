@@ -1,0 +1,1480 @@
+<meta charset="utf-8">
+<title>GradeOps</title>
+<style>
+[hidden] { display: none !important; }
+/* =====================================================================
+   GradeOps — NP transcript analytics console
+   Dark-first console: IBM Plex Sans/Mono, violet accent, validated viz.
+   ===================================================================== */
+:root {
+  color-scheme: dark;
+  --bg: #0b0d11;
+  --surface: #13161c;
+  --surface-2: #181c23;
+  --raised: #1e232c;
+  --hover: #232934;
+  --border: #262c36;
+  --border-soft: #1c212a;
+  --text: #e8eaf0;
+  --muted: #98a1b2;
+  --dim: #69727f;
+  --chip: #1c2129;
+  --accent: #8f7dff;
+  --accent-deep: #6a5ae0;
+  --accent-wash: rgba(143,125,255,0.12);
+
+  /* chart marks (validated, documented steps) */
+  --viz-blue: #3987e5;
+  --viz-violet: #9085e9;
+  --viz-gray: #98a1b2;
+  --ord-1: #86b6ef; --ord-2: #5598e7; --ord-3: #2a78d6; --ord-4: #184f95;
+  --grid: #232833;
+  --baseline: #323945;
+
+  /* status (fixed, always icon+label) */
+  --st-good: #0ca30c;
+  --st-warn: #fab219;
+  --st-serious: #ec835a;
+  --st-crit: #d03b3b;
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px;
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 18px 40px -24px rgba(0,0,0,0.7);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #eef0f3; --surface: #ffffff; --surface-2: #fafbfc; --raised: #ffffff;
+    --hover: #f1f3f6; --border: #e2e5ea; --border-soft: #edeff2;
+    --text: #161a21; --muted: #5b6471; --dim: #8a93a1; --chip: #f2f4f7;
+    --accent: #5b4bd4; --accent-deep: #4638b8; --accent-wash: rgba(91,75,212,0.10);
+    --viz-blue: #2a78d6; --viz-violet: #4a3aa7; --viz-gray: #5b6471;
+    --grid: #e7e9ee; --baseline: #d3d7de;
+    --shadow: 0 1px 2px rgba(16,22,30,0.04), 0 12px 28px -20px rgba(16,22,30,0.25);
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef0f3; --surface: #ffffff; --surface-2: #fafbfc; --raised: #ffffff;
+  --hover: #f1f3f6; --border: #e2e5ea; --border-soft: #edeff2;
+  --text: #161a21; --muted: #5b6471; --dim: #8a93a1; --chip: #f2f4f7;
+  --accent: #5b4bd4; --accent-deep: #4638b8; --accent-wash: rgba(91,75,212,0.10);
+  --viz-blue: #2a78d6; --viz-violet: #4a3aa7; --viz-gray: #5b6471;
+  --grid: #e7e9ee; --baseline: #d3d7de;
+  --shadow: 0 1px 2px rgba(16,22,30,0.04), 0 12px 28px -20px rgba(16,22,30,0.25);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0d11; --surface: #13161c; --surface-2: #181c23; --raised: #1e232c;
+  --hover: #232934; --border: #262c36; --border-soft: #1c212a;
+  --text: #e8eaf0; --muted: #98a1b2; --dim: #69727f; --chip: #1c2129;
+  --accent: #8f7dff; --accent-deep: #6a5ae0; --accent-wash: rgba(143,125,255,0.12);
+  --viz-blue: #3987e5; --viz-violet: #9085e9; --viz-gray: #98a1b2;
+  --grid: #232833; --baseline: #323945;
+  --shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 18px 40px -24px rgba(0,0,0,0.7);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: var(--sans); font-size: 14px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-inline: 16px;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+::selection { background: var(--accent-wash); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.mono { font-family: var(--mono); }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding-block: 18px 56px; }
+
+/* ---- header ---- */
+.hdr { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-block: 6px 14px; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand-name { font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: 0.5px; }
+.brand-name .tld { color: var(--accent); }
+.brand-sub { font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: 0.8px; text-transform: uppercase; }
+.hdr-spacer { flex: 1; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.4px;
+  background: var(--chip); border: 1px solid var(--border-soft);
+  border-radius: 999px; padding: 3px 10px; color: var(--muted); white-space: nowrap;
+}
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--st-good); flex: none; }
+.chip.warn .dot { background: var(--st-warn); }
+.btn {
+  background: var(--raised); border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 6px 12px; font-size: 13px; transition: background 140ms var(--ease);
+}
+.btn:hover { background: var(--hover); }
+.btn.primary { background: var(--accent-deep); border-color: transparent; color: #fff; }
+.btn.primary:hover { filter: brightness(1.1); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { background: var(--hover); color: var(--text); }
+.btn.sm { padding: 3px 9px; font-size: 12px; border-radius: 7px; }
+
+/* ---- student strip ---- */
+.student { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.student .id-card {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.student .nm { font-weight: 600; font-size: 15px; }
+.student .crs { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* ---- tabs ---- */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted); padding: 9px 14px 11px; white-space: nowrap;
+  transition: color 140ms var(--ease);
+}
+.tab:hover { color: var(--text); }
+.tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ---- panels ---- */
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+.panel {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--r-md); padding: 16px 18px; box-shadow: var(--shadow);
+  grid-column: span 12; min-width: 0;
+}
+.panel h3 {
+  margin: 0 0 2px; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.panel .sub { font-size: 12px; color: var(--dim); margin: 0 0 12px; }
+@media (min-width: 760px) {
+  .span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; }
+  .span-5 { grid-column: span 5; } .span-6 { grid-column: span 6; }
+  .span-7 { grid-column: span 7; } .span-8 { grid-column: span 8; }
+}
+
+/* ---- KPI tiles ---- */
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-md); padding: 13px 15px; box-shadow: var(--shadow); }
+.kpi .lbl { font-family: var(--mono); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); }
+.kpi .val { font-size: 27px; font-weight: 600; line-height: 1.25; margin-top: 2px; }
+.kpi .val small { font-size: 14px; font-weight: 500; color: var(--muted); }
+.kpi .delta { font-family: var(--mono); font-size: 11px; margin-top: 1px; color: var(--muted); }
+.kpi .delta.up { color: var(--st-good); }
+.kpi.hero { border-color: var(--accent-deep); background: linear-gradient(180deg, var(--accent-wash), transparent 70%), var(--surface); }
+.kpi.hero .val { font-size: 44px; letter-spacing: -0.5px; }
+
+/* ---- charts ---- */
+.chart-wrap { position: relative; }
+svg text { font-family: var(--mono); font-size: 10.5px; fill: var(--dim); }
+svg .lab-strong { fill: var(--text); font-weight: 600; }
+svg .lab-mid { fill: var(--muted); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; flex: none; }
+.key i.line { width: 14px; height: 0; border-top: 2.5px solid; border-radius: 2px; }
+.key i.rect { width: 10px; height: 10px; border-radius: 3px; }
+
+.tooltip {
+  position: fixed; z-index: 50; pointer-events: none;
+  background: var(--raised); border: 1px solid var(--border); border-radius: 9px;
+  padding: 8px 11px; box-shadow: 0 12px 30px -12px rgba(0,0,0,0.55);
+  font-size: 12px; max-width: 280px; display: none;
+}
+.tooltip .tt-title { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+.tooltip .tt-row { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
+.tooltip .tt-row b { font-variant-numeric: tabular-nums; }
+.tooltip .tt-row .k { width: 12px; height: 0; border-top: 2.5px solid; border-radius: 2px; flex: none; }
+.tooltip .tt-row .lbl { color: var(--muted); }
+
+/* HTML bar rows */
+.hbar-row { display: grid; grid-template-columns: minmax(130px, 240px) 1fr auto; gap: 10px; align-items: center; padding-block: 4.5px; }
+.hbar-row .nm { font-size: 12.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbar-row .nm .g { font-family: var(--mono); color: var(--dim); font-size: 11px; margin-left: 6px; }
+.hbar-track { height: 14px; display: flex; align-items: center; }
+.hbar { height: 14px; border-radius: 0 4px 4px 0; background: var(--viz-blue); min-width: 2px; transition: width 300ms var(--ease); }
+.hbar-row .v { font-family: var(--mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .hbar-row { grid-template-columns: 1fr; gap: 3px; } .hbar-row .v { text-align: left; } }
+
+/* stacked mix */
+.mix-row { display: grid; grid-template-columns: 64px 1fr 56px; gap: 10px; align-items: center; padding-block: 5px; }
+.mix-row .sem { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.mix-track { display: flex; gap: 2px; height: 18px; }
+.mix-seg { height: 100%; min-width: 3px; }
+.mix-seg:first-child { border-radius: 4px 0 0 4px; }
+.mix-seg:last-child { border-radius: 0 4px 4px 0; }
+.mix-row .gpa { font-family: var(--mono); font-size: 11.5px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* tables */
+table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.data th {
+  text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--dim); font-weight: 500;
+  padding: 6px 10px; border-bottom: 1px solid var(--border);
+}
+table.data td { padding: 7px 10px; border-bottom: 1px solid var(--border-soft); font-variant-numeric: tabular-nums; }
+table.data td.num, table.data th.num { text-align: right; font-family: var(--mono); font-size: 12px; }
+table.data tr:last-child td { border-bottom: none; }
+
+/* grade pill */
+.gp {
+  display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  border-radius: 6px; padding: 1px 7px; background: var(--chip); border: 1px solid var(--border-soft);
+}
+.gp.g4 { color: var(--accent); border-color: var(--accent-deep); background: var(--accent-wash); }
+.gp.gf { color: var(--st-crit); }
+
+/* ---- upload ---- */
+.dropzone {
+  border: 1.5px dashed var(--border); border-radius: var(--r-lg);
+  padding: 34px 20px; text-align: center; background: var(--surface-2);
+  transition: border-color 140ms var(--ease), background 140ms var(--ease);
+}
+.dropzone.drag { border-color: var(--accent); background: var(--accent-wash); }
+.dropzone .big { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.dropzone .hint { font-size: 12.5px; color: var(--muted); max-width: 460px; margin: 0 auto 14px; }
+.parse-log { font-family: var(--mono); font-size: 11.5px; color: var(--dim); margin-top: 12px; min-height: 17px; }
+.err {
+  background: color-mix(in srgb, var(--st-crit) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--st-crit) 45%, var(--border));
+  color: var(--text); border-radius: var(--r-sm); padding: 10px 13px; font-size: 13px; margin-top: 12px; text-align: left;
+}
+.banner {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--accent-wash); border: 1px solid var(--accent-deep);
+  border-radius: var(--r-sm); padding: 8px 13px; font-size: 13px; margin-bottom: 16px;
+}
+
+/* ---- lab ---- */
+.mod-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-soft); }
+.mod-row:last-child { border-bottom: none; }
+.mod-row .mn { font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mod-row .mc { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+.mod-row.changed .mn { color: var(--accent); }
+select.gsel {
+  background: var(--raised); border: 1px solid var(--border); border-radius: 7px;
+  font-family: var(--mono); font-size: 12px; padding: 3px 6px;
+}
+select.gsel.changed { border-color: var(--accent); color: var(--accent); }
+select.gsel:disabled { opacity: 0.55; }
+.sem-h { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); margin: 14px 0 4px; display: flex; justify-content: space-between; gap: 8px; }
+.sem-h:first-child { margin-top: 0; }
+.sens-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 6.5px 0; border-bottom: 1px solid var(--border-soft); font-size: 12.5px; }
+.sens-row:last-child { border-bottom: none; }
+.sens-row .d { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+.sens-row .d.up { color: var(--st-good); }
+.sens-row .d.down { color: var(--st-serious); }
+.planner-row { display: grid; grid-template-columns: 1fr 76px 84px 30px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.planner-row input, .planner-row select {
+  background: var(--raised); border: 1px solid var(--border); border-radius: 7px; padding: 5px 8px; font-size: 12.5px; min-width: 0;
+}
+input[type="range"] { accent-color: var(--accent); width: 100%; }
+
+/* ---- IGP ---- */
+.igp-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 2px; }
+.seg button {
+  border: none; background: none; border-radius: 7px; padding: 4px 11px;
+  font-size: 12px; color: var(--muted);
+}
+.seg button[aria-pressed="true"] { background: var(--raised); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); cursor: pointer; user-select: none; }
+.toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.uni-h { font-family: var(--mono); font-size: 11.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text); margin: 18px 0 6px; display: flex; align-items: baseline; gap: 10px; }
+.uni-h:first-child { margin-top: 0; }
+.uni-h .cnt { color: var(--dim); font-size: 10.5px; letter-spacing: 0.5px; }
+.course {
+  display: grid; grid-template-columns: minmax(150px, 1.1fr) minmax(120px, 1fr) auto; gap: 12px; align-items: center;
+  padding: 7.5px 10px; border-radius: var(--r-sm); border: 1px solid transparent;
+}
+.course:hover { background: var(--hover); }
+.course .cn { font-size: 13px; min-width: 0; }
+.course .cn .note { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-left: 6px; letter-spacing: 0.3px; }
+.course .figures { font-family: var(--mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.range-strip { position: relative; height: 16px; }
+.range-strip .track { position: absolute; inset: 7px 0; background: var(--grid); border-radius: 2px; }
+.range-strip .band { position: absolute; top: 5px; height: 6px; background: var(--viz-blue); opacity: 0.32; border-radius: 3px; }
+.range-strip .p10 { position: absolute; top: 3px; width: 2.5px; height: 10px; background: var(--viz-blue); border-radius: 1px; }
+.range-strip .you { position: absolute; top: 1px; width: 7px; height: 14px; background: var(--accent); border: 1.5px solid var(--surface); border-radius: 3px; transform: translateX(-50%); }
+.st {
+  display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono);
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; border-radius: 999px; padding: 2px 9px;
+  white-space: nowrap;
+}
+.st.in { color: var(--st-good); background: color-mix(in srgb, var(--st-good) 12%, transparent); }
+.st.edge { color: var(--st-warn); background: color-mix(in srgb, var(--st-warn) 12%, transparent); }
+.st.out { color: var(--dim); background: var(--chip); }
+.unlock { font-size: 11.5px; color: var(--dim); grid-column: 1 / -1; margin-top: -3px; padding-left: 2px; }
+.unlock b { color: var(--muted); font-weight: 500; }
+@media (max-width: 640px) {
+  .course { grid-template-columns: 1fr auto; }
+  .course .strip-cell { display: none; }
+}
+
+.fine { font-size: 11.5px; color: var(--dim); line-height: 1.55; }
+.fine a { color: var(--muted); text-decoration: underline; }
+.divider { border: none; border-top: 1px solid var(--border-soft); margin: 14px 0; }
+.stat-strip { display: flex; gap: 10px; flex-wrap: wrap; }
+.fact { background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--r-sm); padding: 8px 12px; font-size: 12.5px; color: var(--muted); }
+.fact b { color: var(--text); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="shell">
+  <header class="hdr">
+    <div class="brand">
+      <div class="brand-name">grade<span class="tld">.ops</span></div>
+      <div class="brand-sub">NP transcript analytics</div>
+    </div>
+    <div class="hdr-spacer"></div>
+    <span class="chip" id="privacyChip" title="Your PDF is parsed entirely in this browser tab. Nothing is uploaded anywhere."><span class="dot"></span>LOCAL PARSE · NO UPLOAD</span>
+    <span class="chip" id="parityChip" hidden></span>
+    <button class="btn sm" id="replaceBtn" hidden>Replace transcript</button>
+    <button class="btn sm ghost" id="themeBtn" aria-label="Toggle theme">◐ Theme</button>
+  </header>
+
+  <div id="uploadView"></div>
+  <div id="appView" hidden>
+    <div id="sampleBanner" class="banner" hidden>
+      <span style="font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--accent)">SAMPLE DATA</span>
+      <span>This is a fictional transcript so you can explore. Drop your own NP Statement of Results (PDF) anywhere on the page.</span>
+      <button class="btn sm primary" id="bannerUploadBtn">Upload mine</button>
+    </div>
+    <div class="student" id="studentStrip"></div>
+    <nav class="tabs" role="tablist" id="tabBar">
+      <button class="tab" role="tab" data-view="overview" aria-selected="true">Overview</button>
+      <button class="tab" role="tab" data-view="lab" aria-selected="false">GPA Lab</button>
+      <button class="tab" role="tab" data-view="igp" aria-selected="false">Admissions · IGP 2026</button>
+    </nav>
+    <main id="view"></main>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip" role="status"></div>
+<input type="file" id="fileInput" accept="application/pdf,.pdf" hidden>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script>
+"use strict";
+/* ================= theme ================= */
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem("gradeops.theme"); } catch (e) {}
+  if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.dataset.theme ||
+      (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("gradeops.theme", next); } catch (e) {}
+    render();
+  });
+})();
+
+/* ================= grade model (NP) ================= */
+const GRADE_POINTS = { "AD": 4, "A+": 4, "A": 4, "B+": 3.5, "B": 3, "C+": 2.5, "C": 2, "D+": 1.5, "D": 1, "F": 0 };
+const UNGRADED = new Set(["PX", "PM", "EX", "TRF", "ABS", "DB"]);
+const LADDER = ["F", "D", "D+", "C", "C+", "B", "B+", "A"]; // representative letters by grade point
+const GRADE_ORDER = ["AD", "A+", "A", "B+", "B", "C+", "C", "D+", "D", "F"];
+const gp = g => GRADE_POINTS[g];
+const isGraded = g => g in GRADE_POINTS;
+function stepUp(g) { // next grade with a strictly higher point, or null
+  const p = gp(g); if (p == null || p >= 4) return null;
+  for (const cand of LADDER) if (gp(cand) > p) return cand;
+  return null;
+}
+function stepDown(g) {
+  const p = gp(g); if (p == null || p <= 0) return null;
+  let best = null;
+  for (const cand of LADDER) if (gp(cand) < p) best = cand;
+  return best;
+}
+
+/* ================= state ================= */
+const S = {
+  data: null,        // {student:{name,id,course}, semesters:[{sem,exam,cuObtained,printedGPA,printedCGPA,result,modules:[{id,name,cu,grade,attempt}]}], learningUnits:[{minor,name,grade}], sample:bool}
+  overrides: {},     // moduleId -> grade
+  planner: [],       // [{name,cu,grade}]
+  view: "overview",
+  igp: { source: "transcript", bonus: false, custom: 3.80, filter: "all" },
+  distMode: "count",
+};
+
+/* ================= compute ================= */
+function computeAll(data, overrides, planner) {
+  const sems = [];
+  let cumPts = 0, cumCU = 0, cumEarned = 0;
+  for (const s of data.semesters) {
+    let pts = 0, cu = 0, earned = 0;
+    for (const m of s.modules) {
+      const g = (overrides && overrides[m.id]) || m.grade;
+      earned += (g === "F" || g === "ABS" || g === "DB") ? 0 : m.cu;
+      if (isGraded(g)) { pts += gp(g) * m.cu; cu += m.cu; }
+    }
+    cumPts += pts; cumCU += cu; cumEarned += earned;
+    sems.push({
+      ...s, pts, gradedCU: cu, earned,
+      gpa: cu ? pts / cu : null,
+      cgpa: cumCU ? cumPts / cumCU : null,
+    });
+  }
+  let plannedCU = 0, plannedPts = 0;
+  for (const p of (planner || [])) {
+    if (p.cu > 0 && isGraded(p.grade)) { plannedCU += p.cu; plannedPts += gp(p.grade) * p.cu; }
+  }
+  const projected = (cumCU + plannedCU) ? (cumPts + plannedPts) / (cumCU + plannedCU) : null;
+  return { sems, cumPts, cumCU, cumEarned, cgpa: cumCU ? cumPts / cumCU : null, plannedCU, plannedPts, projected };
+}
+const fmt = (v, d = 4) => v == null ? "—" : v.toFixed(d);
+const fmtD = (v, d = 4) => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d);
+
+/* ================= sample data (fictional) ================= */
+function sampleData() {
+  let id = 0;
+  const M = (name, cu, grade, attempt = 1) => ({ id: "s" + (id++), name, cu, grade, attempt });
+  const sems = [
+    { sem: 1, exam: "AUG 2023", result: "Passed", modules: [
+      M("COMPUTING MATHEMATICS", 4, "A"), M("PROGRAMMING I", 5, "B+"),
+      M("CYBER SECURITY FUNDAMENTALS", 2, "A+"), M("DESIGN PRINCIPLES", 2, "B"),
+      M("CONFIDENT COMMUNICATION", 3, "B+"), M("FUNDAMENTALS FOR IT PROFESSIONALS I", 2, "A"),
+      M("HEALTH & WELLNESS", 1, "PX"),
+    ]},
+    { sem: 2, exam: "FEB 2024", result: "Passed", modules: [
+      M("PROGRAMMING II", 4, "A"), M("NETWORKING INFRASTRUCTURE", 4, "B+"),
+      M("CRYPTOGRAPHY", 4, "B"), M("CLIENT-SIDE SCRIPTING", 2, "A"),
+      M("INNOVATION MADE POSSIBLE", 3, "C+"), M("WINDOWS & LINUX SERVER SECURITY", 4, "A"),
+    ]},
+    { sem: 3, exam: "AUG 2024", result: "Passed", modules: [
+      M("ETHICAL HACKING", 4, "A"), M("NETWORK SECURITY", 4, "A"),
+      M("MALWARE ANALYSIS TOOLS & TECHNIQUES", 4, "B+"), M("WEB APPLICATION PEN-TESTING", 4, "A+"),
+      M("FUNDAMENTALS FOR IT PROFESSIONALS II", 2, "A"), M("WORLD ISSUES: A SINGAPORE PERSPECTIVE", 2, "B"),
+    ]},
+    { sem: 4, exam: "FEB 2025", result: "Passed", modules: [
+      M("CYBERSECURITY OPERATIONS & THREAT INTELL", 4, "AD"), M("DIGITAL FORENSICS", 4, "A"),
+      M("CYBER GOVERNANCE, RISK & COMPLIANCE", 4, "B+"), M("AI TOOLS & TECHNIQUES FOR CYBERSECURITY", 4, "A"),
+      M("FUNDAMENTALS FOR IT PROFESSIONALS III", 2, "A+"),
+    ]},
+    { sem: 5, exam: "AUG 2025", result: "Passed", modules: [
+      M("6-MONTH INTERNSHIP", 20, "A"), M("PROJECT ID: CONNECTING THE DOTS", 4, "AD"),
+    ]},
+  ];
+  const data = {
+    student: { name: "SAMPLE STUDENT", id: "S0000000A", course: "CYBERSECURITY & DIGITAL FORENSICS" },
+    semesters: sems,
+    learningUnits: [{ minor: "Minor in Entrepreneurship", name: "ECOMMERCE FOR ENTREPRENEURS", grade: "PX" }],
+    sample: true,
+  };
+  const c = computeAll(data, null, null);
+  data.semesters.forEach((s, i) => { s.printedGPA = c.sems[i].gpa; s.printedCGPA = c.sems[i].cgpa; s.cuObtained = c.sems[i].earned; });
+  return data;
+}
+
+/* ================= PDF parsing ================= */
+const GRADE_RX = "A\\+|B\\+|C\\+|D\\+|AD|PX|PM|ABS|DB|EX|TRF|A|B|C|D|F";
+const MODULE_RX = new RegExp("^(.+?)\\s+(\\d+\\.\\d{2})\\s+(" + GRADE_RX + ")\\s+(\\d+)(?:\\s+(.+))?$");
+const LONE_GRADE_RX = new RegExp("^(" + GRADE_RX + ")$");
+const END_GRADE_RX = new RegExp("^(.+?)\\s+(" + GRADE_RX + ")$");
+
+async function extractPageLines(pdf) {
+  const pages = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const rows = new Map(); // yKey -> items
+    for (const it of tc.items) {
+      const str = (it.str || "").trim();
+      if (!str) continue;
+      const x = it.transform[4], y = it.transform[5];
+      let key = null;
+      for (const k of rows.keys()) if (Math.abs(k - y) < 2.5) { key = k; break; }
+      if (key == null) { key = y; rows.set(key, []); }
+      rows.get(key).push({ x, str });
+    }
+    const lines = [...rows.entries()]
+      .sort((a, b) => b[0] - a[0])
+      .map(([, items]) => items.sort((a, b) => a.x - b.x).map(i => i.str).join(" ").replace(/\s+/g, " ").trim())
+      .filter(Boolean);
+    pages.push(lines);
+  }
+  return pages;
+}
+
+function parseTranscript(pages) {
+  const student = { name: null, id: null, course: null };
+  const semMap = new Map();
+  const learningUnits = [];
+  let anySemester = false;
+
+  for (const lines of pages) {
+    const text = lines.join("\n");
+    const grab = rx => { const m = text.match(rx); return m ? m[1].trim() : null; };
+    if (!student.name) student.name = grab(/^NAME\s*:\s*(.+)$/m);
+    if (!student.id) student.id = grab(/STUDENT No\.?\s*:\s*(\S+)/im);
+    if (!student.course) student.course = grab(/^COURSE\s*:\s*(.+)$/m);
+
+    const minor = grab(/^MINOR\s*:\s*(.+)$/m);
+    const semNo = grab(/SEMESTER OF STUDY\s*:\s*(\d+)/);
+
+    if (minor && !semNo) {
+      // learning-unit page: names may wrap, and the grade cell can sit on its own
+      // line vertically BETWEEN the wrapped name lines — so trailing name text
+      // after an emit still belongs to the last unit.
+      let inTable = false, buf = "", lastLU = null;
+      for (const ln of lines) {
+        if (/^LEARNING UNIT/.test(ln)) { inTable = true; continue; }
+        if (/^LEGEND/.test(ln) || /computer generated/i.test(ln)) break;
+        if (!inTable) continue;
+        const lone = ln.match(LONE_GRADE_RX);
+        if (lone && buf) {
+          lastLU = { minor, name: buf.trim(), grade: lone[1] };
+          learningUnits.push(lastLU); buf = ""; continue;
+        }
+        const eg = ln.match(END_GRADE_RX);
+        if (eg && !MODULE_RX.test(ln)) {
+          lastLU = { minor, name: (buf + " " + eg[1]).trim(), grade: eg[2] };
+          learningUnits.push(lastLU); buf = ""; continue;
+        }
+        buf += (buf ? " " : "") + ln;
+      }
+      if (buf && lastLU) lastLU.name = (lastLU.name + " " + buf).trim();
+      continue;
+    }
+    if (!semNo) continue;
+    anySemester = true;
+
+    const sem = {
+      sem: parseInt(semNo, 10),
+      exam: grab(/DATE OF EXAMINATION\s*:\s*([A-Z]{3,9}\s+\d{4})/),
+      cuObtained: parseFloat(grab(/CREDIT UNITS OBTAINED\s*:\s*([\d.]+)/) || "NaN"),
+      printedGPA: parseFloat(grab(/GRADE POINT AVERAGE\s*:\s*([\d.]+)/) || "NaN"),
+      printedCGPA: parseFloat(grab(/CUMULATIVE GPA\s*:\s*([\d.]+)/) || "NaN"),
+      result: grab(/RESULT\s*:\s*(.+)$/m),
+      modules: [],
+    };
+    for (const ln of lines) {
+      if (/^RESULT\s*:/.test(ln) || /^LEGEND/.test(ln)) break;
+      const m = ln.match(MODULE_RX);
+      if (m) sem.modules.push({
+        id: "m" + sem.sem + "_" + sem.modules.length,
+        name: m[1].trim(), cu: parseFloat(m[2]), grade: m[3], attempt: parseInt(m[4], 10),
+        remarks: (m[5] || "").trim() || null,
+      });
+    }
+    if (sem.modules.length) semMap.set(sem.sem, sem);
+  }
+
+  if (!anySemester || semMap.size === 0) {
+    throw new Error("Couldn't find any result pages. This tool reads an NP “Statement of Examination Results” PDF — the one with SEMESTER OF STUDY, module grades and CUMULATIVE GPA on each page.");
+  }
+  const semesters = [...semMap.values()].sort((a, b) => a.sem - b.sem);
+  return { student, semesters, learningUnits, sample: false };
+}
+
+async function handleFile(file) {
+  const log = msg => { const el = document.getElementById("parseLog"); if (el) el.textContent = msg; };
+  const showErr = msg => {
+    let box = document.getElementById("parseErr");
+    if (!box) { S.data = null; mount(); box = document.getElementById("parseErr"); }
+    if (box) { box.textContent = msg; box.hidden = false; }
+    log("");
+  };
+  try {
+    if (!file || !/pdf$/i.test(file.type || "") && !/\.pdf$/i.test(file.name || "")) {
+      showErr("That doesn't look like a PDF. Export your Statement of Examination Results as PDF and drop it here."); return;
+    }
+    if (!window.pdfjsLib) { showErr("PDF engine failed to load — check your connection and reload the page."); return; }
+    log("Reading " + file.name + "…");
+    const buf = await file.arrayBuffer();
+    log("Parsing PDF…");
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    log("Extracting " + pdf.numPages + " page(s)…");
+    const pages = await extractPageLines(pdf);
+    const data = parseTranscript(pages);
+    S.data = data; S.overrides = {}; S.planner = []; S.view = "overview";
+    persist();
+    log("");
+    mount();
+  } catch (e) {
+    if (e && e.name === "PasswordException") {
+      showErr("This PDF is password-protected with a user password. Remove the password and try again.");
+    } else {
+      showErr((e && e.message) || "Couldn't parse that PDF.");
+    }
+  }
+}
+
+/* ================= persistence ================= */
+function persist() {
+  try {
+    if (S.data && !S.data.sample) localStorage.setItem("gradeops.data", JSON.stringify(S.data));
+    localStorage.setItem("gradeops.lab", JSON.stringify({ overrides: S.overrides, planner: S.planner }));
+  } catch (e) {}
+}
+function restore() {
+  try {
+    const d = localStorage.getItem("gradeops.data");
+    if (d) { S.data = JSON.parse(d); }
+    const lab = localStorage.getItem("gradeops.lab");
+    if (lab && S.data) {
+      const l = JSON.parse(lab);
+      S.overrides = l.overrides || {}; S.planner = l.planner || [];
+    }
+  } catch (e) { S.data = null; }
+}
+function clearStored() {
+  try { localStorage.removeItem("gradeops.data"); localStorage.removeItem("gradeops.lab"); } catch (e) {}
+}
+
+/* ================= DOM helpers ================= */
+function el(tag, props, ...kids) {
+  const n = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k === "html") n.innerHTML = v; // static markup only, never user data
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (k === "style") n.style.cssText = v;
+    else n.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null) continue;
+    n.append(kid.nodeType ? kid : document.createTextNode(kid));
+  }
+  return n;
+}
+const svgNS = "http://www.w3.org/2000/svg";
+function sv(tag, attrs, ...kids) {
+  const n = document.createElementNS(svgNS, tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  for (const kid of kids.flat()) if (kid != null) n.append(kid);
+  return n;
+}
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+/* tooltip */
+const tt = document.getElementById("tooltip");
+function showTip(x, y, build) {
+  tt.textContent = ""; build(tt);
+  tt.style.display = "block";
+  const r = tt.getBoundingClientRect();
+  const px = Math.min(Math.max(8, x + 14), innerWidth - r.width - 8);
+  const py = Math.min(Math.max(8, y - r.height - 10), innerHeight - r.height - 8);
+  tt.style.left = px + "px"; tt.style.top = (y - r.height - 12 < 8 ? y + 16 : y - r.height - 12) + "px";
+  tt.style.left = px + "px";
+}
+function hideTip() { tt.style.display = "none"; }
+function ttRow(parent, color, label, value) {
+  const row = el("div", { class: "tt-row" });
+  if (color) row.append(el("span", { class: "k", style: "border-color:" + color }));
+  row.append(el("b", { text: value }), el("span", { class: "lbl", text: label }));
+  parent.append(row);
+}
+
+/* ================= charts ================= */
+function trendChart(container, sems) {
+  container.textContent = "";
+  const W = Math.max(300, container.clientWidth || 600), H = 230;
+  const m = { t: 14, r: 64, b: 26, l: 42 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const xs = sems.map(s => s.sem);
+  const vals = sems.flatMap(s => [s.gpa, s.cgpa]).filter(v => v != null);
+  const lo = Math.max(0, Math.floor((Math.min(...vals) - 0.08) * 10) / 10);
+  const hi = 4.0;
+  const X = i => m.l + (xs.length === 1 ? iw / 2 : (i / (xs.length - 1)) * iw);
+  const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ih;
+  const svg = sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "GPA trend by semester" });
+
+  const ticks = [];
+  for (let v = Math.ceil(lo * 10) / 10; v <= hi + 1e-9; v += 0.1) ticks.push(Math.round(v * 10) / 10);
+  for (const v of ticks) {
+    svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+    svg.append(sv("text", { x: m.l - 8, y: Y(v) + 3.5, "text-anchor": "end", style: "font-variant-numeric:tabular-nums" }, v.toFixed(1)));
+  }
+  svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(lo), y2: Y(lo), stroke: "var(--baseline)", "stroke-width": 1 }));
+  sems.forEach((s, i) => svg.append(sv("text", { x: X(i), y: H - 8, "text-anchor": "middle" }, "S" + s.sem)));
+
+  const path = (get) => {
+    let d = "", pen = false;
+    sems.forEach((s, i) => {
+      const v = get(s);
+      if (v == null) { pen = false; return; }
+      d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " ";
+      pen = true;
+    });
+    return d.trim();
+  };
+  const gray = cssVar("--viz-gray") || "#98a1b2", violet = cssVar("--viz-violet") || "#9085e9";
+  svg.append(sv("path", { d: path(s => s.gpa), fill: "none", stroke: gray, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  svg.append(sv("path", { d: path(s => s.cgpa), fill: "none", stroke: violet, "stroke-width": 2.5, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  sems.forEach((s, i) => {
+    if (s.gpa != null) svg.append(sv("circle", { cx: X(i), cy: Y(s.gpa), r: 3.5, fill: gray, stroke: "var(--surface)", "stroke-width": 2 }));
+    if (s.cgpa != null) svg.append(sv("circle", { cx: X(i), cy: Y(s.cgpa), r: i === sems.length - 1 ? 5 : 4, fill: violet, stroke: "var(--surface)", "stroke-width": 2 }));
+  });
+  const last = sems[sems.length - 1];
+  if (last.cgpa != null) svg.append(sv("text", { x: X(xs.length - 1) + 10, y: Y(last.cgpa) + 3.5, class: "lab-strong", style: "font-variant-numeric:tabular-nums" }, last.cgpa.toFixed(4)));
+  if (last.gpa != null && last.cgpa != null) {
+    const gy = Y(last.gpa), cy2 = Y(last.cgpa);
+    const gLabY = Math.abs(gy - cy2) < 14 ? gy + (gy >= cy2 ? 14 : -10) : gy + 3.5;
+    svg.append(sv("text", { x: X(xs.length - 1) + 10, y: gLabY, class: "lab-mid", style: "font-variant-numeric:tabular-nums" }, last.gpa.toFixed(2)));
+  }
+
+  const hair = sv("line", { y1: m.t, y2: H - m.b, stroke: "var(--baseline)", "stroke-width": 1, visibility: "hidden" });
+  svg.append(hair);
+  const hit = sv("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent" });
+  const move = (cx, cyy) => {
+    const rect = svg.getBoundingClientRect();
+    const rel = cx - rect.left;
+    let idx = 0, best = 1e9;
+    xs.forEach((_, i) => { const d = Math.abs(X(i) - rel); if (d < best) { best = d; idx = i; } });
+    hair.setAttribute("x1", X(idx)); hair.setAttribute("x2", X(idx)); hair.setAttribute("visibility", "visible");
+    const s = sems[idx];
+    showTip(cx, cyy, box => {
+      box.append(el("div", { class: "tt-title", text: "Semester " + s.sem + (s.exam ? " · " + s.exam : "") }));
+      ttRow(box, violet, "cumulative GPA", s.cgpa == null ? "—" : s.cgpa.toFixed(4));
+      ttRow(box, gray, "semester GPA", s.gpa == null ? "—" : s.gpa.toFixed(4));
+    });
+  };
+  hit.addEventListener("pointermove", e => move(e.clientX, e.clientY));
+  hit.addEventListener("pointerleave", () => { hair.setAttribute("visibility", "hidden"); hideTip(); });
+  svg.append(hit);
+  container.append(svg);
+}
+
+function distChart(container, data, mode) {
+  container.textContent = "";
+  const counts = {}; GRADE_ORDER.forEach(g => counts[g] = 0);
+  let ungraded = 0;
+  for (const s of data.semesters) for (const mo of s.modules) {
+    if (isGraded(mo.grade)) counts[mo.grade] += (mode === "cu" ? mo.cu : 1);
+    else ungraded++;
+  }
+  let bins = GRADE_ORDER.map(g => ({ g, v: counts[g] }));
+  while (bins.length > 4 && bins[bins.length - 1].v === 0) bins.pop();
+  const W = Math.max(300, container.clientWidth || 500), H = 210;
+  const m = { t: 20, r: 6, b: 26, l: 6 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const maxV = Math.max(1, ...bins.map(b => b.v));
+  const band = iw / bins.length, bw = Math.min(24, band * 0.55);
+  const svg = sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Grade distribution" });
+  svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih, stroke: "var(--baseline)", "stroke-width": 1 }));
+  const blue = cssVar("--viz-blue") || "#3987e5";
+  bins.forEach((b, i) => {
+    const x = m.l + band * i + (band - bw) / 2;
+    const h = (b.v / maxV) * (ih - 6);
+    const y = m.t + ih - h;
+    if (b.v > 0) {
+      svg.append(sv("path", {
+        d: `M${x} ${m.t + ih} L${x} ${y + 4} Q${x} ${y} ${x + 4} ${y} L${x + bw - 4} ${y} Q${x + bw} ${y} ${x + bw} ${y + 4} L${x + bw} ${m.t + ih} Z`,
+        fill: blue,
+      }));
+      svg.append(sv("text", { x: x + bw / 2, y: y - 6, "text-anchor": "middle", class: "lab-mid", style: "font-variant-numeric:tabular-nums" }, mode === "cu" ? String(Math.round(b.v * 10) / 10) : String(b.v)));
+    }
+    svg.append(sv("text", { x: m.l + band * i + band / 2, y: H - 8, "text-anchor": "middle", class: b.v ? "lab-strong" : "" }, b.g));
+    const hit = sv("rect", { x: m.l + band * i, y: m.t, width: band, height: ih, fill: "transparent" });
+    hit.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+      box.append(el("div", { class: "tt-title", text: "Grade " + b.g }));
+      ttRow(box, blue, mode === "cu" ? "credit units" : "modules", String(Math.round(b.v * 10) / 10));
+    }));
+    hit.addEventListener("pointerleave", hideTip);
+    svg.append(hit);
+  });
+  container.append(svg);
+  if (ungraded) container.append(el("div", { class: "fine", style: "margin-top:4px", text: ungraded + " ungraded pass/fail item(s) (PX) excluded from GPA." }));
+}
+
+const MIX_BINS = [
+  { key: "4.0", label: "4.0 (AD/A+/A)", test: p => p === 4 },
+  { key: "3.5", label: "3.5 (B+)", test: p => p === 3.5 },
+  { key: "3.0", label: "3.0 (B)", test: p => p === 3 },
+  { key: "≤2.5", label: "≤2.5 (C+ and below)", test: p => p < 3 },
+];
+function mixChart(container, sems) {
+  container.textContent = "";
+  const ords = [cssVar("--ord-4"), cssVar("--ord-3"), cssVar("--ord-2"), cssVar("--ord-1")];
+  for (const s of sems) {
+    const total = s.modules.reduce((a, mo) => a + mo.cu, 0);
+    const segs = MIX_BINS.map(b => ({
+      ...b, cu: s.modules.filter(mo => isGraded(mo.grade) && b.test(gp(mo.grade))).reduce((a, mo) => a + mo.cu, 0),
+    }));
+    const ung = s.modules.filter(mo => !isGraded(mo.grade)).reduce((a, mo) => a + mo.cu, 0);
+    const row = el("div", { class: "mix-row" });
+    row.append(el("div", { class: "sem", text: "SEM " + s.sem }));
+    const track = el("div", { class: "mix-track" });
+    segs.forEach((seg, i) => {
+      if (!seg.cu) return;
+      const d = el("div", { class: "mix-seg", style: `flex:${seg.cu};background:${ords[i]}` });
+      d.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+        box.append(el("div", { class: "tt-title", text: "Sem " + s.sem + " · " + seg.label }));
+        ttRow(box, ords[i], "credit units", seg.cu + " of " + total);
+      }));
+      d.addEventListener("pointerleave", hideTip);
+      track.append(d);
+    });
+    if (ung) {
+      const d = el("div", { class: "mix-seg", style: `flex:${ung};background:var(--grid)` });
+      d.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+        box.append(el("div", { class: "tt-title", text: "Sem " + s.sem + " · ungraded (PX)" }));
+        ttRow(box, cssVar("--grid"), "credit units", ung + " of " + total);
+      }));
+      d.addEventListener("pointerleave", hideTip);
+      track.append(d);
+    }
+    row.append(track, el("div", { class: "gpa", text: s.gpa == null ? "—" : s.gpa.toFixed(2) }));
+    container.append(row);
+  }
+  const leg = el("div", { class: "legend" });
+  MIX_BINS.forEach((b, i) => leg.append(el("span", { class: "key" }, el("i", { class: "rect", style: "background:" + ords[i] }), b.label)));
+  leg.append(el("span", { class: "key" }, el("i", { class: "rect", style: "background:var(--grid)" }), "Ungraded"));
+  container.append(leg);
+}
+
+function damageChart(container, data, totalGradedCU) {
+  container.textContent = "";
+  const rows = [];
+  for (const s of data.semesters) for (const mo of s.modules) {
+    if (!isGraded(mo.grade)) continue;
+    const loss = (4 - gp(mo.grade)) * mo.cu;
+    if (loss > 0) rows.push({ ...mo, sem: s.sem, loss, impact: loss / totalGradedCU });
+  }
+  rows.sort((a, b) => b.loss - a.loss);
+  if (!rows.length) {
+    container.append(el("div", { class: "fine", text: "Nothing lost — every graded credit unit is at 4.0. Flawless run." }));
+    return { rows, total: 0 };
+  }
+  const maxLoss = rows[0].loss;
+  for (const r of rows) {
+    const row = el("div", { class: "hbar-row" });
+    row.append(el("div", { class: "nm", title: r.name }, r.name, el("span", { class: "g", text: r.grade + " · " + r.cu + "CU" })));
+    const track = el("div", { class: "hbar-track" });
+    const bar = el("div", { class: "hbar", style: "width:" + (r.loss / maxLoss * 100) + "%" });
+    track.append(bar);
+    row.append(track, el("div", { class: "v", text: "−" + r.impact.toFixed(4) }));
+    row.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+      box.append(el("div", { class: "tt-title", text: r.name }));
+      ttRow(box, cssVar("--viz-blue"), "CGPA held back by", r.impact.toFixed(4));
+      ttRow(box, null, "grade points below 4.0", r.loss.toFixed(1) + " pt·CU");
+      ttRow(box, null, "semester", "Sem " + r.sem);
+    }));
+    row.addEventListener("pointerleave", hideTip);
+    container.append(row);
+  }
+  const total = rows.reduce((a, r) => a + r.impact, 0);
+  return { rows, total };
+}
+
+/* ================= views ================= */
+function studentStrip() {
+  const c = computeAll(S.data, null, null);
+  const wrap = document.getElementById("studentStrip");
+  wrap.textContent = "";
+  const st = S.data.student;
+  wrap.append(el("div", { class: "id-card" },
+    el("div", { class: "nm", text: st.name || "Student" }),
+    el("div", { class: "crs", text: [st.course, st.id].filter(Boolean).join(" · ") }),
+  ));
+  const latest = c.sems[c.sems.length - 1];
+  wrap.append(el("span", { class: "chip" }, `${c.sems.length} SEMESTERS · ${latest.exam || ""}`));
+  for (const lu of S.data.learningUnits || []) {
+    wrap.append(el("span", { class: "chip", title: lu.name + " — " + lu.grade }, "◆ " + lu.minor.replace(/^Minor in\s*/i, "").toUpperCase()));
+  }
+  // parity chip
+  const chip = document.getElementById("parityChip");
+  const printed = latest.printedCGPA;
+  chip.hidden = false; chip.textContent = "";
+  if (printed != null && !isNaN(printed) && Math.abs(printed - c.cgpa) < 0.00005) {
+    chip.className = "chip";
+    chip.append(el("span", { class: "dot" }), "PARITY ✓ CGPA " + printed.toFixed(4));
+    chip.title = "Recomputed CGPA matches the transcript's printed CUMULATIVE GPA exactly.";
+  } else if (printed != null && !isNaN(printed)) {
+    chip.className = "chip warn";
+    chip.append(el("span", { class: "dot" }), `PARITY Δ printed ${printed.toFixed(4)} vs calc ${c.cgpa.toFixed(4)}`);
+    chip.title = "Recomputed CGPA differs from the printed value — check for TRF/EX or unusual grades.";
+  } else chip.hidden = true;
+}
+
+function viewOverview(root) {
+  const c = computeAll(S.data, null, null);
+  const latest = c.sems[c.sems.length - 1];
+  const prev = c.sems[c.sems.length - 2];
+
+  // facts
+  let mods = 0, graded = 0, dist = 0, aCU = 0;
+  const gradeTally = {};
+  for (const s of c.sems) for (const mo of s.modules) {
+    mods++;
+    if (isGraded(mo.grade)) {
+      graded++;
+      gradeTally[mo.grade] = (gradeTally[mo.grade] || 0) + 1;
+      if (gp(mo.grade) === 4) aCU += mo.cu;
+      if (mo.grade === "AD") dist++;
+    }
+  }
+  const commonGrade = Object.entries(gradeTally).sort((a, b) => b[1] - a[1])[0];
+  const bestSem = [...c.sems].sort((a, b) => (b.gpa ?? 0) - (a.gpa ?? 0))[0];
+  const lowSem = [...c.sems].sort((a, b) => (a.gpa ?? 9) - (b.gpa ?? 9))[0];
+
+  const kpis = el("div", { class: "kpis" });
+  const kpi = (lbl, val, extra, hero) => {
+    const k = el("div", { class: "kpi" + (hero ? " hero" : "") });
+    k.append(el("div", { class: "lbl", text: lbl }));
+    const v = el("div", { class: "val" }); v.append(...val); k.append(v);
+    if (extra) k.append(extra);
+    kpis.append(k);
+  };
+  kpi("Cumulative GPA", [c.cgpa.toFixed(4)], el("div", { class: "delta", text: "of 4.0000 · " + c.cumCU + " graded CU" }), true);
+  kpi("Latest sem GPA", [latest.gpa == null ? "—" : latest.gpa.toFixed(2)],
+    prev && latest.gpa != null && prev.gpa != null
+      ? el("div", { class: "delta" + (latest.gpa >= prev.gpa ? " up" : ""), text: fmtD(latest.gpa - prev.gpa, 2) + " vs Sem " + prev.sem })
+      : null);
+  kpi("Credit units earned", [String(c.cumEarned)], el("div", { class: "delta", text: c.cumCU + " count toward GPA" }));
+  kpi("Distinctions", [String(dist)], el("div", { class: "delta", text: dist ? "grade AD modules" : "none yet" }));
+  kpi("CU at grade A or better", [Math.round(aCU / c.cumCU * 100) + "%"], el("div", { class: "delta", text: aCU + " of " + c.cumCU + " CU" }));
+  root.append(kpis);
+
+  const grid = el("div", { class: "grid" });
+
+  const pTrend = el("div", { class: "panel span-7" });
+  pTrend.append(el("h3", { text: "GPA trajectory" }), el("p", { class: "sub", text: "Cumulative GPA against each semester's GPA." }));
+  const trendBox = el("div", { class: "chart-wrap" });
+  pTrend.append(trendBox);
+  const leg = el("div", { class: "legend" });
+  leg.append(
+    el("span", { class: "key" }, el("i", { class: "line", style: "border-color:var(--viz-violet)" }), "Cumulative GPA"),
+    el("span", { class: "key" }, el("i", { class: "line", style: "border-color:var(--viz-gray)" }), "Semester GPA"),
+  );
+  pTrend.append(leg);
+  grid.append(pTrend);
+
+  const pDist = el("div", { class: "panel span-5" });
+  const distHead = el("h3", { text: "Grade distribution" });
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "Distribution unit" });
+  const mkSeg = (label, mode) => {
+    const b = el("button", { text: label, "aria-pressed": String(S.distMode === mode) });
+    b.addEventListener("click", () => { S.distMode = mode; render(); });
+    return b;
+  };
+  seg.append(mkSeg("Modules", "count"), mkSeg("Credit units", "cu"));
+  distHead.append(el("span", { style: "flex:1" }), seg);
+  pDist.append(distHead, el("p", { class: "sub", text: "Every graded result across the diploma." }));
+  const distBox = el("div", { class: "chart-wrap" });
+  pDist.append(distBox);
+  grid.append(pDist);
+
+  const pMix = el("div", { class: "panel span-6" });
+  pMix.append(el("h3", { text: "Grade mix by semester" }), el("p", { class: "sub", text: "Share of each semester's credit units by grade point." }));
+  const mixBox = el("div");
+  pMix.append(mixBox);
+  grid.append(pMix);
+
+  const pDmg = el("div", { class: "panel span-6" });
+  pDmg.append(el("h3", { text: "GPA damage report" }));
+  const dmgSub = el("p", { class: "sub" });
+  pDmg.append(dmgSub);
+  const dmgBox = el("div");
+  pDmg.append(dmgBox);
+  grid.append(pDmg);
+
+  const pTable = el("div", { class: "panel span-7" });
+  pTable.append(el("h3", { text: "Semester ledger" }));
+  const tbl = el("table", { class: "data" });
+  tbl.append(el("thead", null, el("tr", null,
+    el("th", { text: "Sem" }), el("th", { text: "Exam" }),
+    el("th", { class: "num", text: "CU" }), el("th", { class: "num", text: "Sem GPA" }),
+    el("th", { class: "num", text: "CGPA" }), el("th", { text: "Result" }),
+  )));
+  const tb = el("tbody");
+  for (const s of c.sems) tb.append(el("tr", null,
+    el("td", { class: "mono", text: "S" + s.sem }),
+    el("td", { text: s.exam || "—" }),
+    el("td", { class: "num", text: String(s.earned) }),
+    el("td", { class: "num", text: s.gpa == null ? "—" : s.gpa.toFixed(4) }),
+    el("td", { class: "num", text: s.cgpa.toFixed(4) }),
+    el("td", { text: s.result || "—" }),
+  ));
+  tbl.append(tb);
+  pTable.append(el("div", { style: "overflow-x:auto" }, tbl));
+  grid.append(pTable);
+
+  const pFacts = el("div", { class: "panel span-5" });
+  pFacts.append(el("h3", { text: "Signals" }));
+  const facts = el("div", { class: "stat-strip", style: "margin-top:10px" });
+  const fact = (html) => { const f = el("div", { class: "fact" }); f.innerHTML = html; facts.append(f); };
+  fact(`Best semester: <b>Sem ${bestSem.sem}</b> at <b>${bestSem.gpa.toFixed(2)}</b>`);
+  fact(`Toughest: <b>Sem ${lowSem.sem}</b> at <b>${lowSem.gpa.toFixed(2)}</b>`);
+  if (commonGrade) fact(`Most common grade: <b>${commonGrade[0]}</b> ×${commonGrade[1]}`);
+  fact(`<b>${mods}</b> modules total, <b>${graded}</b> graded`);
+  if (latest.gpa === 4) fact(`Latest semester was a <b>perfect 4.0</b>`);
+  const climb = c.cgpa - Math.min(...c.sems.map(s => s.cgpa));
+  if (climb > 0.0005) fact(`CGPA recovered <b>+${climb.toFixed(4)}</b> from its lowest point`);
+  pFacts.append(facts);
+  grid.append(pFacts);
+
+  root.append(grid);
+
+  requestAnimationFrame(() => {
+    trendChart(trendBox, c.sems);
+    distChart(distBox, S.data, S.distMode);
+    mixChart(mixBox, c.sems);
+    const { total } = damageChart(dmgBox, S.data, c.cumCU);
+    dmgSub.textContent = total > 0
+      ? `Where the ${(4 - c.cgpa).toFixed(4)} below a perfect 4.0 went — CGPA impact per module.`
+      : "CGPA impact per module below 4.0.";
+  });
+}
+
+function viewLab(root) {
+  const base = computeAll(S.data, null, null);
+  const sim = computeAll(S.data, S.overrides, S.planner);
+  const changed = Object.keys(S.overrides).length > 0 || S.planner.some(p => p.cu > 0);
+
+  const kpis = el("div", { class: "kpis" });
+  const heroK = el("div", { class: "kpi hero" });
+  heroK.append(el("div", { class: "lbl", text: S.planner.some(p => p.cu > 0) ? "Simulated CGPA (incl. planned)" : "Simulated CGPA" }));
+  heroK.append(el("div", { class: "val", text: (S.planner.some(p => p.cu > 0) ? sim.projected : sim.cgpa).toFixed(4) }));
+  const simVal = S.planner.some(p => p.cu > 0) ? sim.projected : sim.cgpa;
+  const d = simVal - base.cgpa;
+  heroK.append(el("div", { class: "delta" + (d >= 0 ? " up" : ""), text: changed ? fmtD(d) + " vs transcript " + base.cgpa.toFixed(4) : "matches transcript — change a grade below" }));
+  kpis.append(heroK);
+  const k2 = el("div", { class: "kpi" });
+  k2.append(el("div", { class: "lbl", text: "Transcript CGPA" }), el("div", { class: "val", text: base.cgpa.toFixed(4) }),
+    el("div", { class: "delta", text: base.cumCU + " graded CU banked" }));
+  kpis.append(k2);
+  const k3 = el("div", { class: "kpi" });
+  k3.append(el("div", { class: "lbl", text: "Planned credit units" }), el("div", { class: "val", text: String(sim.plannedCU) }),
+    el("div", { class: "delta", text: sim.plannedCU ? "avg " + (sim.plannedPts / sim.plannedCU).toFixed(2) + " grade points" : "add final-semester modules below" }));
+  kpis.append(k3);
+  root.append(kpis);
+
+  const grid = el("div", { class: "grid" });
+
+  /* module editor */
+  const pMods = el("div", { class: "panel span-7" });
+  const h = el("h3", { text: "What-if grade editor" });
+  if (changed) {
+    const rst = el("button", { class: "btn sm ghost", text: "Reset all" });
+    rst.addEventListener("click", () => { S.overrides = {}; S.planner = []; persist(); render(); });
+    h.append(el("span", { style: "flex:1" }), rst);
+  }
+  pMods.append(h, el("p", { class: "sub", text: "Swap any grade to see the CGPA that would have printed. Pass/fail items are locked." }));
+  for (const s of S.data.semesters) {
+    const simSem = sim.sems.find(x => x.sem === s.sem);
+    pMods.append(el("div", { class: "sem-h" },
+      el("span", { text: "Semester " + s.sem + (s.exam ? " · " + s.exam : "") }),
+      el("span", { class: "tnum", text: "GPA " + (simSem.gpa == null ? "—" : simSem.gpa.toFixed(4)) }),
+    ));
+    for (const mo of s.modules) {
+      const cur = S.overrides[mo.id] || mo.grade;
+      const row = el("div", { class: "mod-row" + (S.overrides[mo.id] ? " changed" : "") });
+      row.append(el("div", { class: "mn", title: mo.name }, mo.name,
+        mo.attempt > 1 ? el("span", { class: "gp", style: "margin-left:6px", text: "attempt " + mo.attempt }) : null));
+      row.append(el("div", { class: "mc", text: mo.cu + " CU" }));
+      const sel = el("select", { class: "gsel" + (S.overrides[mo.id] ? " changed" : ""), "aria-label": "Grade for " + mo.name });
+      if (isGraded(mo.grade)) {
+        for (const g of GRADE_ORDER) sel.append(el("option", { value: g, text: g + (g === mo.grade ? " •" : "") }));
+        sel.value = cur;
+        sel.addEventListener("change", () => {
+          if (sel.value === mo.grade) delete S.overrides[mo.id];
+          else S.overrides[mo.id] = sel.value;
+          persist(); render();
+        });
+      } else {
+        sel.append(el("option", { text: mo.grade }));
+        sel.disabled = true;
+      }
+      row.append(sel);
+      pMods.append(row);
+    }
+  }
+  grid.append(pMods);
+
+  const rightCol = el("div", { class: "panel span-5", style: "align-self:start" });
+  rightCol.append(el("h3", { text: "One grade different" }));
+  rightCol.append(el("p", { class: "sub", text: "The swing each single result carries — what your CGPA becomes if one module lands a step higher or lower." }));
+  const sens = [];
+  for (const s of S.data.semesters) for (const mo of s.modules) {
+    if (!isGraded(mo.grade)) continue;
+    const up = stepUp(mo.grade), down = stepDown(mo.grade);
+    if (up) sens.push({ mo, dir: "up", to: up, d: mo.cu * (gp(up) - gp(mo.grade)) / base.cumCU });
+    if (down) sens.push({ mo, dir: "down", to: down, d: mo.cu * (gp(down) - gp(mo.grade)) / base.cumCU });
+  }
+  sens.sort((a, b) => Math.abs(b.d) - Math.abs(a.d));
+  const ups = sens.filter(x => x.dir === "up").slice(0, 6);
+  const downs = sens.filter(x => x.dir === "down").slice(0, 3);
+  if (!ups.length) rightCol.append(el("div", { class: "fine", text: "Every graded module already sits at 4.0 — nothing left to raise." }));
+  for (const x of [...ups, ...downs]) {
+    const row = el("div", { class: "sens-row" });
+    row.append(el("span", { style: "min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap", title: x.mo.name },
+      x.mo.name + " ", el("span", { class: "gp", text: x.mo.grade + "→" + x.to })));
+    row.append(el("span", { class: "d " + x.dir, text: (base.cgpa + x.d).toFixed(4) + " (" + fmtD(x.d) + ")" }));
+    rightCol.append(row);
+  }
+
+  rightCol.append(el("hr", { class: "divider" }));
+  rightCol.append(el("h3", { text: "Final semester projection" }));
+  rightCol.append(el("p", { class: "sub", text: "Add the modules you still have to take and set target grades." }));
+  const planBox = el("div");
+  const renderPlanner = () => {
+    planBox.textContent = "";
+    S.planner.forEach((p, i) => {
+      const row = el("div", { class: "planner-row" });
+      const nameIn = el("input", { type: "text", value: p.name, placeholder: "Module " + (i + 1), "aria-label": "Planned module name" });
+      nameIn.addEventListener("change", () => { p.name = nameIn.value; persist(); });
+      const cuWrap = el("div", { style: "display:flex;align-items:center;gap:5px;min-width:0" });
+      const cuIn = el("input", { type: "number", min: "0.5", max: "40", step: "0.5", value: String(p.cu), inputmode: "decimal", "aria-label": "Credit units", style: "width:100%" });
+      cuIn.addEventListener("change", () => {
+        p.cu = Math.min(40, Math.max(0.5, parseFloat(cuIn.value) || 0.5));
+        persist(); render();
+      });
+      cuWrap.append(cuIn, el("span", { class: "mono", style: "font-size:10.5px;color:var(--dim)", text: "CU" }));
+      const gSel = el("select", { "aria-label": "Expected grade" });
+      GRADE_ORDER.forEach(g => gSel.append(el("option", { value: g, text: g })));
+      gSel.value = p.grade;
+      gSel.addEventListener("change", () => { p.grade = gSel.value; persist(); render(); });
+      const rm = el("button", { class: "btn sm ghost", text: "✕", "aria-label": "Remove planned module" });
+      rm.addEventListener("click", () => { S.planner.splice(i, 1); persist(); render(); });
+      row.append(nameIn, cuWrap, gSel, rm);
+      planBox.append(row);
+    });
+  };
+  renderPlanner();
+  rightCol.append(planBox);
+  const addBtn = el("button", { class: "btn sm", text: "+ Add module" });
+  addBtn.addEventListener("click", () => { S.planner.push({ name: "", cu: 4, grade: "A" }); persist(); render(); });
+  rightCol.append(el("div", { style: "display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" }, addBtn));
+  if (sim.plannedCU > 0) {
+    rightCol.append(el("div", { class: "fact", style: "margin-top:10px" },
+      "Projected graduating CGPA: ", el("b", { class: "tnum", text: sim.projected.toFixed(4) })));
+  }
+
+  rightCol.append(el("hr", { class: "divider" }));
+  rightCol.append(el("h3", { text: "Target solver" }));
+  const tWrap = el("div");
+  const targetRow = el("div", { style: "display:flex;align-items:center;gap:12px;margin-top:10px" });
+  const slider = el("input", { type: "range", min: "3.0", max: "4.0", step: "0.01", value: String(S.targetGPA || 3.9), "aria-label": "Target CGPA" });
+  const tVal = el("span", { class: "mono tnum", style: "font-weight:600;min-width:44px", text: (S.targetGPA || 3.9).toFixed(2) });
+  targetRow.append(slider, tVal);
+  const answer = el("p", { class: "fine", style: "margin:8px 0 0" });
+  const solve = () => {
+    const t = parseFloat(slider.value); tVal.textContent = t.toFixed(2);
+    const cu = sim.plannedCU || 20;
+    const needAvg = (t * (base.cumCU + cu) - base.cumPts) / cu;
+    if (needAvg <= 0) answer.textContent = `Already above ${t.toFixed(2)} — any pass keeps you there.`;
+    else if (needAvg > 4) answer.textContent = `Out of reach: your remaining ${cu} CU would need a ${needAvg.toFixed(2)} average (max 4.0).`;
+    else {
+      const letter = LADDER.find(g => gp(g) >= needAvg) || "A";
+      answer.textContent = `To graduate at ${t.toFixed(2)}: average ≥ ${needAvg.toFixed(3)} grade points over your ${sim.plannedCU ? "planned" : "assumed"} ${cu} CU — roughly ${letter} or better on everything.`;
+    }
+  };
+  slider.addEventListener("input", () => { S.targetGPA = parseFloat(slider.value); solve(); });
+  solve();
+  tWrap.append(targetRow, answer);
+  rightCol.append(tWrap);
+
+  grid.append(rightCol);
+  root.append(grid);
+}
+
+/* ================= IGP data (AY2025/26 intake — 2026 exercise guide) ================= */
+/* Sources: NTU official IGP PDF (AY2025-26); NUS/SMU consolidated from universities.sg
+   & Éclat 2026 guides. 10th/90th percentile poly GPA of admitted students. */
+const IGP = [
+  // uni, programme, p10, p90, interview/assessment
+  ["NUS", "Pharmaceutical Science", 3.93, null, false],
+  ["NUS", "Information Security", 3.88, null, false],
+  ["NUS", "Medicine", 3.87, 3.99, true],
+  ["NUS", "Computer Science", 3.81, 3.98, false],
+  ["NUS", "Computer Engineering", 3.81, null, false],
+  ["NUS", "Business Analytics", 3.75, 3.98, false],
+  ["NUS", "Pharmacy", 3.73, null, false],
+  ["NUS", "Business Artificial Intelligence Systems", 3.71, null, false],
+  ["NUS", "Environmental Studies", 3.67, null, false],
+  ["NUS", "Food Science and Technology", 3.64, null, false],
+  ["NUS", "Humanities and Sciences (CHS)", 3.63, null, false],
+  ["NUS", "Business Administration", 3.61, 3.94, false],
+  ["NUS", "Engineering (common)", 3.57, 3.94, false],
+  ["NUS", "Industrial Design", 3.56, null, true],
+  ["NUS", "Landscape Architecture", 3.37, null, true],
+  ["NUS", "Architecture", 3.27, 3.88, true],
+  ["NUS", "Nursing", 3.18, 3.77, true],
+  ["NTU", "Data Science & Artificial Intelligence", 3.89, 4.00, false],
+  ["NTU", "Double Major Programmes (Science)", 3.82, 3.99, true],
+  ["NTU", "Computer Science", 3.78, 3.98, false],
+  ["NTU", "Aerospace Engineering", 3.72, 3.96, false],
+  ["NTU", "Applied Computing in Finance", 3.72, 3.94, true],
+  ["NTU", "Robotics", 3.70, 3.93, false],
+  ["NTU", "Computer Engineering", 3.66, 3.95, false],
+  ["NTU", "Communication Studies", 3.66, 3.91, true],
+  ["NTU", "Business", 3.65, 3.91, true],
+  ["NTU", "Psychology", 3.64, 3.90, false],
+  ["NTU", "Biological Sciences", 3.64, 3.97, true],
+  ["NTU", "Accountancy", 3.63, 3.92, true],
+  ["NTU", "Economics", 3.60, 3.86, false],
+  ["NTU", "Public Policy & Global Affairs", 3.60, 3.86, false],
+  ["NTU", "Environmental Engineering", 3.59, 3.87, false],
+  ["NTU", "Maritime Studies", 3.59, 3.94, false],
+  ["NTU", "Sociology", 3.59, 3.79, false],
+  ["NTU", "Information Engineering & Media", 3.57, 3.80, false],
+  ["NTU", "Bioengineering", 3.56, 3.88, false],
+  ["NTU", "Linguistics & Multilingual Studies", 3.54, 3.78, true],
+  ["NTU", "SOH Double Major Programmes", 3.51, 3.91, true],
+  ["NTU", "Chemical & Biomolecular Engineering", 3.50, 3.92, false],
+  ["NTU", "Chemistry & Biological Chemistry", 3.50, 3.96, false],
+  ["NTU", "Mechanical Engineering", 3.49, 3.91, false],
+  ["NTU", "Civil Engineering", 3.48, 3.94, false],
+  ["NTU", "Electrical & Electronic Engineering", 3.48, 3.92, false],
+  ["NTU", "Sport Science & Management", 3.47, 3.75, true],
+  ["NTU", "Art, Design & Media", 3.43, 3.89, true],
+  ["NTU", "Materials Engineering", 3.43, 3.85, false],
+  ["NTU", "Philosophy", 3.43, 3.62, true],
+  ["NTU", "Mathematical Sciences", 3.42, 3.87, true],
+  ["NTU", "Physics / Applied Physics", 3.42, 3.89, true],
+  ["NTU", "Chinese", 3.41, 3.72, true],
+  ["NTU", "History", 3.41, 3.61, true],
+  ["NTU", "English", 3.38, 3.58, true],
+  ["SMU", "Computer Science", 3.80, 3.98, false],
+  ["SMU", "Business Management", 3.78, 3.95, false],
+  ["SMU", "Law", 3.73, null, false],
+  ["SMU", "Integrative Studies (Deferred Declaration)", 3.73, null, false],
+  ["SMU", "Accountancy", 3.71, 3.94, false],
+  ["SMU", "Software Engineering", 3.67, 3.93, false],
+  ["SMU", "Economics", 3.65, 3.91, false],
+  ["SMU", "Social Sciences", 3.65, null, false],
+  ["SMU", "Information Systems", 3.61, 3.89, false],
+].map(([uni, name, p10, p90, interview], i) => ({ id: i, uni, name, p10, p90, interview }));
+const NUS_BONUS = 0.04;
+
+function viewIGP(root) {
+  const base = computeAll(S.data, null, null);
+  const sim = computeAll(S.data, S.overrides, S.planner);
+  const simVal = S.planner.some(p => p.cu > 0) ? sim.projected : sim.cgpa;
+  const src = S.igp.source;
+  const myGPA = src === "transcript" ? base.cgpa : src === "lab" ? simVal : S.igp.custom;
+
+  const controls = el("div", { class: "igp-controls" });
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "GPA source" });
+  const opt = (label, key) => {
+    const b = el("button", { text: label, "aria-pressed": String(src === key) });
+    b.addEventListener("click", () => { S.igp.source = key; render(); });
+    return b;
+  };
+  seg.append(opt("Transcript " + base.cgpa.toFixed(2), "transcript"), opt("Lab sim " + (simVal ?? 0).toFixed(2), "lab"), opt("Custom", "custom"));
+  controls.append(seg);
+  if (src === "custom") {
+    const slider = el("input", { type: "range", min: "3.0", max: "4.0", step: "0.01", value: String(S.igp.custom), style: "width:130px", "aria-label": "Custom GPA" });
+    const v = el("span", { class: "mono tnum", style: "font-weight:600", text: S.igp.custom.toFixed(2) });
+    slider.addEventListener("input", () => { S.igp.custom = parseFloat(slider.value); v.textContent = S.igp.custom.toFixed(2); renderBoard(); });
+    controls.append(slider, v);
+  }
+  const bonusLbl = el("label", { class: "toggle" });
+  const bonusCb = el("input", { type: "checkbox" });
+  bonusCb.checked = S.igp.bonus;
+  bonusCb.addEventListener("change", () => { S.igp.bonus = bonusCb.checked; renderBoard(); });
+  bonusLbl.append(bonusCb, "NUS first-choice bonus (+0.04)");
+  controls.append(bonusLbl);
+  const uniSeg = el("div", { class: "seg", role: "group", "aria-label": "University filter" });
+  const uopt = (label, key) => {
+    const b = el("button", { text: label, "aria-pressed": String(S.igp.filter === key) });
+    b.addEventListener("click", () => { S.igp.filter = key; renderBoard(); [...uniSeg.children].forEach(c => c.setAttribute("aria-pressed", String(c === b))); });
+    return b;
+  };
+  uniSeg.append(uopt("All", "all"), uopt("NUS", "NUS"), uopt("NTU", "NTU"), uopt("SMU", "SMU"));
+  controls.append(uniSeg);
+  root.append(controls);
+
+  const board = el("div");
+  root.append(board);
+
+  const sensUp = [];
+  for (const s of S.data.semesters) for (const mo of s.modules) {
+    if (!isGraded(mo.grade)) continue;
+    const up = stepUp(mo.grade);
+    if (up) sensUp.push({ mo, to: up, d: mo.cu * (gp(up) - gp(mo.grade)) / base.cumCU });
+  }
+  sensUp.sort((a, b) => a.d - b.d);
+
+  function renderBoard() {
+    board.textContent = "";
+    const gpa = S.igp.source === "custom" ? S.igp.custom : myGPA;
+    const kpi = el("div", { class: "kpis" });
+    const k = el("div", { class: "kpi hero" });
+    k.append(el("div", { class: "lbl", text: "GPA being assessed" }), el("div", { class: "val", text: gpa.toFixed(4) }));
+    const inCount = IGP.filter(c => effGPA(gpa, c) >= c.p10).length;
+    k.append(el("div", { class: "delta", text: inCount + " of " + IGP.length + " listed programmes in profile" }));
+    kpi.append(k);
+    const k2 = el("div", { class: "kpi" });
+    const edge = IGP.filter(c => { const e = effGPA(gpa, c); return e < c.p10 && e >= c.p10 - 0.05; });
+    k2.append(el("div", { class: "lbl", text: "Borderline (within 0.05)" }), el("div", { class: "val", text: String(edge.length) }),
+      el("div", { class: "delta", text: edge.length ? edge.slice(0, 2).map(c => c.uni + " " + c.name).join(" · ") : "—" }));
+    kpi.append(k2);
+    board.append(kpi);
+
+    for (const uni of ["NUS", "NTU", "SMU"]) {
+      if (S.igp.filter !== "all" && S.igp.filter !== uni) continue;
+      const list = IGP.filter(c => c.uni === uni).sort((a, b) => b.p10 - a.p10);
+      const inN = list.filter(c => effGPA(gpa, c) >= c.p10).length;
+      board.append(el("div", { class: "uni-h" }, uni, el("span", { class: "cnt", text: inN + "/" + list.length + " in profile" })));
+      const panel = el("div", { class: "panel", style: "padding:8px 8px" });
+      for (const c of list) panel.append(courseRow(c, gpa));
+      board.append(panel);
+    }
+    board.append(el("p", { class: "fine", style: "margin-top:14px" },
+      "IGP = the 10th percentile polytechnic GPA of applicants offered places in the AY2025/26 intake — a guide for the 2026 exercise, not a cut-off. Admissions also weigh diploma relevance, module prerequisites, interviews/portfolios and aptitude-based routes. “＋assessment” marks programmes with additional selection. The +0.04 first-choice bonus applies to NUS non-interview programmes ranked first (NUS First Choice Bonus Points Scheme). SUTD, SIT and SUSS assess holistically and publish no GPA profile. Sources: NTU IGP PDF (AY2025-26), NUS OAM / consolidated 2026 guides (universities.sg, Éclat)."));
+  }
+
+  function effGPA(gpa, c) {
+    return gpa + (S.igp.bonus && c.uni === "NUS" && !c.interview ? NUS_BONUS : 0);
+  }
+
+  function courseRow(c, gpa) {
+    const eff = effGPA(gpa, c);
+    const margin = eff - c.p10;
+    const row = el("div", { class: "course" });
+    const nm = el("div", { class: "cn", text: c.name });
+    if (c.interview) nm.append(el("span", { class: "note", text: "＋assessment" }));
+    if (S.igp.bonus && c.uni === "NUS" && !c.interview && gpa < c.p10 && eff >= c.p10)
+      nm.append(el("span", { class: "note", style: "color:var(--st-good)", text: "bonus clears it" }));
+    row.append(nm);
+
+    const stripCell = el("div", { class: "strip-cell" });
+    const strip = el("div", { class: "range-strip", title: "10th pct " + c.p10.toFixed(2) + (c.p90 ? " · 90th pct " + c.p90.toFixed(2) : "") });
+    const lo = 3.0, hi = 4.0;
+    const pct = v => Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
+    strip.append(el("div", { class: "track" }));
+    if (c.p90) strip.append(el("div", { class: "band", style: `left:${pct(c.p10)}%;width:${Math.max(2, pct(c.p90) - pct(c.p10))}%` }));
+    strip.append(el("div", { class: "p10", style: "left:" + pct(c.p10) + "%" }));
+    strip.append(el("div", { class: "you", style: "left:" + pct(eff) + "%" }));
+    strip.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
+      box.append(el("div", { class: "tt-title", text: c.uni + " · " + c.name }));
+      ttRow(box, cssVar("--accent"), "your GPA" + (eff !== gpa ? " (+bonus)" : ""), eff.toFixed(4));
+      ttRow(box, cssVar("--viz-blue"), "10th percentile", c.p10.toFixed(2));
+      if (c.p90) ttRow(box, null, "90th percentile", c.p90.toFixed(2));
+    }));
+    strip.addEventListener("pointerleave", hideTip);
+    stripCell.append(strip);
+    row.append(stripCell);
+
+    const right = el("div", { style: "display:flex;align-items:center;gap:10px;justify-content:flex-end" });
+    right.append(el("span", { class: "figures", text: c.p10.toFixed(2) + (c.p90 ? "–" + c.p90.toFixed(2) : "") }));
+    let st;
+    if (eff >= c.p10) st = el("span", { class: "st in", text: "✓ IN PROFILE " + fmtD(margin, 2) });
+    else if (eff >= c.p10 - 0.05) st = el("span", { class: "st edge", text: "◔ BORDERLINE " + fmtD(margin, 2) });
+    else st = el("span", { class: "st out", text: "— " + fmtD(margin, 2) });
+    right.append(st);
+    row.append(right);
+
+    const wrap = el("div");
+    wrap.append(row);
+    if (eff < c.p10 && S.igp.source === "transcript") {
+      const need = c.p10 - eff;
+      const fix = sensUp.find(x => x.d >= need);
+      if (fix) {
+        wrap.append(el("div", { class: "unlock" },
+          "↳ one grade would clear it: ", el("b", { text: fix.mo.name + " " + fix.mo.grade + "→" + fix.to }),
+          " (" + fmtD(fix.d) + " → " + (gpa + fix.d + (eff - gpa)).toFixed(4) + ")"));
+      }
+    }
+    return wrap;
+  }
+
+  renderBoard();
+}
+
+/* ================= upload view ================= */
+function uploadView() {
+  const root = document.getElementById("uploadView");
+  root.textContent = "";
+  const dz = el("div", { class: "dropzone", id: "dropzone" });
+  dz.append(
+    el("div", { style: "font-size:30px;margin-bottom:8px", text: "⬡" }),
+    el("div", { class: "big", text: "Drop your NP Statement of Examination Results (PDF)" }),
+    el("p", { class: "hint", text: "The transcript is parsed entirely in your browser — grades never leave this tab. Works with the password-free result slips from NPal." }),
+  );
+  const row = el("div", { style: "display:flex;gap:10px;justify-content:center;flex-wrap:wrap" });
+  const pick = el("button", { class: "btn primary", text: "Choose PDF" });
+  pick.addEventListener("click", () => document.getElementById("fileInput").click());
+  const demo = el("button", { class: "btn", text: "Explore with sample data" });
+  demo.addEventListener("click", () => { S.data = sampleData(); S.overrides = {}; S.planner = []; mount(); });
+  row.append(pick, demo);
+  dz.append(row, el("div", { class: "parse-log", id: "parseLog" }), el("div", { class: "err", id: "parseErr", hidden: "" }));
+  root.append(dz);
+}
+
+/* ================= mount / render ================= */
+function mount() {
+  const has = !!S.data;
+  document.getElementById("uploadView").hidden = has;
+  document.getElementById("appView").hidden = !has;
+  document.getElementById("replaceBtn").hidden = !has;
+  if (!has) { uploadView(); return; }
+  document.getElementById("sampleBanner").hidden = !S.data.sample;
+  studentStrip();
+  render();
+}
+function render() {
+  if (!S.data) return;
+  const root = document.getElementById("view");
+  root.textContent = "";
+  document.querySelectorAll("#tabBar .tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === S.view)));
+  if (S.view === "overview") viewOverview(root);
+  else if (S.view === "lab") viewLab(root);
+  else viewIGP(root);
+}
+
+document.getElementById("tabBar").addEventListener("click", e => {
+  const t = e.target.closest(".tab"); if (!t) return;
+  S.view = t.dataset.view; render();
+});
+document.getElementById("fileInput").addEventListener("change", e => {
+  const f = e.target.files[0]; if (f) handleFile(f);
+  e.target.value = "";
+});
+document.getElementById("replaceBtn").addEventListener("click", () => {
+  clearStored(); S.data = null; S.overrides = {}; S.planner = [];
+  mount();
+});
+document.getElementById("bannerUploadBtn")?.addEventListener("click", () => document.getElementById("fileInput").click());
+
+/* drag & drop anywhere */
+let dragDepth = 0;
+addEventListener("dragover", e => { e.preventDefault(); });
+addEventListener("dragenter", e => {
+  e.preventDefault(); dragDepth++;
+  document.getElementById("dropzone")?.classList.add("drag");
+});
+addEventListener("dragleave", () => {
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (!dragDepth) document.getElementById("dropzone")?.classList.remove("drag");
+});
+addEventListener("drop", e => {
+  e.preventDefault(); dragDepth = 0;
+  document.getElementById("dropzone")?.classList.remove("drag");
+  const f = e.dataTransfer?.files?.[0];
+  if (f) {
+    if (S.data) { S.data = null; mount(); }
+    handleFile(f);
+  }
+});
+
+/* responsive re-render for SVG charts */
+let rsT;
+addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(() => { if (S.view === "overview") render(); }, 160); });
+
+/* test hook: parse pre-extracted lines without a PDF (used in CI/self-test) */
+window.__gradeops = { parseTranscript, computeAll, extractPageLines, handleFile, S, mount };
+
+/* boot */
+restore();
+if (!S.data) S.data = sampleData();
+mount();
+</script>
