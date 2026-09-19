@@ -576,7 +576,7 @@ function parseTranscript(pages) {
   }
 
   if (!anySemester || semMap.size === 0) {
-    throw new Error("Couldn't find any result pages. This tool reads an NP “Statement of Examination Results” PDF — the one with SEMESTER OF STUDY, module grades and CUMULATIVE GPA on each page.");
+    throw new Error("Couldn't find any result pages. This tool reads an NP \"Statement of Examination Results\" PDF, the one with SEMESTER OF STUDY, module grades and CUMULATIVE GPA on each page.");
   }
   const semesters = [...semMap.values()].sort((a, b) => a.sem - b.sem);
   return { student, semesters, learningUnits, sample: false };
@@ -594,7 +594,7 @@ async function handleFile(file) {
     if (!file || !/pdf$/i.test(file.type || "") && !/\.pdf$/i.test(file.name || "")) {
       showErr("That doesn't look like a PDF. Export your Statement of Examination Results as PDF and drop it here."); return;
     }
-    if (!window.pdfjsLib) { showErr("PDF engine failed to load — check your connection and reload the page."); return; }
+    if (!window.pdfjsLib) { showErr("The PDF engine didn't load. Check your connection and reload the page."); return; }
     log("Reading " + file.name + "…");
     const buf = await file.arrayBuffer();
     log("Parsing PDF…");
@@ -850,7 +850,7 @@ function damageChart(container, data, totalGradedCU) {
   }
   rows.sort((a, b) => b.loss - a.loss);
   if (!rows.length) {
-    container.append(el("div", { class: "fine", text: "Nothing lost — every graded credit unit is at 4.0. Flawless run." }));
+    container.append(el("div", { class: "fine", text: "Nothing lost. Every graded credit unit is at 4.0. Flawless run." }));
     return { rows, total: 0 };
   }
   const maxLoss = rows[0].loss;
@@ -887,7 +887,7 @@ function studentStrip() {
   const latest = c.sems[c.sems.length - 1];
   wrap.append(el("span", { class: "chip" }, `${c.sems.length} SEMESTERS · ${latest.exam || ""}`));
   for (const lu of S.data.learningUnits || []) {
-    wrap.append(el("span", { class: "chip", title: lu.name + " — " + lu.grade }, "◆ " + lu.minor.replace(/^Minor in\s*/i, "").toUpperCase()));
+    wrap.append(el("span", { class: "chip", title: lu.name + " (" + lu.grade + ")" }, "◆ " + lu.minor.replace(/^Minor in\s*/i, "").toUpperCase()));
   }
   // parity chip
   const chip = document.getElementById("parityChip");
@@ -900,7 +900,7 @@ function studentStrip() {
   } else if (printed != null && !isNaN(printed)) {
     chip.className = "chip warn";
     chip.append(el("span", { class: "dot" }), `PARITY Δ printed ${printed.toFixed(4)} vs calc ${c.cgpa.toFixed(4)}`);
-    chip.title = "Recomputed CGPA differs from the printed value — check for TRF/EX or unusual grades.";
+    chip.title = "Our recomputed CGPA differs from the printed value. Check for TRF/EX or unusual grades.";
   } else chip.hidden = true;
 }
 
@@ -946,7 +946,7 @@ function viewOverview(root) {
   const grid = el("div", { class: "grid" });
 
   const pTrend = el("div", { class: "panel span-7" });
-  pTrend.append(el("h3", { text: "GPA trajectory" }), el("p", { class: "sub", text: "Cumulative GPA against each semester's GPA." }));
+  pTrend.append(el("h3", { text: "GPA trajectory" }), el("p", { class: "sub", text: "The violet line is your overall GPA. The grey line is how each semester went on its own." }));
   const trendBox = el("div", { class: "chart-wrap" });
   pTrend.append(trendBox);
   const leg = el("div", { class: "legend" });
@@ -973,7 +973,7 @@ function viewOverview(root) {
   grid.append(pDist);
 
   const pMix = el("div", { class: "panel span-6" });
-  pMix.append(el("h3", { text: "Grade mix by semester" }), el("p", { class: "sub", text: "Share of each semester's credit units by grade point." }));
+  pMix.append(el("h3", { text: "Grade mix by semester" }), el("p", { class: "sub", text: "What each semester was made of. Darker blue means better grades." }));
   const mixBox = el("div");
   pMix.append(mixBox);
   grid.append(pMix);
@@ -1029,8 +1029,8 @@ function viewOverview(root) {
     mixChart(mixBox, c.sems);
     const { total } = damageChart(dmgBox, S.data, c.cumCU);
     dmgSub.textContent = total > 0
-      ? `Where the ${(4 - c.cgpa).toFixed(4)} below a perfect 4.0 went — CGPA impact per module.`
-      : "CGPA impact per module below 4.0.";
+      ? `You sit ${(4 - c.cgpa).toFixed(4)} below a perfect 4.0. These modules are why, biggest cost first.`
+      : "CGPA cost per module below 4.0.";
   });
 }
 
@@ -1045,7 +1045,7 @@ function viewLab(root) {
   heroK.append(el("div", { class: "val", text: (S.planner.some(p => p.cu > 0) ? sim.projected : sim.cgpa).toFixed(4) }));
   const simVal = S.planner.some(p => p.cu > 0) ? sim.projected : sim.cgpa;
   const d = simVal - base.cgpa;
-  heroK.append(el("div", { class: "delta" + (d >= 0 ? " up" : ""), text: changed ? fmtD(d) + " vs transcript " + base.cgpa.toFixed(4) : "matches transcript — change a grade below" }));
+  heroK.append(el("div", { class: "delta" + (d >= 0 ? " up" : ""), text: changed ? fmtD(d) + " vs transcript " + base.cgpa.toFixed(4) : "matches your transcript. Change any grade below to play" }));
   kpis.append(heroK);
   const k2 = el("div", { class: "kpi" });
   k2.append(el("div", { class: "lbl", text: "Transcript CGPA" }), el("div", { class: "val", text: base.cgpa.toFixed(4) }),
@@ -1101,7 +1101,7 @@ function viewLab(root) {
 
   const rightCol = el("div", { class: "panel span-5", style: "align-self:start" });
   rightCol.append(el("h3", { text: "One grade different" }));
-  rightCol.append(el("p", { class: "sub", text: "The swing each single result carries — what your CGPA becomes if one module lands a step higher or lower." }));
+  rightCol.append(el("p", { class: "sub", text: "The 'what if I got B+ instead' list. Each row shows your CGPA if that one module had landed a grade higher (green) or lower (orange)." }));
   const sens = [];
   for (const s of S.data.semesters) for (const mo of s.modules) {
     if (!isGraded(mo.grade)) continue;
@@ -1112,7 +1112,7 @@ function viewLab(root) {
   sens.sort((a, b) => Math.abs(b.d) - Math.abs(a.d));
   const ups = sens.filter(x => x.dir === "up").slice(0, 6);
   const downs = sens.filter(x => x.dir === "down").slice(0, 3);
-  if (!ups.length) rightCol.append(el("div", { class: "fine", text: "Every graded module already sits at 4.0 — nothing left to raise." }));
+  if (!ups.length) rightCol.append(el("div", { class: "fine", text: "Every graded module already sits at 4.0. There is nothing left to raise." }));
   for (const x of [...ups, ...downs]) {
     const row = el("div", { class: "sens-row" });
     row.append(el("span", { style: "min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap", title: x.mo.name },
@@ -1123,7 +1123,7 @@ function viewLab(root) {
 
   rightCol.append(el("hr", { class: "divider" }));
   rightCol.append(el("h3", { text: "Final semester projection" }));
-  rightCol.append(el("p", { class: "sub", text: "Add the modules you still have to take and set target grades." }));
+  rightCol.append(el("p", { class: "sub", text: "List next semester's modules and the grades you're aiming for. The projected CGPA updates as you go, and the Intel and Admissions tabs use these modules too." }));
   const planBox = el("div");
   const renderPlanner = () => {
     planBox.textContent = "";
@@ -1170,11 +1170,11 @@ function viewLab(root) {
     const t = parseFloat(slider.value); tVal.textContent = t.toFixed(2);
     const cu = sim.plannedCU || 20;
     const needAvg = (t * (base.cumCU + cu) - base.cumPts) / cu;
-    if (needAvg <= 0) answer.textContent = `Already above ${t.toFixed(2)} — any pass keeps you there.`;
-    else if (needAvg > 4) answer.textContent = `Out of reach: your remaining ${cu} CU would need a ${needAvg.toFixed(2)} average (max 4.0).`;
+    if (needAvg <= 0) answer.textContent = `You're already above ${t.toFixed(2)}. Any pass keeps you there.`;
+    else if (needAvg > 4) answer.textContent = `Out of reach this semester: your remaining ${cu} CU would need a ${needAvg.toFixed(2)} average, and the scale stops at 4.0.`;
     else {
       const letter = LADDER.find(g => gp(g) >= needAvg) || "A";
-      answer.textContent = `To graduate at ${t.toFixed(2)}: average ≥ ${needAvg.toFixed(3)} grade points over your ${sim.plannedCU ? "planned" : "assumed"} ${cu} CU — roughly ${letter} or better on everything.`;
+      answer.textContent = `To graduate at ${t.toFixed(2)}, you need to average ${needAvg.toFixed(3)} grade points across your ${sim.plannedCU ? "planned" : "assumed"} ${cu} CU. In plain terms: ${letter} or better on everything.`;
     }
   };
   slider.addEventListener("input", () => { S.targetGPA = parseFloat(slider.value); solve(); });
@@ -1224,7 +1224,7 @@ function histChart(container, sims) {
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const lo = sims[0], hi = sims[sims.length - 1];
   if (hi - lo < 1e-6) {
-    container.append(el("div", { class: "fine", text: "Every simulation lands on " + lo.toFixed(4) + " — your grade history has no variance to sample from. Impressive, honestly." }));
+    container.append(el("div", { class: "fine", text: "Every simulation lands on " + lo.toFixed(4) + ". Your grade history has no variance to sample from. Impressive, honestly." }));
     return;
   }
   const NB = 26, bw = (hi - lo) / NB;
@@ -1245,7 +1245,7 @@ function histChart(container, sims) {
     const hit = sv("rect", { x: m.l + i * (iw / NB), y: m.t, width: iw / NB, height: ih, fill: "transparent" });
     const b0 = lo + i * bw, b1 = b0 + bw;
     hit.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, box => {
-      box.append(el("div", { class: "tt-title", text: b0.toFixed(3) + " – " + b1.toFixed(3) }));
+      box.append(el("div", { class: "tt-title", text: b0.toFixed(3) + " to " + b1.toFixed(3) }));
       ttRow(box, blue, "of simulations", (n / sims.length * 100).toFixed(1) + "%");
     }));
     hit.addEventListener("pointerleave", hideTip);
@@ -1370,7 +1370,7 @@ function viewIntel(root) {
     ? "unbroken since " + (lastBreak.sem.exam || "Sem " + lastBreak.sem.sem) + " (" + lastBreak.mo.grade + " in " + lastBreak.mo.name.split(" ").slice(0, 2).join(" ").toLowerCase() + ")"
     : "never broken");
   kpi("Clutch factor", heavy == null ? "—" : heavy.toFixed(2), light == null ? "no light modules" :
-    "heavy (≥4 CU) vs " + light.toFixed(2) + " on light — " + (heavy >= light ? "you rise under load" : "light modules are your friend"));
+    "GPA on big modules (4 CU up). Small ones sit at " + light.toFixed(2) + ". " + (heavy >= light ? "You rise under load." : "Small modules are your friend."));
   kpi("Consistency σ", sigma.toFixed(3), sigma < 0.05 ? "rock steady across semesters" : sigma < 0.15 ? "steady with a wobble" : "spiky semesters");
   root.append(kpis);
 
@@ -1380,7 +1380,7 @@ function viewIntel(root) {
   const dist = gradeDistCU(S.data);
   const pMC = el("div", { class: "panel span-7" });
   pMC.append(el("h3", { text: "Graduation forecast" }));
-  pMC.append(el("p", { class: "sub", text: "6,000 simulated final semesters — each module's grade drawn from your own record, weighted by credit units. Assumes " + (S.planner.filter(p => p.cu > 0).length ? "your planned modules (" + P + " CU)." : "5 × 4 CU modules; set real ones in the GPA Lab planner.") }));
+  pMC.append(el("p", { class: "sub", text: "We replayed your final semester 6,000 times, dealing out grades in the same mix you've actually been scoring. The bars show where your graduating CGPA landed: the solid line is the typical outcome, the dotted lines are the unlucky (P10) and lucky (P90) ends. " + (S.planner.filter(p => p.cu > 0).length ? "Using your planned modules (" + P + " CU)." : "Assumes 5 modules of 4 CU each; add your real ones in the GPA Lab planner.") }));
   const mcBox = el("div", { class: "chart-wrap" });
   pMC.append(mcBox);
   grid.append(pMC);
@@ -1394,7 +1394,7 @@ function viewIntel(root) {
   };
   const pCone = el("div", { class: "panel span-5" });
   pCone.append(el("h3", { text: "Projection cone" }));
-  pCone.append(el("p", { class: "sub", text: "Where the final semester can take the CGPA — perfect run, your average, or an all-B slump." }));
+  pCone.append(el("p", { class: "sub", text: "The solid line is what's already banked. The dashed lines show your last semester going three ways: straight A's, your usual form, or an all-B slump. The fan is narrow because most of your grade is locked in." }));
   const coneBox = el("div", { class: "chart-wrap" });
   pCone.append(coneBox);
   pCone.append(el("div", { class: "legend" },
@@ -1405,7 +1405,7 @@ function viewIntel(root) {
 
   /* discipline report */
   const pDisc = el("div", { class: "panel span-6" });
-  pDisc.append(el("h3", { text: "Discipline report" }), el("p", { class: "sub", text: "CU-weighted GPA by module family — keyword-classified, hover for the roster." }));
+  pDisc.append(el("h3", { text: "Discipline report" }), el("p", { class: "sub", text: "Your GPA split by what kind of module it was. Hover a row to see which modules count where." }));
   const cats = new Map();
   for (const x of seq) {
     const key = classifyModule(x.mo.name);
@@ -1437,7 +1437,7 @@ function viewIntel(root) {
 
   /* milestone ladder */
   const pMile = el("div", { class: "panel span-6" });
-  pMile.append(el("h3", { text: "Milestone ladder" }), el("p", { class: "sub", text: "What each CGPA milestone costs — as a final-semester average over " + P + " CU, or as one-step grade swaps (4-CU B+→A ≈ +" + (2 / base.cumCU).toFixed(4) + ") on past modules." }));
+  pMile.append(el("h3", { text: "Milestone ladder" }), el("p", { class: "sub", text: "What each target CGPA actually takes. Read it two ways: the average you'd need across your remaining " + P + " CU, or how many past modules would have needed one grade higher (each 4-CU swap moves you about +" + (2 / base.cumCU).toFixed(4) + ")." }));
   const targets = [3.85, 3.88, 3.90, 3.92, 3.95, 4.00].filter(t => t > cgpa + 1e-4).slice(0, 4);
   const mtbl = el("table", { class: "data" });
   mtbl.append(el("thead", null, el("tr", null,
@@ -1448,7 +1448,7 @@ function viewIntel(root) {
     const needAvg = (t * (base.cumCU + P) - base.cumPts) / P;
     const swaps = Math.ceil((t - cgpa) * base.cumCU / 2 - 1e-9);
     const verdict = needAvg <= 4.0001
-      ? (needAvg <= cgpa ? "cruising distance" : "reachable — " + (LADDER.find(g => gp(g) >= needAvg) || "A") + " average")
+      ? (needAvg <= cgpa ? "cruising distance" : "doable with a " + (LADDER.find(g => gp(g) >= needAvg) || "A") + " average")
       : "not this semester";
     mtb.append(el("tr", null,
       el("td", { class: "mono", text: t.toFixed(2) }),
@@ -1463,7 +1463,7 @@ function viewIntel(root) {
 
   /* load-bearing */
   const pLoad = el("div", { class: "panel span-6" });
-  pLoad.append(el("h3", { text: "Load-bearing semesters" }), el("p", { class: "sub", text: "How much of the CGPA each semester carries (share of graded credit units)." }));
+  pLoad.append(el("h3", { text: "Load-bearing semesters" }), el("p", { class: "sub", text: "Bigger semesters pull harder on your CGPA. This is each one's share of the total weight." }));
   const maxShare = Math.max(...sems.map(s => s.gradedCU));
   for (const s of sems) {
     const share = s.gradedCU / base.cumCU * 100;
@@ -1500,7 +1500,7 @@ function viewIntel(root) {
     fact(`Failure immunity: fail up to <b>${cap} CU</b> next sem (rest at your average) and stay ≥ <b>${T.toFixed(1)}</b>`);
   }
   pCF.append(facts);
-  pCF.append(el("p", { class: "fine", style: "margin:10px 0 0", text: "Counterfactuals are for perspective, not planning — the registrar has no delete key." }));
+  pCF.append(el("p", { class: "fine", style: "margin:10px 0 0", text: "These are for perspective, not planning. The registrar has no delete key." }));
   grid.append(pCF);
 
   root.append(grid);
@@ -1510,73 +1510,76 @@ function viewIntel(root) {
   });
 }
 
-/* ================= IGP data (AY2025/26 intake — 2026 exercise guide) ================= */
-/* Sources: NTU official IGP PDF (AY2025-26); NUS/SMU consolidated from universities.sg
-   & Éclat 2026 guides. 10th/90th percentile poly GPA of admitted students. */
+/* ================= IGP + pay data (AY2025/26 intake, GES 2025 salaries) ================= */
+/* IGP sources: NTU official IGP PDF (AY2025-26); NUS/SMU consolidated from universities.sg
+   & Éclat 2026 guides. 10th/90th percentile poly GPA of admitted students.
+   Pay = median gross monthly salary of the Class of 2025, ~6 months after finals
+   (GES 2025, MOE joint publication; null where the survey has no separate line). */
 const IGP = [
-  // uni, programme, p10, p90, interview/assessment
-  ["NUS", "Pharmaceutical Science", 3.93, null, false],
-  ["NUS", "Information Security", 3.88, null, false],
-  ["NUS", "Medicine", 3.87, 3.99, true],
-  ["NUS", "Computer Science", 3.81, 3.98, false],
-  ["NUS", "Computer Engineering", 3.81, null, false],
-  ["NUS", "Business Analytics", 3.75, 3.98, false],
-  ["NUS", "Pharmacy", 3.73, null, false],
-  ["NUS", "Business Artificial Intelligence Systems", 3.71, null, false],
-  ["NUS", "Environmental Studies", 3.67, null, false],
-  ["NUS", "Food Science and Technology", 3.64, null, false],
-  ["NUS", "Humanities and Sciences (CHS)", 3.63, null, false],
-  ["NUS", "Business Administration", 3.61, 3.94, false],
-  ["NUS", "Engineering (common)", 3.57, 3.94, false],
-  ["NUS", "Industrial Design", 3.56, null, true],
-  ["NUS", "Landscape Architecture", 3.37, null, true],
-  ["NUS", "Architecture", 3.27, 3.88, true],
-  ["NUS", "Nursing", 3.18, 3.77, true],
-  ["NTU", "Data Science & Artificial Intelligence", 3.89, 4.00, false],
-  ["NTU", "Double Major Programmes (Science)", 3.82, 3.99, true],
-  ["NTU", "Computer Science", 3.78, 3.98, false],
-  ["NTU", "Aerospace Engineering", 3.72, 3.96, false],
-  ["NTU", "Applied Computing in Finance", 3.72, 3.94, true],
-  ["NTU", "Robotics", 3.70, 3.93, false],
-  ["NTU", "Computer Engineering", 3.66, 3.95, false],
-  ["NTU", "Communication Studies", 3.66, 3.91, true],
-  ["NTU", "Business", 3.65, 3.91, true],
-  ["NTU", "Psychology", 3.64, 3.90, false],
-  ["NTU", "Biological Sciences", 3.64, 3.97, true],
-  ["NTU", "Accountancy", 3.63, 3.92, true],
-  ["NTU", "Economics", 3.60, 3.86, false],
-  ["NTU", "Public Policy & Global Affairs", 3.60, 3.86, false],
-  ["NTU", "Environmental Engineering", 3.59, 3.87, false],
-  ["NTU", "Maritime Studies", 3.59, 3.94, false],
-  ["NTU", "Sociology", 3.59, 3.79, false],
-  ["NTU", "Information Engineering & Media", 3.57, 3.80, false],
-  ["NTU", "Bioengineering", 3.56, 3.88, false],
-  ["NTU", "Linguistics & Multilingual Studies", 3.54, 3.78, true],
-  ["NTU", "SOH Double Major Programmes", 3.51, 3.91, true],
-  ["NTU", "Chemical & Biomolecular Engineering", 3.50, 3.92, false],
-  ["NTU", "Chemistry & Biological Chemistry", 3.50, 3.96, false],
-  ["NTU", "Mechanical Engineering", 3.49, 3.91, false],
-  ["NTU", "Civil Engineering", 3.48, 3.94, false],
-  ["NTU", "Electrical & Electronic Engineering", 3.48, 3.92, false],
-  ["NTU", "Sport Science & Management", 3.47, 3.75, true],
-  ["NTU", "Art, Design & Media", 3.43, 3.89, true],
-  ["NTU", "Materials Engineering", 3.43, 3.85, false],
-  ["NTU", "Philosophy", 3.43, 3.62, true],
-  ["NTU", "Mathematical Sciences", 3.42, 3.87, true],
-  ["NTU", "Physics / Applied Physics", 3.42, 3.89, true],
-  ["NTU", "Chinese", 3.41, 3.72, true],
-  ["NTU", "History", 3.41, 3.61, true],
-  ["NTU", "English", 3.38, 3.58, true],
-  ["SMU", "Computer Science", 3.80, 3.98, false],
-  ["SMU", "Business Management", 3.78, 3.95, false],
-  ["SMU", "Law", 3.73, null, false],
-  ["SMU", "Integrative Studies (Deferred Declaration)", 3.73, null, false],
-  ["SMU", "Accountancy", 3.71, 3.94, false],
-  ["SMU", "Software Engineering", 3.67, 3.93, false],
-  ["SMU", "Economics", 3.65, 3.91, false],
-  ["SMU", "Social Sciences", 3.65, null, false],
-  ["SMU", "Information Systems", 3.61, 3.89, false],
-].map(([uni, name, p10, p90, interview], i) => ({ id: i, uni, name, p10, p90, interview }));
+  // uni, programme, p10, p90, interview/assessment, median pay
+  ["NUS", "Pharmaceutical Science", 3.93, null, false, null],
+  ["NUS", "Information Security", 3.88, null, false, 6000],
+  ["NUS", "Medicine", 3.87, 3.99, true, 6500],
+  ["NUS", "Computer Science", 3.81, 3.98, false, 6400],
+  ["NUS", "Computer Engineering", 3.81, null, false, 5600],
+  ["NUS", "Business Analytics", 3.75, 3.98, false, 5700],
+  ["NUS", "Pharmacy", 3.73, null, false, 4475],
+  ["NUS", "Business Artificial Intelligence Systems", 3.71, null, false, 6000],
+  ["NUS", "Environmental Studies", 3.67, null, false, 4500],
+  ["NUS", "Food Science and Technology", 3.64, null, false, null],
+  ["NUS", "Humanities and Sciences (CHS)", 3.63, null, false, null],
+  ["NUS", "Business Administration", 3.61, 3.94, false, 4860],
+  ["NUS", "Engineering (common)", 3.57, 3.94, false, null],
+  ["NUS", "Industrial Design", 3.56, null, true, 4050],
+  ["NUS", "Landscape Architecture", 3.37, null, true, 3800],
+  ["NUS", "Architecture", 3.27, 3.88, true, 4600],
+  ["NUS", "Nursing", 3.18, 3.77, true, 4000],
+  ["NTU", "Data Science & Artificial Intelligence", 3.89, 4.00, false, 5250],
+  ["NTU", "Double Major Programmes (Science)", 3.82, 3.99, true, 5226],
+  ["NTU", "Computer Science", 3.78, 3.98, false, 5500],
+  ["NTU", "Aerospace Engineering", 3.72, 3.96, false, 4640],
+  ["NTU", "Applied Computing in Finance", 3.72, 3.94, true, null],
+  ["NTU", "Robotics", 3.70, 3.93, false, null],
+  ["NTU", "Computer Engineering", 3.66, 3.95, false, 5150],
+  ["NTU", "Communication Studies", 3.66, 3.91, true, 4000],
+  ["NTU", "Business", 3.65, 3.91, true, 4500],
+  ["NTU", "Psychology", 3.64, 3.90, false, 4065],
+  ["NTU", "Biological Sciences", 3.64, 3.97, true, 4000],
+  ["NTU", "Accountancy", 3.63, 3.92, true, 4350],
+  ["NTU", "Economics", 3.60, 3.86, false, 4621],
+  ["NTU", "Public Policy & Global Affairs", 3.60, 3.86, false, 4880],
+  ["NTU", "Environmental Engineering", 3.59, 3.87, false, 4200],
+  ["NTU", "Maritime Studies", 3.59, 3.94, false, 4200],
+  ["NTU", "Sociology", 3.59, 3.79, false, 4500],
+  ["NTU", "Information Engineering & Media", 3.57, 3.80, false, 4950],
+  ["NTU", "Bioengineering", 3.56, 3.88, false, 4300],
+  ["NTU", "Linguistics & Multilingual Studies", 3.54, 3.78, true, 3950],
+  ["NTU", "SOH Double Major Programmes", 3.51, 3.91, true, 4500],
+  ["NTU", "Chemical & Biomolecular Engineering", 3.50, 3.92, false, 4400],
+  ["NTU", "Chemistry & Biological Chemistry", 3.50, 3.96, false, 4200],
+  ["NTU", "Mechanical Engineering", 3.49, 3.91, false, 4500],
+  ["NTU", "Civil Engineering", 3.48, 3.94, false, 4200],
+  ["NTU", "Electrical & Electronic Engineering", 3.48, 3.92, false, 4800],
+  ["NTU", "Sport Science & Management", 3.47, 3.75, true, 4100],
+  ["NTU", "Art, Design & Media", 3.43, 3.89, true, 3350],
+  ["NTU", "Materials Engineering", 3.43, 3.85, false, 4700],
+  ["NTU", "Philosophy", 3.43, 3.62, true, 4390],
+  ["NTU", "Mathematical Sciences", 3.42, 3.87, true, 4680],
+  ["NTU", "Physics / Applied Physics", 3.42, 3.89, true, 4600],
+  ["NTU", "Chinese", 3.41, 3.72, true, 4345],
+  ["NTU", "History", 3.41, 3.61, true, 4583],
+  ["NTU", "English", 3.38, 3.58, true, 4100],
+  ["SMU", "Computer Science", 3.80, 3.98, false, 6000],
+  ["SMU", "Business Management", 3.78, 3.95, false, 4600],
+  ["SMU", "Law", 3.73, null, false, null],
+  ["SMU", "Integrative Studies (Deferred Declaration)", 3.73, null, false, null],
+  ["SMU", "Accountancy", 3.71, 3.94, false, 4350],
+  ["SMU", "Software Engineering", 3.67, 3.93, false, null],
+  ["SMU", "Economics", 3.65, 3.91, false, 4500],
+  ["SMU", "Social Sciences", 3.65, null, false, 4000],
+  ["SMU", "Information Systems", 3.61, 3.89, false, 5400],
+].map(([uni, name, p10, p90, interview, pay], i) => ({ id: i, uni, name, p10, p90, interview, pay }));
+const fmtPay = v => "$" + v.toLocaleString("en-SG");
 const NUS_BONUS = 0.04;
 
 function viewIGP(root) {
@@ -1649,7 +1652,7 @@ function viewIGP(root) {
     const curveGrid = el("div", { class: "grid", style: "margin-bottom:2px" });
     const pCurve = el("div", { class: "panel span-7" });
     pCurve.append(el("h3", { text: "Eligibility curve" }),
-      el("p", { class: "sub", text: "Programmes in profile at every GPA — the slope shows why each 0.01 matters around yours." }));
+      el("p", { class: "sub", text: "How many programmes open up at each GPA. Where the line climbs steeply, a single 0.01 buys a lot. That steep part is exactly where you're standing." }));
     const curveBox = el("div", { class: "chart-wrap" });
     pCurve.append(curveBox);
     curveGrid.append(pCurve);
@@ -1662,8 +1665,8 @@ function viewIGP(root) {
     const newly = IGP.filter(c => effTh(c) > base.cgpa + 1e-9 && effTh(c) <= ceil + 1e-9)
       .sort((a, b) => effTh(a) - effTh(b));
     const sub = el("p", { class: "sub" });
-    sub.textContent = "A perfect 4.0 across your " + P + " remaining CU lands you at " + ceil.toFixed(4) +
-      (newly.length ? " — newly in profile:" : " — no extra programmes unlock, but every one below gets safer.");
+    sub.textContent = "Score a perfect 4.0 across your remaining " + P + " CU and you finish at " + ceil.toFixed(4) + ". " +
+      (newly.length ? "That would put these in profile:" : "No extra programmes unlock at that level, but everything already in profile gets safer.");
     pUnlock.append(sub);
     if (newly.length) {
       const chips = el("div", { class: "stat-strip" });
@@ -1674,7 +1677,7 @@ function viewIGP(root) {
       .sort((a, b) => effTh(a) - effTh(b)).slice(0, 8);
     if (stillOut.length) {
       pUnlock.append(el("hr", { class: "divider" }));
-      pUnlock.append(el("p", { class: "sub", style: "margin-bottom:6px", text: "What each one takes next semester (avg over " + P + " CU, from your transcript CGPA):" }));
+      pUnlock.append(el("p", { class: "sub", style: "margin-bottom:6px", text: "Still locked? This is the average each one needs from your remaining " + P + " CU:" }));
       for (const c of stillOut) {
         const t = effTh(c);
         const needAvg = (t * (base.cumCU + P) - base.cumPts) / P;
@@ -1689,6 +1692,49 @@ function viewIGP(root) {
     board.append(curveGrid);
     eligCurve(curveBox, gpa, effTh);
 
+    /* pay vs entry bar */
+    const payGrid = el("div", { class: "grid", style: "margin-bottom:2px" });
+    const pScatter = el("div", { class: "panel span-7" });
+    pScatter.append(el("h3", { text: "Pay vs entry bar" }),
+      el("p", { class: "sub", text: "Each dot is a course: how hard it is to enter (left to right) against what its fresh grads earn (bottom to top). Solid dots are within your GPA. The best deals sit high and left of your line." }));
+    const scatterBox = el("div", { class: "chart-wrap" });
+    pScatter.append(scatterBox);
+    pScatter.append(el("div", { class: "legend" },
+      el("span", { class: "key" }, el("i", { class: "rect", style: "background:var(--viz-blue)" }), "Within your GPA"),
+      el("span", { class: "key" }, el("i", { class: "rect", style: "background:var(--viz-blue);opacity:0.3" }), "Above it"),
+    ));
+    payGrid.append(pScatter);
+
+    const pPay = el("div", { class: "panel span-5" });
+    pPay.append(el("h3", { text: "Paycheck board" }));
+    const withPay = IGP.filter(c => c.pay != null);
+    const reach = withPay.filter(c => effTh(c) <= gpa + 1e-9).sort((a, b) => b.pay - a.pay).slice(0, 5);
+    const locked = withPay.filter(c => effTh(c) > gpa + 1e-9).sort((a, b) => b.pay - a.pay).slice(0, 3);
+    pPay.append(el("p", { class: "sub", text: "Median pay of fresh grads (GES 2025), split by what your GPA already reaches." }));
+    if (reach.length) {
+      pPay.append(el("div", { class: "sem-h" }, el("span", { text: "Best pay you can already reach" })));
+      for (const c of reach) {
+        const row = el("div", { class: "sens-row" });
+        row.append(el("span", { style: "min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap", title: c.uni + " " + c.name },
+          c.uni + " · " + c.name + " ", el("span", { class: "gp", text: "IGP " + c.p10.toFixed(2) })));
+        row.append(el("span", { class: "d up", text: fmtPay(c.pay) }));
+        pPay.append(row);
+      }
+    }
+    if (locked.length) {
+      pPay.append(el("div", { class: "sem-h", style: "margin-top:12px" }, el("span", { text: "What more GPA buys" })));
+      for (const c of locked) {
+        const row = el("div", { class: "sens-row" });
+        row.append(el("span", { style: "min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap", title: c.uni + " " + c.name },
+          c.uni + " · " + c.name + " ", el("span", { class: "gp", text: "needs " + effTh(c).toFixed(2) })));
+        row.append(el("span", { class: "d", style: "color:var(--muted)", text: fmtPay(c.pay) }));
+        pPay.append(row);
+      }
+    }
+    payGrid.append(pPay);
+    board.append(payGrid);
+    payScatter(scatterBox, gpa, effTh);
+
     for (const uni of ["NUS", "NTU", "SMU"]) {
       if (S.igp.filter !== "all" && S.igp.filter !== uni) continue;
       const list = IGP.filter(c => c.uni === uni).sort((a, b) => b.p10 - a.p10);
@@ -1699,7 +1745,7 @@ function viewIGP(root) {
       board.append(panel);
     }
     board.append(el("p", { class: "fine", style: "margin-top:14px" },
-      "IGP = the 10th percentile polytechnic GPA of applicants offered places in the AY2025/26 intake — a guide for the 2026 exercise, not a cut-off. Admissions also weigh diploma relevance, module prerequisites, interviews/portfolios and aptitude-based routes. “＋assessment” marks programmes with additional selection. The +0.04 first-choice bonus applies to NUS non-interview programmes ranked first (NUS First Choice Bonus Points Scheme). SUTD, SIT and SUSS assess holistically and publish no GPA profile. Sources: NTU IGP PDF (AY2025-26), NUS OAM / consolidated 2026 guides (universities.sg, Éclat)."));
+      "How to read this: the IGP figure is the 10th percentile poly GPA of people who got offers in the AY2025/26 intake. It is a guide, not a cut-off. Universities also weigh diploma relevance, prerequisites, interviews, portfolios and aptitude-based routes. \"＋assessment\" marks programmes with extra selection steps. The +0.04 first-choice bonus is NUS's First Choice Bonus Points Scheme and applies when you rank a non-interview NUS programme first. Salaries are the median gross monthly pay of the Class of 2025, surveyed about six months after finals (GES 2025, published jointly by the universities through MOE); a blank means the survey has no separate line for that course, and pay reflects the whole cohort, not poly-entry grads specifically. SUTD, SIT and SUSS assess holistically and publish no GPA profile. Sources: NTU IGP and GES PDFs (MOE), NUS OAM, universities.sg and Éclat 2026 compilations, SGSchoolKaki GES 2025 tables."));
   }
 
   function effGPA(gpa, c) {
@@ -1757,6 +1803,57 @@ function viewIGP(root) {
     container.append(svg);
   }
 
+  function payScatter(container, gpa, effTh) {
+    container.textContent = "";
+    const pts = IGP.filter(c => c.pay != null);
+    const W = Math.max(300, container.clientWidth || 560), H = 250;
+    const m = { t: 12, r: 16, b: 28, l: 44 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const xLo = 3.1, xHi = 4.0;
+    const yLo = 3000, yHi = 7000;
+    const X = v => m.l + (Math.max(xLo, Math.min(xHi, v)) - xLo) / (xHi - xLo) * iw;
+    const Y = v => m.t + (1 - (v - yLo) / (yHi - yLo)) * ih;
+    const svg = sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Median graduate pay against entry GPA per course" });
+    for (let v = yLo; v <= yHi; v += 1000) {
+      svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+      svg.append(sv("text", { x: m.l - 7, y: Y(v) + 3.5, "text-anchor": "end", style: "font-variant-numeric:tabular-nums" }, "$" + (v / 1000) + "k"));
+    }
+    for (let v = 3.2; v <= 4.001; v += 0.2) {
+      v = Math.round(v * 10) / 10;
+      svg.append(sv("text", { x: X(v), y: H - 8, "text-anchor": "middle", style: "font-variant-numeric:tabular-nums" }, v.toFixed(1)));
+    }
+    svg.append(sv("line", { x1: X(gpa), x2: X(gpa), y1: m.t, y2: m.t + ih, stroke: "var(--accent)", "stroke-width": 1.5 }));
+    const yourAnchorEnd = X(gpa) > W - 90;
+    svg.append(sv("text", { x: X(gpa) + (yourAnchorEnd ? -6 : 6), y: m.t + 10, "text-anchor": yourAnchorEnd ? "end" : "start", class: "lab-strong", style: "font-variant-numeric:tabular-nums" }, "you " + gpa.toFixed(2)));
+    const blue = cssVar("--viz-blue") || "#3987e5";
+    const dots = pts.map(c => {
+      const inReach = effTh(c) <= gpa + 1e-9;
+      const cx = X(effTh(c)), cy = Y(c.pay);
+      svg.append(sv("circle", { cx, cy, r: 4.5, fill: blue, opacity: inReach ? 1 : 0.3, stroke: "var(--surface)", "stroke-width": 2 }));
+      return { c, cx, cy, inReach };
+    });
+    const hit = sv("rect", { x: 0, y: 0, width: W, height: H, fill: "transparent" });
+    hit.addEventListener("pointermove", e => {
+      const r = svg.getBoundingClientRect();
+      const px = e.clientX - r.left, py = e.clientY - r.top;
+      let best = null, bd = 26 * 26;
+      for (const d of dots) {
+        const dd = (d.cx - px) ** 2 + (d.cy - py) ** 2;
+        if (dd < bd) { bd = dd; best = d; }
+      }
+      if (!best) { hideTip(); return; }
+      showTip(e.clientX, e.clientY, box => {
+        box.append(el("div", { class: "tt-title", text: best.c.uni + " · " + best.c.name }));
+        ttRow(box, blue, "median pay (GES 2025)", fmtPay(best.c.pay));
+        ttRow(box, cssVar("--accent"), "entry GPA (10th pct)", effTh(best.c).toFixed(2));
+        ttRow(box, null, "for you", best.inReach ? "within reach" : "needs " + fmtD(effTh(best.c) - gpa, 2));
+      });
+    });
+    hit.addEventListener("pointerleave", hideTip);
+    svg.append(hit);
+    container.append(svg);
+  }
+
   function courseRow(c, gpa) {
     const eff = effGPA(gpa, c);
     const margin = eff - c.p10;
@@ -1780,13 +1877,14 @@ function viewIGP(root) {
       ttRow(box, cssVar("--accent"), "your GPA" + (eff !== gpa ? " (+bonus)" : ""), eff.toFixed(4));
       ttRow(box, cssVar("--viz-blue"), "10th percentile", c.p10.toFixed(2));
       if (c.p90) ttRow(box, null, "90th percentile", c.p90.toFixed(2));
+      if (c.pay != null) ttRow(box, null, "median pay (GES 2025)", fmtPay(c.pay));
     }));
     strip.addEventListener("pointerleave", hideTip);
     stripCell.append(strip);
     row.append(stripCell);
 
     const right = el("div", { style: "display:flex;align-items:center;gap:10px;justify-content:flex-end" });
-    right.append(el("span", { class: "figures", text: c.p10.toFixed(2) + (c.p90 ? "–" + c.p90.toFixed(2) : "") }));
+    right.append(el("span", { class: "figures", text: c.p10.toFixed(2) + (c.p90 ? "-" + c.p90.toFixed(2) : "") + (c.pay != null ? " · " + fmtPay(c.pay) : "") }));
     let st;
     if (eff >= c.p10) st = el("span", { class: "st in", text: "✓ IN PROFILE " + fmtD(margin, 2) });
     else if (eff >= c.p10 - 0.05) st = el("span", { class: "st edge", text: "◔ BORDERLINE " + fmtD(margin, 2) });
@@ -1819,7 +1917,7 @@ function uploadView() {
   dz.append(
     el("div", { style: "font-size:30px;margin-bottom:8px", text: "⬡" }),
     el("div", { class: "big", text: "Drop your NP Statement of Examination Results (PDF)" }),
-    el("p", { class: "hint", text: "The transcript is parsed entirely in your browser — grades never leave this tab. Works with the password-free result slips from NPal." }),
+    el("p", { class: "hint", text: "The PDF is read right here in your browser tab. Your grades never leave your device. Works with the result slips you download from NPal." }),
   );
   const row = el("div", { style: "display:flex;gap:10px;justify-content:center;flex-wrap:wrap" });
   const pick = el("button", { class: "btn primary", text: "Choose PDF" });
