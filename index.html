@@ -104,7 +104,7 @@ body {
 }
 @media (min-width: 720px) { body { padding-inline: 28px; } }
 h1, h2, h3, p, dl, dd { margin: 0; }
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--you); outline-offset: 2px; border-radius: 4px; }
 ::selection { background: var(--you-wash); }
@@ -136,17 +136,19 @@ button { cursor: pointer; }
 .icon-btn { width: 32px; padding: 0; }
 .btn-sm.icon-btn { width: 28px; }
 
-select, input[type="text"], input[type="number"] {
+select, input[type="text"], input[type="number"], textarea {
   height: 30px; border-radius: 6px; border: 1px solid var(--line-2);
   background-color: var(--surface); color: var(--ink); font-size: 13px; padding: 0 9px; min-width: 0;
 }
+textarea { height: auto; padding: 8px 9px; resize: vertical; width: 100%; font-family: var(--mono); font-size: 12px; line-height: 1.5; }
 select {
   appearance: none; -webkit-appearance: none; padding-right: 26px; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a93a0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 9px center;
 }
-input::placeholder { color: var(--ink-3); opacity: 1; }
+input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 input[type="range"] { accent-color: var(--you); margin: 0; }
+.bad { border-color: var(--down-ink) !important; box-shadow: 0 0 0 1px var(--down-ink); }
 
 .seg { display: inline-flex; padding: 2px; border-radius: 8px; background: var(--wash); border: 1px solid var(--line); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .seg::-webkit-scrollbar { display: none; }
@@ -159,7 +161,9 @@ input[type="range"] { accent-color: var(--you); margin: 0; }
 .seg button:disabled { opacity: 0.45; cursor: not-allowed; }
 .seg .n { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); margin-left: 6px; }
 .check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; user-select: none; }
-.check input { width: 16px; height: 16px; margin: 0; accent-color: var(--you); }
+.check input { width: 16px; height: 16px; margin: 0; accent-color: var(--you); flex: none; }
+.stepper { display: inline-flex; align-items: center; gap: 4px; }
+.stepper output { min-width: 26px; text-align: center; font-family: var(--mono); font-weight: 600; }
 
 /* ---------- notices ---------- */
 .notice {
@@ -170,7 +174,8 @@ input[type="range"] { accent-color: var(--you); margin: 0; }
 .notice.error { color: var(--ink); border-color: color-mix(in srgb, var(--down-ink) 45%, var(--line)); background: color-mix(in srgb, var(--down-ink) 7%, var(--surface)); }
 
 /* ---------- identity + tabs ---------- */
-.who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; margin-bottom: 16px; }
+.who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-bottom: 16px; }
+.who-text { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; min-width: 0; flex: 1 1 320px; }
 .who h1 { font-size: 22px; font-weight: 650; font-stretch: 108%; letter-spacing: -0.015em; line-height: 1.25; }
 .who p { color: var(--ink-2); font-size: 13px; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 30px; overflow-x: auto; scrollbar-width: none; }
@@ -216,13 +221,16 @@ input[type="range"] { accent-color: var(--you); margin: 0; }
 }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px 20px; min-width: 0; }
 @media (max-width: 520px) { .card { padding: 16px; } }
-.card-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.card-h { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px 12px; margin-bottom: 16px; }
 .card-t { font-size: 15px; font-weight: 620; font-stretch: 104%; letter-spacing: -0.006em; line-height: 1.35; }
 .card-d { font-size: 13px; color: var(--ink-2); margin-top: 3px; max-width: 64ch; }
 .sec { margin: 44px 0 16px; }
 .sec h2 { font-size: 19px; font-weight: 650; font-stretch: 108%; letter-spacing: -0.012em; }
 .sec p { font-size: 13.5px; color: var(--ink-2); margin-top: 4px; max-width: 70ch; }
 .empty-note { font-size: 13px; color: var(--ink-3); }
+.more-wrap { margin-top: 24px; }
+.more-btn { width: 100%; height: 40px; border-style: dashed; color: var(--ink-2); }
+.more-body { margin-top: 16px; }
 
 /* ---------- chart text & keys ---------- */
 .chart svg { display: block; }
@@ -247,11 +255,11 @@ svg .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stro
 .f-ctx { fill: var(--ctx); }
 .f-ink2 { fill: var(--ink-2); }
 .f-surface { fill: var(--surface); }
-.f-line2 { fill: var(--line-2); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 12.5px; color: var(--ink-2); }
 .key { display: inline-flex; align-items: center; gap: 7px; }
 .sw { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 3px; }
 .sw-line { display: inline-block; flex: none; width: 16px; height: 0; border-top: 2.5px solid; border-radius: 2px; }
+.sw-dash { display: inline-block; flex: none; width: 16px; height: 0; border-top: 2px dashed; }
 .sw-dot { display: inline-block; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--ink-2); }
 .sw-ring { display: inline-block; flex: none; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
 .caption { font-size: 12.5px; color: var(--ink-3); margin-top: 12px; }
@@ -336,15 +344,16 @@ svg .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stro
 .sem-h .when { font-size: 12.5px; color: var(--ink-3); }
 .sem-h .gpa { margin-left: auto; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
 .sem-h .gpa b { font-family: var(--mono); font-weight: 600; color: var(--ink); margin-left: 4px; }
-.mod { display: grid; grid-template-columns: minmax(0, 1fr) 46px 78px; gap: 12px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.mod { display: grid; grid-template-columns: minmax(0, 1fr) 50px 82px; gap: 12px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .mod-n { font-size: 13.5px; min-width: 0; }
 .mod.changed .mod-n::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--you); margin-right: 8px; vertical-align: 2px; }
+.mod.retaken .mod-n { color: var(--ink-3); text-decoration: line-through; }
 .mod-n .was { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); margin-left: 8px; white-space: nowrap; }
 .mod-cu { text-align: right; font-family: var(--mono); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 .gsel { width: 100%; font-family: var(--mono); font-size: 12.5px; }
 .gsel.changed { border-color: var(--you); box-shadow: 0 0 0 1px var(--you); }
 .pf { text-align: right; font-size: 12px; color: var(--ink-3); }
-.tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; margin-left: 8px; white-space: nowrap; vertical-align: 1px; }
+.tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; margin-left: 8px; white-space: nowrap; vertical-align: 1px; text-decoration: none; }
 .res-num { font-size: 54px; line-height: 1; font-weight: 600; font-stretch: 122%; letter-spacing: -0.03em; margin: 2px 0 10px; }
 .res-delta { font-family: var(--mono); font-size: 13px; }
 .res-note { font-size: 13px; color: var(--ink-2); }
@@ -366,18 +375,26 @@ svg .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stro
 .og-v small { display: block; font-size: 11.5px; }
 .og-sep { font-size: 12px; color: var(--ink-3); margin: 12px 0 2px; }
 
-.plan-row { display: grid; grid-template-columns: minmax(0, 1fr) 82px 70px 28px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.pl-sem { padding: 12px 0; border-top: 1px solid var(--line); }
+.card-h + .pl-sem { border-top: 0; padding-top: 0; }
+.pl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.pl-head h3 { font-size: 13.5px; font-weight: 620; }
+.pl-gpa { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+.pl-gpa label { display: inline-flex; align-items: center; gap: 8px; }
+.num-in { position: relative; display: inline-block; }
+.num-in input { width: 92px; padding-right: 34px; font-family: var(--mono); font-size: 12.5px; }
+.num-in span { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 11.5px; color: var(--ink-3); pointer-events: none; }
+.gpa-in { width: 76px; font-family: var(--mono); font-size: 12.5px; }
+.plan-row { display: grid; grid-template-columns: minmax(0, 1fr) 82px 78px 28px; gap: 8px; align-items: center; margin-top: 8px; }
 .plan-row input[type="text"] { width: 100%; }
-.cu-in { position: relative; display: block; }
-.cu-in input { width: 100%; padding-right: 30px; font-family: var(--mono); font-size: 12.5px; }
-.cu-in span { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 11.5px; color: var(--ink-3); pointer-events: none; }
-.plan-empty { font-size: 13px; color: var(--ink-3); margin-bottom: 12px; }
+.plan-row .num-in input { width: 100%; }
+.plan-row .num-in { display: block; }
 .plan-out { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
 .plan-out b { font-family: var(--mono); font-size: 17px; font-weight: 600; color: var(--ink); }
 .plan-out small { font-family: var(--mono); font-size: 12px; }
+.plan-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; font-size: 13px; color: var(--ink-2); }
 .rule { border: 0; border-top: 1px solid var(--line); margin: 18px 0 14px; }
-.sub-t { font-size: 13.5px; font-weight: 620; }
-.target-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.target-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .target-row input { flex: 1; }
 .target-row output { min-width: 42px; text-align: right; font-family: var(--mono); font-size: 15px; font-weight: 600; }
 .sentence { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
@@ -392,6 +409,7 @@ svg .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stro
 @media (max-width: 899px) {
   body.on-whatif .wi-bar { display: flex; }
   body.on-whatif .page { padding-bottom: 96px; }
+  html:has(body.on-whatif) { scroll-padding-bottom: 80px; }
 }
 
 /* ---------- universities ---------- */
@@ -403,12 +421,10 @@ svg .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stro
 .slider output { font-family: var(--mono); font-size: 13px; font-weight: 600; min-width: 36px; }
 .tool-note { font-size: 12.5px; color: var(--ink-3); margin-bottom: 18px; }
 .reach-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 12px; padding: 8px 0; border-top: 1px solid var(--line); }
-.reach-row:first-of-type { border-top: 0; }
 .reach-n { font-size: 13px; min-width: 0; }
 .reach-m { grid-column: 1; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 .reach-s { grid-column: 2; grid-row: 1 / span 2; align-self: center; text-align: right; font-size: 12.5px; }
 .pay-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 12px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
-.pay-row:first-of-type { border-top: 0; }
 .pay-n { font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pay-m { grid-column: 1; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 .pay-v { grid-column: 2; grid-row: 1 / span 2; font-family: var(--mono); font-size: 13px; font-weight: 600; }
@@ -448,19 +464,64 @@ svg .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stro
 .notes h2 { font-size: 13px; font-weight: 620; color: var(--ink-2); margin-bottom: 6px; }
 .notes p + p { margin-top: 8px; }
 
+/* ---------- review screen ---------- */
+.rv h1 { font-size: 24px; font-weight: 650; font-stretch: 108%; letter-spacing: -0.015em; }
+.rv-intro { color: var(--ink-2); font-size: 13.5px; max-width: 70ch; margin-top: 6px; }
+.rv-controls { display: grid; gap: 12px 24px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: 20px 0 16px; }
+.field { display: grid; gap: 5px; font-size: 12.5px; color: var(--ink-2); min-width: 0; }
+.field select, .field input[type="text"] { width: 100%; }
+.rv-bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 11px 14px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 13px;
+}
+.rv-bar b { font-family: var(--mono); font-weight: 600; }
+.rv-bar .ok { color: var(--good-ink); display: inline-flex; align-items: center; gap: 6px; }
+.rv-bar .off { color: var(--warn-ink); }
+.rv-issues { margin: 0 0 16px; padding: 10px 14px; border-radius: 10px; font-size: 13px; background: color-mix(in srgb, var(--warn) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line)); }
+.rv-issues ul { margin: 4px 0 0; padding-left: 18px; }
+.rv-sem { margin-bottom: 14px; }
+.rv-sem-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line-2); }
+.rv-sem-h h3 { font-size: 14px; font-weight: 620; }
+.rv-sem-h .semno { width: 62px; font-family: var(--mono); }
+.rv-sem-h .lbl { font-size: 12px; color: var(--ink-3); }
+.rv-sem-h .sum { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+.rv-cols, .rv-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 84px 118px 28px; gap: 8px; align-items: center; }
+.rv-cols { font-size: 12px; color: var(--ink-3); padding: 6px 0; }
+.rv-row { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.rv-row input { width: 100%; }
+.rv-row .cu { font-family: var(--mono); }
+.rv-row.flagged { background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.rv-why { grid-column: 1 / -1; font-size: 12px; color: var(--warn-ink); display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.rv-row .split { grid-column: 1 / -1; justify-self: start; }
+.rv-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.rv-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+.rv-err { color: var(--down-ink); font-size: 13px; }
+.rv details { margin-top: 18px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+.rv summary { cursor: pointer; font-size: 13.5px; font-weight: 600; }
+.rv details p { font-size: 12.5px; color: var(--ink-2); margin: 8px 0; }
+@media (max-width: 640px) {
+  .rv-cols { display: none; }
+  .rv-row { grid-template-columns: minmax(0, 1fr) 76px 112px 28px; grid-template-areas: "name name name name" "code cu grade x"; }
+  .rv-row .c-name { grid-area: name; } .rv-row .c-code { grid-area: code; } .rv-row .c-cu { grid-area: cu; }
+  .rv-row .c-grade { grid-area: grade; } .rv-row .c-x { grid-area: x; }
+}
+
 /* ---------- empty state ---------- */
 .drop {
-  display: grid; justify-items: center; text-align: center; padding: 64px 20px 56px; margin-top: 8px;
+  display: grid; justify-items: center; text-align: center; padding: 56px 20px 48px; margin-top: 8px;
   border: 1.5px dashed var(--line-2); border-radius: 16px; background: var(--surface);
 }
 .drop h1 { font-size: 26px; font-weight: 650; font-stretch: 110%; letter-spacing: -0.015em; margin: 18px 0 8px; }
-.drop p { max-width: 52ch; color: var(--ink-2); }
+.drop p { max-width: 56ch; color: var(--ink-2); }
 .drop .acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
 .parse-log { min-height: 18px; margin-top: 16px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
 .err {
   max-width: 56ch; margin-top: 12px; padding: 10px 12px; border-radius: 8px; text-align: left; font-size: 13px;
   border: 1px solid color-mix(in srgb, var(--down-ink) 45%, var(--line)); background: color-mix(in srgb, var(--down-ink) 7%, var(--surface));
 }
+.paste { width: 100%; max-width: 640px; margin-top: 26px; text-align: left; }
+.paste summary { cursor: pointer; font-size: 13.5px; font-weight: 600; text-align: center; }
+.paste p { font-size: 12.5px; color: var(--ink-2); margin: 8px 0; }
 .veil {
   position: fixed; inset: 10px; z-index: 80; display: none; place-items: center; pointer-events: none;
   border: 2px dashed var(--you); border-radius: 18px; background: color-mix(in srgb, var(--bg) 84%, transparent);
@@ -494,19 +555,20 @@ body.dragging .veil { display: grid; }
   </div>
 
   <div id="uploadView" hidden></div>
+  <div id="reviewView" class="rv" hidden></div>
 
   <div id="appView" hidden>
     <div class="who" id="who"></div>
     <nav class="tabs" role="tablist" id="tabs" aria-label="Sections">
-      <button class="tab" role="tab" type="button" data-view="results" aria-controls="view">Results</button>
-      <button class="tab" role="tab" type="button" data-view="whatif" aria-controls="view">What if</button>
-      <button class="tab" role="tab" type="button" data-view="unis" aria-controls="view">Universities</button>
+      <button class="tab" role="tab" type="button" id="tab-results" data-view="results" aria-controls="view">Results</button>
+      <button class="tab" role="tab" type="button" id="tab-whatif" data-view="whatif" aria-controls="view">What if</button>
+      <button class="tab" role="tab" type="button" id="tab-unis" data-view="unis" aria-controls="view">Universities</button>
     </nav>
     <main id="view" role="tabpanel"></main>
   </div>
 
   <footer class="foot">
-    <p>GradeOps reads your transcript inside this browser tab. Nothing is uploaded, and your results stay saved on this device until you clear them. Not affiliated with Ngee Ann Polytechnic, NUS, NTU or SMU.</p>
+    <p>GradeOps reads your transcript inside this browser tab. Nothing is uploaded, and your results stay saved on this device until you clear them. Works with NP, SP, NYP, RP and TP results. Not affiliated with any polytechnic or university.</p>
     <span class="spacer"></span>
     <button class="btn btn-sm" id="clearBtn" type="button" hidden>Clear saved data</button>
   </footer>
@@ -528,8 +590,12 @@ const ICON = {
   moon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.5 5.5 0 0 1 6.4 2.5a5.5 5.5 0 1 0 7.1 7.1Z"/></svg>',
   x: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>',
   plus: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>',
+  minus: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 8h10"/></svg>',
   undo: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6.5h6a3.5 3.5 0 0 1 0 7H6M6 3.5l-3 3 3 3"/></svg>',
   check: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>',
+  edit: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3L6 13H3v-3l7.5-7.5Z"/></svg>',
+  down: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>',
+  up: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l4-4 4 4"/></svg>',
   page: '<svg width="56" height="68" viewBox="0 0 56 68" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="53" height="65" rx="6" class="g-line2 f-surface" stroke-width="1.5"/><path d="M10 15h22M10 23h26M10 31h18M10 39h24M10 47h20" class="g-ctx" stroke-width="2" stroke-linecap="round"/><path d="M42 15h4M42 23h4M42 31h4M42 39h4M42 47h4" class="g-you" stroke-width="2" stroke-linecap="round"/><path d="M10 57h36" class="g-line2" stroke-width="1.5" stroke-linecap="round"/></svg>',
 };
 
@@ -562,13 +628,52 @@ function paintThemeButton() {
 })();
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ================= grade model (NP) ================= */
-const GRADE_POINTS = { "AD": 4, "A+": 4, "A": 4, "B+": 3.5, "B": 3, "C+": 2.5, "C": 2, "D+": 1.5, "D": 1, "F": 0 };
-const LADDER = ["F", "D", "D+", "C", "C+", "B", "B+", "A"];
-const GRADE_ORDER = ["AD", "A+", "A", "B+", "B", "C+", "C", "D+", "D", "F"];
-const GRADE_WORD = { "AD": "Distinction", "A+": "Excellent", "A": "Excellent", "B+": "Very good", "B": "Very good", "C+": "Good", "C": "Good", "D+": "Pass", "D": "Pass", "F": "Fail" };
+/* ================= grade models, one per poly ================= */
+/* Grade tables from each poly's published assessment rules (RP from third-party
+   summaries; its official table is behind a student login). */
+const LETTERS = { "A": 4, "B+": 3.5, "B": 3, "C+": 2.5, "C": 2, "D+": 1.5, "D": 1, "F": 0 };
+const BASE_ORDER = ["A", "B+", "B", "C+", "C", "D+", "D", "F"];
+const BASE_LADDER = ["F", "D", "D+", "C", "C+", "B", "B+", "A"];
+const COMMON_EXCLUDED = ["EX", "TRF", "PASS", "FAIL"];
+const POLYS = {
+  NP: { key: "NP", name: "Ngee Ann Polytechnic", detect: /NGEE\s*ANN/i, credit: "CU", creditLong: "credit units",
+    points: { "AD": 4, "A+": 4, ...LETTERS, "ABS": 0, "DB": 0 }, excluded: ["PX", "PM", ...COMMON_EXCLUDED],
+    dist: "AD", order: ["AD", "A+", ...BASE_ORDER], ladder: BASE_LADDER, defaultCU: null },
+  SP: { key: "SP", name: "Singapore Polytechnic", detect: /SINGAPORE\s+POLYTECHNIC/i, credit: "CU", creditLong: "credit units",
+    points: { "DIST": 4, ...LETTERS, "D-": 0.5, "P": 0.5, "ABS": 0 }, excluded: ["UP", "UF", ...COMMON_EXCLUDED],
+    dist: "DIST", order: ["DIST", ...BASE_ORDER.slice(0, 7), "D-", "F"], ladder: ["F", "D-", "D", "D+", "C", "C+", "B", "B+", "A"], defaultCU: null },
+  NYP: { key: "NYP", name: "Nanyang Polytechnic", detect: /NANYANG\s+POLYTECHNIC/i, credit: "CU", creditLong: "credit units",
+    points: { "DIST": 4, ...LETTERS, "NGP": 1, "DEB": 0 }, excluded: ["P", "CP", "NCP", "SP", "SF", "AEG", "AUD", "DEF", "WDC", "WDL", ...COMMON_EXCLUDED],
+    dist: "DIST", order: ["DIST", ...BASE_ORDER], ladder: BASE_LADDER, defaultCU: null },
+  RP: { key: "RP", name: "Republic Polytechnic", detect: /REPUBLIC\s+POLYTECHNIC/i, credit: "MC", creditLong: "modular credits",
+    points: { "DIST": 4, ...LETTERS, "ABS": 0 }, excluded: ["P", ...COMMON_EXCLUDED],
+    dist: null, order: [...BASE_ORDER], ladder: BASE_LADDER, defaultCU: 4 },
+  TP: { key: "TP", name: "Temasek Polytechnic", detect: /TEMASEK\s+POLYTECHNIC/i, credit: "CU", creditLong: "credit units",
+    points: { "Z": 4, ...LETTERS, "P": 1 }, excluded: ["PC", "AEG", ...COMMON_EXCLUDED],
+    dist: "Z", order: ["Z", ...BASE_ORDER], ladder: BASE_LADDER, defaultCU: null },
+};
+const POLY_KEYS = ["NP", "SP", "NYP", "RP", "TP"];
+const ALL_CODES = new Set(["PC", "PM", "PASS", "FAIL"]);
+for (const p of Object.values(POLYS)) { Object.keys(p.points).forEach(k => ALL_CODES.add(k)); p.excluded.forEach(k => ALL_CODES.add(k)); }
+const NOT_EARNED = new Set(["F", "ABS", "DB", "DEB", "UF", "FAIL", "NCP", "SF", "WDC", "WDL", "DEF", "AUD"]);
+let POLY = POLYS.NP, GRADE_POINTS = POLY.points, LADDER = POLY.ladder, GRADE_ORDER = POLY.order;
+function setPoly(key) {
+  POLY = POLYS[key] || POLYS.NP;
+  GRADE_POINTS = POLY.points; LADDER = POLY.ladder; GRADE_ORDER = POLY.order;
+}
 const gp = g => GRADE_POINTS[g];
-const isGraded = g => g in GRADE_POINTS;
+const isGraded = g => Object.prototype.hasOwnProperty.call(GRADE_POINTS, g);
+const isKnown = g => isGraded(g) || POLY.excluded.includes(g);
+const CU = () => POLY.credit;
+function gradeWord(g) {
+  const p = gp(g);
+  if (p == null) return "not counted in GPA";
+  if (p === 4) return g === POLY.dist ? "distinction" : "excellent";
+  if (p >= 3) return "very good";
+  if (p >= 2) return "good";
+  if (p > 0) return "pass";
+  return "fail";
+}
 function stepUp(g) {
   const p = gp(g); if (p == null || p >= 4) return null;
   for (const cand of LADDER) if (gp(cand) > p) return cand;
@@ -582,7 +687,7 @@ function stepDown(g) {
 }
 
 /* ================= text & number helpers ================= */
-const KEEP_UPPER = new Set(["AI", "IT", "ID", "I", "II", "III", "IV", "UX", "UI", "IOT", "ICT", "SQL", "3D", "2D", "NP"]);
+const KEEP_UPPER = new Set(["AI", "IT", "ID", "I", "II", "III", "IV", "UX", "UI", "IOT", "ICT", "SQL", "3D", "2D", "NP", "SP", "NYP", "RP", "TP"]);
 const SMALL_WORDS = new Set(["a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "with", "vs"]);
 function capWord(part, force) {
   const m = part.match(/^([^A-Za-z0-9]*)(.*?)([^A-Za-z0-9]*)$/);
@@ -612,58 +717,123 @@ const fmtPay = v => "$" + v.toLocaleString("en-SG");
 const plural = (n, one, many) => n + " " + (n === 1 ? one : (many || one + "s"));
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 const article = g => /^[AF]/.test(g) ? "an" : "a";
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function numWord(n) { return ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][n] || String(n); }
 function listJoin(arr) {
   if (arr.length <= 1) return arr.join("");
   return arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1];
 }
+const sumOf = arr => arr.reduce((a, b) => a + b, 0);
+const median = arr => { const s = [...arr].sort((a, b) => a - b); const n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; };
+/* Lowest value a GPA scale should start at: 3.0 for most students, lower in half steps when needed. */
+const axisLo = vals => Math.min(3, Math.floor((Math.min(...vals.filter(v => v != null && isFinite(v))) - 0.05) * 2) / 2);
 
 /* ================= state ================= */
 const S = {
   data: null,
   overrides: {},
-  planner: [],
+  plan: { sems: [] },
   view: "results",
   igp: { source: "transcript", bonus: false, custom: 3.80, filter: "all", sort: "bar" },
   distMode: "count",
   target: null,
   focusId: null,
   needleDone: false,
+  more: { results: false, whatif: false, unis: false },
+  review: null,
 };
 
 /* ================= compute ================= */
-function computeAll(data, overrides, planner) {
+const modKey = m => m.code || String(m.name || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+/* A failed module retaken later only counts once, under the "latest attempt" rule. */
+function supersededIds(data) {
+  const seen = new Map(), out = new Set();
+  for (const s of data.semesters) for (const m of s.modules) {
+    const k = modKey(m);
+    const prev = seen.get(k);
+    if (prev && (NOT_EARNED.has(prev.grade) || (m.attempt || 1) > 1)) out.add(prev.id);
+    seen.set(k, m);
+  }
+  return out;
+}
+function computeAll(data, overrides) {
+  const drop = data.rules && data.rules.retake === "all" ? new Set() : supersededIds(data);
   const sems = [];
   let cumPts = 0, cumCU = 0, cumEarned = 0;
   for (const s of data.semesters) {
     let pts = 0, cu = 0, earned = 0;
     for (const m of s.modules) {
+      if (drop.has(m.id)) continue;
+      const c = m.cu > 0 ? m.cu : 0;
       const g = (overrides && overrides[m.id]) || m.grade;
-      earned += (g === "F" || g === "ABS" || g === "DB") ? 0 : m.cu;
-      if (isGraded(g)) { pts += gp(g) * m.cu; cu += m.cu; }
+      if (!NOT_EARNED.has(g)) earned += c;
+      if (isGraded(g)) { pts += gp(g) * c; cu += c; }
     }
     cumPts += pts; cumCU += cu; cumEarned += earned;
     sems.push({ ...s, pts, gradedCU: cu, earned, gpa: cu ? pts / cu : null, cgpa: cumCU ? cumPts / cumCU : null });
   }
-  let plannedCU = 0, plannedPts = 0;
-  for (const p of (planner || [])) {
-    if (p.cu > 0 && isGraded(p.grade)) { plannedCU += p.cu; plannedPts += gp(p.grade) * p.cu; }
+  return { sems, cumPts, cumCU, cumEarned, cgpa: cumCU ? cumPts / cumCU : null, dropped: drop };
+}
+const lastSemNo = () => { const s = S.data.semesters; return s[s.length - 1].sem; };
+
+/* Credits a typical remaining semester will carry, from the student's own record. */
+function estimateCU(data) {
+  const totals = data.semesters.map(s => ({ t: sumOf(s.modules.filter(m => isGraded(m.grade)).map(m => m.cu || 0)), big: Math.max(0, ...s.modules.map(m => m.cu || 0)) }));
+  const usable = totals.filter(x => x.t > 0 && !(x.big >= 10 && x.big >= x.t / 2));
+  const pool = (usable.length ? usable : totals.filter(x => x.t > 0)).map(x => x.t);
+  if (!pool.length) return 20;
+  return clamp(Math.round(median(pool)), 8, 30);
+}
+function reconcilePlan(legacy) {
+  if (!S.data) return;
+  const last = lastSemNo(), total = S.data.totalSems;
+  const est = estimateCU(S.data);
+  const old = new Map(((S.plan && S.plan.sems) || []).map(p => [p.sem, p]));
+  const sems = [];
+  for (let n = last + 1; n <= total; n++) {
+    const o = old.get(n) || {};
+    const mods = Array.isArray(o.modules) ? o.modules.filter(m => m && typeof m.name === "string").map(m => ({
+      name: m.name.slice(0, 100), cu: clamp(+m.cu || 4, 0.5, 40), grade: GRADE_ORDER.includes(m.grade) ? m.grade : "A",
+    })) : [];
+    sems.push({
+      sem: n,
+      cu: isFinite(+o.cu) && +o.cu > 0 ? clamp(+o.cu, 0.5, 60) : est,
+      mode: o.mode === "modules" ? "modules" : "gpa",
+      targetGpa: o.targetGpa != null && isFinite(+o.targetGpa) ? clamp(+o.targetGpa, 0, 4) : null,
+      modules: mods,
+    });
   }
-  const projected = (cumCU + plannedCU) ? (cumPts + plannedPts) / (cumCU + plannedCU) : null;
-  return { sems, cumPts, cumCU, cumEarned, cgpa: cumCU ? cumPts / cumCU : null, plannedCU, plannedPts, projected };
+  if (legacy && legacy.length && sems.length) {
+    sems[0].mode = "modules";
+    sems[0].modules = legacy.filter(p => p && p.cu > 0).map(p => ({ name: String(p.name || "").slice(0, 100), cu: clamp(+p.cu, 0.5, 40), grade: GRADE_ORDER.includes(p.grade) ? p.grade : "A" }));
+  }
+  S.plan = { sems };
 }
-function remainingBlocks() {
-  const pl = S.planner.filter(p => p.cu > 0);
-  return pl.length ? pl.map(p => p.cu) : [4, 4, 4, 4, 4];
+/* One entry per remaining semester: its credits and, if planned, its grade points. */
+function planBlocks() {
+  if (!S.data || !S.plan) return [];
+  return S.plan.sems.map(p => {
+    const listed = p.mode === "modules" ? p.modules.filter(m => m.cu > 0 && isGraded(m.grade)) : [];
+    if (listed.length) return { sem: p.sem, cu: sumOf(listed.map(m => m.cu)), pts: sumOf(listed.map(m => gp(m.grade) * m.cu)), mods: listed };
+    return { sem: p.sem, cu: p.cu, pts: p.mode === "gpa" && p.targetGpa != null ? p.targetGpa * p.cu : null, mods: null };
+  });
 }
-const sumOf = arr => arr.reduce((a, b) => a + b, 0);
-const ceilingAfter = (base, P) => (base.cumPts + 4 * P) / (base.cumCU + P);
-function nextSemNo() { const s = S.data.semesters; return s[s.length - 1].sem + 1; }
+/* Finishing CGPA if each remaining semester scores its planned points (or `fill` grade points when unplanned). */
+function finishWith(c, blocks, fill) {
+  let pts = c.cumPts, cu = c.cumCU;
+  for (const b of blocks) {
+    const p = b.pts != null ? b.pts : fill != null ? fill * b.cu : null;
+    if (p == null) continue;
+    pts += p; cu += b.cu;
+  }
+  return cu ? pts / cu : null;
+}
+const allAt = (c, blocks, g) => finishWith(c, blocks.map(b => ({ ...b, pts: g * b.cu })), null);
 
 /* ================= sample data (fictional) ================= */
 function sampleData() {
   let id = 0;
-  const M = (name, cu, grade, attempt = 1) => ({ id: "s" + (id++), name, cu, grade, attempt });
+  const M = (name, cu, grade, attempt = 1) => ({ id: "s" + (id++), code: null, name, cu, grade, attempt, flag: null });
   const sems = [
     { sem: 1, exam: "AUG 2023", result: "Passed", modules: [
       M("COMPUTING MATHEMATICS", 4, "A"), M("PROGRAMMING I", 5, "B+"),
@@ -681,31 +851,29 @@ function sampleData() {
       M("MALWARE ANALYSIS TOOLS & TECHNIQUES", 4, "B+"), M("WEB APPLICATION PEN-TESTING", 4, "A+"),
       M("FUNDAMENTALS FOR IT PROFESSIONALS II", 2, "A"), M("WORLD ISSUES: A SINGAPORE PERSPECTIVE", 2, "B"),
     ]},
-    { sem: 4, exam: "FEB 2025", result: "Passed", modules: [
-      M("CYBERSECURITY OPERATIONS & THREAT INTELL", 4, "AD"), M("DIGITAL FORENSICS", 4, "A"),
-      M("CYBER GOVERNANCE, RISK & COMPLIANCE", 4, "B+"), M("AI TOOLS & TECHNIQUES FOR CYBERSECURITY", 4, "A"),
-      M("FUNDAMENTALS FOR IT PROFESSIONALS III", 2, "A+"),
-    ]},
-    { sem: 5, exam: "AUG 2025", result: "Passed", modules: [
-      M("6-MONTH INTERNSHIP", 20, "A"), M("PROJECT ID: CONNECTING THE DOTS", 4, "AD"),
-    ]},
   ];
   const data = {
-    student: { name: "SAMPLE STUDENT", id: "S0000000A", course: "CYBERSECURITY & DIGITAL FORENSICS" },
-    semesters: sems,
+    v: 2, poly: "NP", polySource: "auto", source: "sample", confidence: 1, totalSems: 6, rules: { retake: "latest" },
+    student: { name: "SAMPLE STUDENT", course: "CYBERSECURITY & DIGITAL FORENSICS" },
+    semesters: sems, issues: [],
     learningUnits: [{ minor: "Minor in Entrepreneurship", name: "ECOMMERCE FOR ENTREPRENEURS", grade: "PX" }],
     sample: true,
   };
-  const c = computeAll(data, null, null);
-  data.semesters.forEach((s, i) => { s.printedGPA = c.sems[i].gpa; s.printedCGPA = c.sems[i].cgpa; s.cuObtained = c.sems[i].earned; });
+  setPoly("NP");
+  const c = computeAll(data, null);
+  data.semesters.forEach((s, i) => { s.printedCGPA = c.sems[i].cgpa; s.printedDp = 4; });
   return data;
 }
 
-/* ================= PDF parsing ================= */
+/* ================= reading transcripts ================= */
+/* NP's Statement of Examination Results: one page per semester. Verified against a real PDF. */
 const GRADE_RX = "A\\+|B\\+|C\\+|D\\+|AD|PX|PM|ABS|DB|EX|TRF|A|B|C|D|F";
 const MODULE_RX = new RegExp("^(.+?)\\s+(\\d+\\.\\d{2})\\s+(" + GRADE_RX + ")\\s+(\\d+)(?:\\s+(.+))?$");
+const MODULE_ANY_RX = /^(.+?)\s+(\d+\.\d{2})\s+([A-Z][A-Z+\-]{0,4})\s+(\d+)(?:\s+(.+))?$/;
 const LONE_GRADE_RX = new RegExp("^(" + GRADE_RX + ")$");
 const END_GRADE_RX = new RegExp("^(.+?)\\s+(" + GRADE_RX + ")$");
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const examKey = s => { const m = s && s.match(/([A-Z]{3})[A-Z]*\s+(\d{4})/); return m ? +m[2] * 12 + MONTHS.indexOf(m[1]) : null; };
 
 async function extractPageLines(pdf) {
   const pages = [];
@@ -733,15 +901,14 @@ async function extractPageLines(pdf) {
 
 function parseTranscript(pages) {
   const student = { name: null, id: null, course: null };
-  const semMap = new Map();
+  const found = [];
   const learningUnits = [];
-  let anySemester = false;
+  const issues = [];
 
   for (const lines of pages) {
     const text = lines.join("\n");
     const grab = rx => { const m = text.match(rx); return m ? m[1].trim() : null; };
     if (!student.name) student.name = grab(/^NAME\s*:\s*(.+)$/m);
-    if (!student.id) student.id = grab(/STUDENT No\.?\s*:\s*(\S+)/im);
     if (!student.course) student.course = grab(/^COURSE\s*:\s*(.+)$/m);
 
     const minor = grab(/^MINOR\s*:\s*(.+)$/m);
@@ -771,35 +938,235 @@ function parseTranscript(pages) {
       continue;
     }
     if (!semNo) continue;
-    anySemester = true;
 
+    const printed = grab(/CUMULATIVE GPA\s*:\s*([\d.]+)/);
     const sem = {
       sem: parseInt(semNo, 10),
       exam: grab(/DATE OF EXAMINATION\s*:\s*([A-Z]{3,9}\s+\d{4})/),
-      cuObtained: parseFloat(grab(/CREDIT UNITS OBTAINED\s*:\s*([\d.]+)/) || "NaN"),
-      printedGPA: parseFloat(grab(/GRADE POINT AVERAGE\s*:\s*([\d.]+)/) || "NaN"),
-      printedCGPA: parseFloat(grab(/CUMULATIVE GPA\s*:\s*([\d.]+)/) || "NaN"),
+      printedCGPA: printed ? parseFloat(printed) : null,
+      printedDp: printed && printed.includes(".") ? printed.split(".")[1].length : 0,
       result: grab(/RESULT\s*:\s*(.+)$/m),
       modules: [],
     };
     for (const ln of lines) {
       if (/^RESULT\s*:/.test(ln) || /^LEGEND/.test(ln)) break;
       const m = ln.match(MODULE_RX);
-      if (m) sem.modules.push({
-        id: "m" + sem.sem + "_" + sem.modules.length,
-        name: m[1].trim(), cu: parseFloat(m[2]), grade: m[3], attempt: parseInt(m[4], 10),
-        remarks: (m[5] || "").trim() || null,
-      });
+      if (m) { sem.modules.push({ code: null, name: m[1].trim(), cu: parseFloat(m[2]), grade: m[3], attempt: parseInt(m[4], 10), flag: null }); continue; }
+      const u = ln.match(MODULE_ANY_RX);
+      if (u) sem.modules.push({ code: null, name: u[1].trim(), cu: parseFloat(u[2]), grade: u[3], attempt: parseInt(u[4], 10), flag: "grade" });
     }
-    if (sem.modules.length) semMap.set(sem.sem, sem);
+    if (sem.modules.length) found.push(sem);
   }
 
-  if (!anySemester || semMap.size === 0) {
-    throw new Error("This doesn't look like an NP results statement. GradeOps needs the Statement of Examination Results, where each page lists a semester's modules, grades and cumulative GPA.");
+  if (!found.length) throw new Error("No NP result pages found.");
+  // A semester can continue onto a second page with the same number and exam date: merge those.
+  found.sort((a, b) => a.sem - b.sem || (examKey(a.exam) || 0) - (examKey(b.exam) || 0));
+  const semesters = [];
+  for (const s of found) {
+    const prev = semesters[semesters.length - 1];
+    if (prev && prev.sem === s.sem && prev.exam === s.exam) {
+      prev.modules.push(...s.modules);
+      if (s.printedCGPA != null) { prev.printedCGPA = s.printedCGPA; prev.printedDp = s.printedDp; }
+    } else semesters.push(s);
   }
-  const semesters = [...semMap.values()].sort((a, b) => a.sem - b.sem);
-  return { student, semesters, learningUnits, sample: false };
+  if (new Set(semesters.map(s => s.sem)).size !== semesters.length) {
+    semesters.sort((a, b) => (examKey(a.exam) || 0) - (examKey(b.exam) || 0));
+    semesters.forEach((s, i) => { s.sem = i + 1; });
+    issues.push("Two result pages had the same semester number, so semesters were renumbered by exam date. Check the numbers below.");
+  }
+  semesters.forEach(s => s.modules.forEach((m, i) => { m.id = "m" + s.sem + "_" + i; }));
+  return { student, semesters, learningUnits, issues, sample: false };
 }
+
+/* Any other layout: find rows that hold a grade and a credit value (and often a module code). */
+const PHRASES = [[/\bPASS\s+WITH\s+COMMENDATION\b/g, "PC"], [/\bPASS\s+WITH\s+MERIT\b/g, "PM"], [/\bEXEMPTED\b/g, "EX"]];
+const NUM_TOKEN = /^\(?(\d{1,2}(?:\.\d{1,2})?)\)?$/;
+const MOD_CODE = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{4,9}$/;
+const COMMON_CU = new Set([1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 16, 20, 24, 30]);
+const pointValues = g => [...new Set(Object.values(POLYS).map(p => p.points[g]).filter(v => v != null))];
+
+function rowOf(line) {
+  let U = line.toUpperCase();
+  for (const [rx, rep] of PHRASES) U = U.replace(rx, rep);
+  const T = U.split(/\s+/).filter(Boolean);
+  if (T.length < 2) return null;
+  let gi = -1;
+  for (let i = T.length - 1; i >= 1; i--) if (ALL_CODES.has(T[i])) { gi = i; break; }
+  let unknownGrade = false;
+  // An unfamiliar code at the end of a row that clearly has a module code and credits: keep it, flagged.
+  if (gi < 0 && T.length >= 3 && MOD_CODE.test(T[0]) && /^[A-Z][A-Z+\-]{0,3}$/.test(T[T.length - 1]) && T.slice(1, -1).some(t => NUM_TOKEN.test(t))) { gi = T.length - 1; unknownGrade = true; }
+  if (gi < 0) return null;
+  const grade = T[gi];
+  let start = 0;
+  if (/^\d{1,2}\.?$/.test(T[0]) && T.length > 3) start = 1;
+  let code = null;
+  if (MOD_CODE.test(T[start]) && !KEEP_UPPER.has(T[start])) { code = T[start]; start++; }
+  else if (start === 1 && !/^[A-Z]/.test(T[1])) start = 0;
+  const used = new Set([gi]);
+  if (code) used.add(start - 1);
+  if (start === 1 && !code) used.add(0);
+  let pool = [];
+  T.forEach((t, i) => {
+    if (used.has(i)) return;
+    const m = t.match(NUM_TOKEN);
+    if (!m) return;
+    const v = +m[1];
+    if (v >= 0.5 && v <= 30) pool.push({ i, v, dec: m[1].includes(".") });
+  });
+  const numIdx = new Set(pool.map(c => c.i));
+  let attempt = 1;
+  const after = pool.find(c => c.i === gi + 1);
+  if (pool.length > 1 && after && pointValues(grade).includes(after.v)) pool = pool.filter(c => c !== after);
+  const tail = pool.find(c => c.i === T.length - 1 && c.i > gi && !c.dec && c.v <= 3);
+  if (pool.length > 1 && tail) { attempt = tail.v; pool = pool.filter(c => c !== tail); }
+  let cu = null;
+  if (pool.length) {
+    const pick = pool.find(c => c.dec) || pool.find(c => c.i === gi - 1 || c.i === gi + 1) || pool.find(c => COMMON_CU.has(c.v)) || pool[0];
+    cu = pick.v;
+  }
+  let best = [], run = [];
+  for (let i = 0; i < T.length; i++) {
+    const skip = used.has(i) || numIdx.has(i) || /^[\d.()%\/-]+$/.test(T[i]) || i > gi;
+    if (skip) { if (run.length > best.length) best = run; run = []; } else run.push(i);
+  }
+  if (run.length > best.length) best = run;
+  const name = best.map(i => T[i]).join(" ").replace(/^[-:|]+|[-:|]+$/g, "").trim();
+  if ((name.match(/[A-Z]/g) || []).length < 3) return null;
+  if (cu == null && !code) return null;
+  return { code, name, cu, grade, attempt, flag: unknownGrade ? "grade" : cu == null ? "cu" : null };
+}
+
+function headingOf(U) {
+  let m;
+  if ((m = U.match(/\b(?:AY|ACADEMIC\s+YEAR)\s*(20\d{2})\s*[\/-]\s*(\d{2,4})\b.*?\b(?:SEM(?:ESTER)?|TERM)\s*0?([1-4])\b/))) return { key: +m[1] * 10 + +m[3] };
+  if ((m = U.match(/\b(?:SEM(?:ESTER)?|TERM)\s*0?([1-4])\b.*?\b(?:AY|ACADEMIC\s+YEAR)\s*(20\d{2})/))) return { key: +m[2] * 10 + +m[1] };
+  if ((m = U.match(/\bYEAR\s*([1-4])\W{0,3}\s*(?:SEM(?:ESTER)?|TERM)\s*0?([1-3])\b/))) return { num: (+m[1] - 1) * 2 + +m[2] };
+  if ((m = U.match(/^(?:SEMESTER|SEM|TERM|STAGE|LEVEL)\s*(?:OF\s+STUDY)?\s*[:.\-]?\s*0?(\d{1,2})\b/))) return { num: +m[1] };
+  const mon = "(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\\.?\\s+(20\\d{2})";
+  if ((m = U.match(new RegExp("\\b" + mon + "\\b.*\\b(?:SEMESTER|EXAM|EXAMINATION|TERM)\\b"))) || (m = U.match(new RegExp("\\b(?:SEMESTER|EXAM|EXAMINATION|TERM)\\b.*\\b" + mon + "\\b"))))
+    return { exam: m[1] + " " + m[2] };
+  return null;
+}
+
+function readGeneric(pages) {
+  const student = { name: null, course: null };
+  const sems = [];
+  let cur = null, rows = 0, unmatched = 0, anyHeading = false, anyClose = false;
+  const open = h => { cur = { h, label: null, printedCGPA: null, printedDp: 0, modules: [], closed: false }; sems.push(cur); };
+  pages.forEach((lines, pi) => {
+    for (const raw of lines) {
+      const ln = String(raw).replace(/\s+/g, " ").trim();
+      if (!ln) continue;
+      const U = ln.toUpperCase();
+      let m;
+      if (!student.name && (m = ln.match(/^(?:student\s+)?name\s*[:\-]\s*(.+)$/i))) { student.name = m[1].trim(); continue; }
+      if (!student.course && (m = ln.match(/^(?:course|diploma|programme|program)(?:\s+(?:of\s+study|title|name))?\s*[:\-]\s*(.+)$/i))) { student.course = m[1].trim(); continue; }
+      if (/^(LEGEND|PAGE\s+\d|NRIC|FIN\b|THIS IS A COMPUTER|TOTAL\b)/.test(U)) continue;
+      if ((m = U.match(/(?:CUMULATIVE\s+(?:GPA|GRADE\s+POINT\s+AVERAGE)|\bC\.?GPA)\s*[:=]?\s*([0-4]\.\d{1,4})\b/))) {
+        if (!cur) open(null);
+        cur.printedCGPA = parseFloat(m[1]);
+        cur.printedDp = m[1].split(".")[1].length;
+        if (cur.modules.length) { cur.closed = true; anyClose = true; }
+        continue;
+      }
+      const r = rowOf(ln);
+      const h = !r && U.length < 80 ? headingOf(U) : null;
+      if (h) { open(h); cur.label = ln; anyHeading = true; continue; }
+      if (/\b(?:GPA|GRADE\s+POINT\s+AVERAGE)\s*[:=]?\s*[0-4]\.\d{1,4}\b/.test(U)) continue;
+      if (r) {
+        if (!cur || cur.closed) open(null);
+        r.page = pi;
+        cur.modules.push(r); rows++;
+        continue;
+      }
+      if (/[A-Z]{3}/.test(U) && (/\b\d{1,2}(\.\d{1,2})?\b/.test(U) || U.split(" ").some(t => MOD_CODE.test(t)))) unmatched++;
+    }
+  });
+  let list = sems.filter(s => s.modules.length);
+  if (!anyHeading && !anyClose) {
+    const byPage = new Map();
+    for (const s of list) for (const m of s.modules) { if (!byPage.has(m.page)) byPage.set(m.page, { h: null, label: null, printedCGPA: s.printedCGPA, printedDp: s.printedDp, modules: [] }); byPage.get(m.page).modules.push(m); }
+    list = [...byPage.values()];
+  }
+  // Number semesters by dates or printed numbers when they're consistent, otherwise by order of appearance.
+  const keyOf = s => s.h && (s.h.key != null ? s.h.key : s.h.exam ? examKey(s.h.exam) : null);
+  if (list.length && list.every(s => keyOf(s) != null)) list.sort((a, b) => keyOf(a) - keyOf(b));
+  const nums = list.map(s => s.h && s.h.num);
+  const useNums = list.length && nums.every(n => n != null) && new Set(nums).size === nums.length;
+  const issues = [];
+  if (nums.filter(n => n != null).length !== new Set(nums.filter(n => n != null)).size)
+    issues.push("Some sections had the same semester number, so semesters are numbered in the order they appear. Check the numbers below.");
+  if (useNums) list.sort((a, b) => a.h.num - b.h.num);
+  const semesters = list.map((s, i) => ({
+    sem: useNums ? s.h.num : i + 1,
+    label: s.label, exam: s.h && s.h.exam ? s.h.exam : null,
+    printedCGPA: s.printedCGPA, printedDp: s.printedDp, result: null,
+    modules: s.modules.map((m, j) => ({ id: "g" + (i + 1) + "_" + j, code: m.code, name: m.name, cu: m.cu, grade: m.grade, attempt: m.attempt, flag: m.flag })),
+  }));
+  return { student, semesters, learningUnits: [], issues, rows, unmatched };
+}
+
+function detectPoly(text, d) {
+  for (const k of POLY_KEYS) if (POLYS[k].detect.test(text)) return { poly: k, how: "auto" };
+  const grades = new Set(d.semesters.flatMap(s => s.modules.map(m => m.grade)));
+  if (grades.has("Z")) return { poly: "TP", how: "guess" };
+  if (grades.has("D-")) return { poly: "SP", how: "guess" };
+  if (grades.has("NGP") || grades.has("DEB") || /CREDIT\s+VALUE|LEARNING\s+UNIT|COMPETENCY\s+UNIT/i.test(text)) return { poly: "NYP", how: "guess" };
+  if (/MODULAR\s+CREDIT|\bMCS?\b/i.test(text)) return { poly: "RP", how: "guess" };
+  if (grades.has("AD") || grades.has("PX")) return { poly: "NP", how: "guess" };
+  if (grades.has("DIST")) return { poly: "SP", how: "guess" };
+  return { poly: "NP", how: "guess" };
+}
+const matchTol = dp => (dp ? 0.5 * Math.pow(10, -dp) : 0.006) + 0.0002;
+
+/* Add poly, rules and confidence to whatever a reader produced. */
+function finalise(raw, meta) {
+  const d = {
+    v: 2, poly: meta.poly, polySource: meta.polySource, source: meta.source, confidence: 0,
+    totalSems: 6, rules: { retake: "latest" },
+    student: { name: raw.student && raw.student.name || null, course: raw.student && raw.student.course || null },
+    learningUnits: raw.learningUnits || [], issues: raw.issues || [], sample: false,
+    semesters: raw.semesters,
+  };
+  const P = POLYS[d.poly];
+  setPoly(d.poly);
+  for (const s of d.semesters) for (const m of s.modules) {
+    if (m.cu == null) { if (P.defaultCU) { m.cu = P.defaultCU; m.flag = "cu-guess"; } else { m.cu = 0; m.flag = "cu"; } }
+    if (!m.flag && !isKnown(m.grade)) m.flag = "grade";
+    if (!m.flag && m.grade === "P" && (d.poly === "RP" || d.poly === "NP")) m.flag = "p";
+  }
+  d.totalSems = Math.max(6, d.semesters[d.semesters.length - 1].sem);
+  const lastP = [...d.semesters].reverse().find(s => s.printedCGPA != null);
+  const printed = lastP ? lastP.printedCGPA : null;
+  const tol = lastP ? matchTol(lastP.printedDp) : 0;
+  if (printed != null) {
+    const a = computeAll({ ...d, rules: { retake: "latest" } }).cgpa;
+    const b = computeAll({ ...d, rules: { retake: "all" } }).cgpa;
+    if (!(a != null && Math.abs(a - printed) < tol) && b != null && Math.abs(b - printed) < tol) d.rules.retake = "all";
+  }
+  const comp = computeAll(d).cgpa;
+  const agree = printed == null ? 0.5 : comp != null && Math.abs(comp - printed) < Math.max(tol, 0.006) ? 1 : 0;
+  const rows = sumOf(d.semesters.map(s => s.modules.length));
+  const cover = meta.unmatched == null ? 1 : rows / Math.max(1, rows + meta.unmatched);
+  d.confidence = 0.5 * agree + 0.3 * cover + 0.2 * Math.min(1, rows / 5);
+  return d;
+}
+const flaggedCount = d => sumOf(d.semesters.map(s => s.modules.filter(m => m.flag).length));
+const needsReview = d => d.source !== "pdf-np" || d.confidence < 0.85 || flaggedCount(d) > 0 || (d.issues && d.issues.length > 0) || d.polySource !== "auto";
+
+function readAny(pages, source) {
+  const text = pages.map(p => p.join("\n")).join("\n");
+  let np = null;
+  try { np = parseTranscript(pages); } catch (e) { np = null; }
+  if (np) return finalise(np, { poly: "NP", polySource: "auto", source: source === "paste" ? "paste" : "pdf-np" });
+  const g = readGeneric(pages);
+  if (!g.semesters.length) throw new Error(source !== "paste" && text.replace(/\s/g, "").length < 40
+    ? "There's no readable text in this file. If it's a scanned image or photo, type your modules in instead."
+    : "No module rows found. Each row needs a module name, its credits and a grade. You can type your modules in instead.");
+  const det = detectPoly(text, g);
+  return finalise(g, { poly: det.poly, polySource: det.how, source: source === "paste" ? "paste" : "pdf-generic", unmatched: g.unmatched });
+}
+const pagesFromText = text => [String(text).split(/\r?\n/).map(l => l.replace(/\t/g, " "))];
 
 async function handleFile(file) {
   const inUpload = !document.getElementById("uploadView").hidden;
@@ -812,18 +1179,16 @@ async function handleFile(file) {
   };
   try {
     if (!file || (!/pdf$/i.test(file.type || "") && !/\.pdf$/i.test(file.name || ""))) {
-      say("That file isn't a PDF. Save your Statement of Examination Results as a PDF and try again.", "error"); return;
+      say("That file isn't a PDF. Save your results as a PDF and try again, or type your modules in instead.", "error"); return;
     }
     if (!window.pdfjsLib) { say("The PDF reader didn't load. Check your connection, then reload the page.", "error"); return; }
     say("Reading " + file.name + "…");
     const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
     say("Reading " + plural(pdf.numPages, "page") + "…");
-    const data = parseTranscript(await extractPageLines(pdf));
-    S.data = data; S.overrides = {}; S.planner = []; S.view = "results"; S.needleDone = false;
-    persist();
+    const data = readAny(await extractPageLines(pdf), "pdf");
     notice(null);
-    mount();
-    scrollTo({ top: 0 });
+    if (needsReview(data)) openReview(data, { fresh: true, reason: data.source === "pdf-np" ? "flags" : "generic" });
+    else commitData(data, true);
   } catch (e) {
     say(e && e.name === "PasswordException"
       ? "This PDF asks for a password. Save a copy without the password and upload that instead."
@@ -831,27 +1196,116 @@ async function handleFile(file) {
   }
 }
 
+function commitData(d, fresh) {
+  S.data = d;
+  setPoly(d.poly);
+  if (fresh) {
+    S.overrides = {}; S.plan = { sems: [] }; S.target = null; S.igp.source = "transcript";
+    S.view = "results"; S.needleDone = false;
+  }
+  pruneOverrides();
+  reconcilePlan();
+  persist();
+  S.review = null;
+  mount();
+  scrollTo({ top: 0 });
+}
+
 /* ================= persistence ================= */
+const STORE = "gradeops.v2";
+function sanitize(d) {
+  if (!d || typeof d !== "object" || !Array.isArray(d.semesters)) return null;
+  const poly = POLYS[d.poly] ? d.poly : "NP";
+  const ids = new Set();
+  let seq = 0;
+  const sems = [];
+  for (const s of d.semesters) {
+    if (!s || !Array.isArray(s.modules)) continue;
+    const mods = [];
+    for (const m of s.modules) {
+      if (!m || typeof m.name !== "string" || typeof m.grade !== "string" || !m.name.trim()) continue;
+      let id = typeof m.id === "string" && m.id ? m.id : "u" + (seq++);
+      while (ids.has(id)) id = "u" + (seq++);
+      ids.add(id);
+      const cu = +m.cu;
+      mods.push({
+        id, code: typeof m.code === "string" && m.code ? m.code.slice(0, 12) : null, name: m.name.trim().slice(0, 120),
+        cu: isFinite(cu) && cu >= 0 ? Math.min(cu, 40) : 0, grade: m.grade.trim().toUpperCase().slice(0, 6),
+        attempt: Math.max(1, Math.round(+m.attempt) || 1), flag: typeof m.flag === "string" ? m.flag : null,
+      });
+    }
+    if (!mods.length) continue;
+    const pc = +s.printedCGPA;
+    sems.push({
+      sem: Math.max(1, Math.round(+s.sem) || sems.length + 1),
+      label: typeof s.label === "string" ? s.label.slice(0, 100) : null,
+      exam: typeof s.exam === "string" ? s.exam.slice(0, 20) : null,
+      printedCGPA: s.printedCGPA != null && isFinite(pc) && pc >= 0 && pc <= 4 ? pc : null,
+      printedDp: Math.max(0, Math.min(6, +s.printedDp || (s.printedCGPA != null ? 4 : 0))),
+      result: typeof s.result === "string" ? s.result.slice(0, 40) : null,
+      modules: mods,
+    });
+  }
+  if (!sems.length) return null;
+  sems.sort((a, b) => a.sem - b.sem);
+  if (new Set(sems.map(s => s.sem)).size !== sems.length) sems.forEach((s, i) => { s.sem = i + 1; });
+  const str = v => typeof v === "string" && v.trim() ? v.trim().slice(0, 120) : null;
+  return {
+    v: 2, poly, polySource: ["auto", "guess", "user"].includes(d.polySource) ? d.polySource : "user",
+    source: typeof d.source === "string" ? d.source : "pdf-np", confidence: isFinite(+d.confidence) ? +d.confidence : 1,
+    totalSems: clamp(Math.round(+d.totalSems) || 6, sems[sems.length - 1].sem, 12),
+    rules: { retake: d.rules && d.rules.retake === "all" ? "all" : "latest" },
+    student: { name: str(d.student && d.student.name), course: str(d.student && d.student.course) },
+    learningUnits: Array.isArray(d.learningUnits) ? d.learningUnits.filter(u => u && typeof u.minor === "string" && typeof u.name === "string").map(u => ({ minor: u.minor, name: u.name, grade: String(u.grade || "") })) : [],
+    issues: [], semesters: sems, sample: !!d.sample,
+  };
+}
+function pruneOverrides() {
+  if (!S.data) { S.overrides = {}; return; }
+  const ids = new Map();
+  S.data.semesters.forEach(s => s.modules.forEach(m => ids.set(m.id, m)));
+  const out = {};
+  for (const [id, g] of Object.entries(S.overrides || {})) {
+    const m = ids.get(id);
+    if (m && isGraded(m.grade) && isGraded(g) && g !== m.grade) out[id] = g;
+  }
+  S.overrides = out;
+}
 function persist() {
   try {
-    if (S.data && !S.data.sample) localStorage.setItem("gradeops.data", JSON.stringify(S.data));
-    localStorage.setItem("gradeops.lab", JSON.stringify({ overrides: S.overrides, planner: S.planner }));
+    if (S.data && !S.data.sample) localStorage.setItem(STORE, JSON.stringify({ v: 2, data: S.data, overrides: S.overrides, plan: S.plan, target: S.target }));
+    localStorage.setItem("gradeops.more", JSON.stringify(S.more));
   } catch (e) {}
 }
 function restore() {
+  let legacy = null;
   try {
-    const d = localStorage.getItem("gradeops.data");
-    if (d) S.data = JSON.parse(d);
-    const lab = localStorage.getItem("gradeops.lab");
-    if (lab && S.data) {
-      const l = JSON.parse(lab);
-      S.overrides = l.overrides || {};
-      S.planner = l.planner || [];
+    const raw = localStorage.getItem(STORE);
+    if (raw) {
+      const o = JSON.parse(raw);
+      const d = sanitize(o && o.data);
+      if (d) {
+        S.data = d;
+        S.overrides = o.overrides && typeof o.overrides === "object" ? o.overrides : {};
+        S.plan = o.plan && Array.isArray(o.plan.sems) ? o.plan : { sems: [] };
+        S.target = typeof o.target === "number" && isFinite(o.target) ? o.target : null;
+      }
+    } else {
+      const od = localStorage.getItem("gradeops.data");
+      const d = od ? sanitize(JSON.parse(od)) : null;
+      if (d) {
+        S.data = d;
+        const lab = JSON.parse(localStorage.getItem("gradeops.lab") || "{}") || {};
+        S.overrides = lab.overrides && typeof lab.overrides === "object" ? lab.overrides : {};
+        legacy = Array.isArray(lab.planner) ? lab.planner : null;
+      }
     }
-  } catch (e) { S.data = null; }
+  } catch (e) { S.data = null; S.overrides = {}; S.plan = { sems: [] }; }
+  try { Object.assign(S.more, JSON.parse(localStorage.getItem("gradeops.more") || "{}") || {}); } catch (e) {}
+  if (S.data) { setPoly(S.data.poly); pruneOverrides(); reconcilePlan(legacy); persist(); }
 }
 function clearStored() {
-  try { localStorage.removeItem("gradeops.data"); localStorage.removeItem("gradeops.lab"); } catch (e) {}
+  try { ["gradeops.v2", "gradeops.data", "gradeops.lab"].forEach(k => localStorage.removeItem(k)); } catch (e) {}
 }
 
 /* ================= DOM helpers ================= */
@@ -882,7 +1336,8 @@ const txt = (x, y, s, cls, anchor) => sv("text", { x, y, class: cls || null, "te
 function svgRoot(W, H, label) {
   return sv("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label });
 }
-const widthOf = host => Math.max(280, Math.round(host.clientWidth || 600));
+const widthOf = host => Math.max(220, Math.round(host.clientWidth || 600));
+const iconBtn = (icon, label, id, cls) => el("button", { class: "btn btn-sm btn-quiet icon-btn" + (cls ? " " + cls : ""), type: "button", "aria-label": label, title: label, id, html: icon });
 
 function card(span, title, desc, extra) {
   const c = el("section", { class: "card" + (span ? " " + span : "") });
@@ -905,6 +1360,7 @@ function legend(items) {
   const l = el("div", { class: "legend" });
   for (const [kind, colorVar, label] of items) {
     const sw = kind === "line" ? el("i", { class: "sw-line", style: "border-color:var(" + colorVar + ")" })
+      : kind === "dash" ? el("i", { class: "sw-dash", style: "border-color:var(" + colorVar + ")" })
       : kind === "dot" ? el("i", { class: "sw-dot" })
       : kind === "ring" ? el("i", { class: "sw-ring" })
       : el("i", { class: "sw", style: "background:var(" + colorVar + ")" });
@@ -912,8 +1368,8 @@ function legend(items) {
   }
   return l;
 }
-function segmented(labelId, options, current, onPick, idPrefix) {
-  const g = el("div", { class: "seg", role: "group", "aria-labelledby": labelId });
+function segmented(labelId, options, current, onPick, idPrefix, ariaLabel) {
+  const g = el("div", { class: "seg", role: "group", "aria-labelledby": labelId || null, "aria-label": ariaLabel || null });
   for (const [key, label, note, disabled, title] of options) {
     const b = el("button", { type: "button", id: idPrefix + key, "aria-pressed": String(key === current), title: title || null });
     b.append(label);
@@ -927,8 +1383,17 @@ function segmented(labelId, options, current, onPick, idPrefix) {
   }
   return g;
 }
+/* A "Show more detail" section whose open state is remembered per tab. */
+function moreSection(root, key, build) {
+  const wrap = el("div", { class: "more-wrap" });
+  const open = !!S.more[key];
+  const b = el("button", { class: "btn more-btn", type: "button", id: "more-" + key, "aria-expanded": String(open), html: (open ? ICON.up : ICON.down) + "<span>" + (open ? "Hide detail" : "Show more detail") + "</span>" });
+  b.addEventListener("click", () => { S.more[key] = !open; persist(); S.focusId = b.id; render(); });
+  wrap.append(b);
+  if (open) { const body = el("div", { class: "more-body" }); wrap.append(body); build(body); }
+  root.append(wrap);
+}
 
-/* text measurement for SVG label layout */
 const CANVAS_SANS = 'Archivo, "Helvetica Neue", Arial, sans-serif';
 const CANVAS_MONO = '"Chivo Mono", Menlo, Consolas, monospace';
 let measureCtx = null;
@@ -949,6 +1414,7 @@ function tip(e, build) {
   if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
   if (x < 8) x = 8;
   if (y < 8) y = e.clientY + 18;
+  if (y + r.height > innerHeight - 8) y = Math.max(8, innerHeight - r.height - 8);
   tipEl.style.left = x + "px";
   tipEl.style.top = y + "px";
 }
@@ -978,18 +1444,21 @@ function notice(msg, kind) {
   const n = el("div", { class: "notice" + (kind === "error" ? " error" : ""), role: kind === "error" ? "alert" : "status" });
   n.append(el("span", { text: msg }), el("span", { class: "spacer" }));
   if (kind === "error") {
-    const x = el("button", { class: "btn btn-sm btn-quiet icon-btn", type: "button", "aria-label": "Dismiss", html: ICON.x });
+    const t = el("button", { class: "btn btn-sm", type: "button", text: "Type them in instead" });
+    t.addEventListener("click", () => { notice(null); openReview(blankDraft(), { fresh: true, reason: "manual" }); });
+    const x = iconBtn(ICON.x, "Dismiss");
     x.addEventListener("click", () => notice(null));
-    n.append(x);
+    n.append(t, x);
   }
   slot.append(n);
 }
 
 /* ================= university data ================= */
 /* Entry bar = 10th percentile poly GPA of applicants offered a place (AY2025/26 intake);
-   p90 = 90th percentile. NTU from its official IGP document; NUS and SMU compiled by
-   universities.sg and Eclat. Pay = GES 2025 median gross monthly salary; null where the
-   survey has no separate line. "extra" = interviews, tests or portfolios on top of GPA. */
+   the same figures apply to students from every poly. p90 = 90th percentile. NTU from its
+   official IGP document; NUS and SMU compiled by universities.sg and Eclat. Pay = GES 2025
+   median gross monthly salary; null where the survey has no separate line.
+   "extra" = interviews, tests or portfolios on top of GPA. */
 const IGP = [
   ["NUS", "Pharmaceutical Science", 3.93, null, false, null],
   ["NUS", "Information Security", 3.88, null, false, 6000],
@@ -1083,7 +1552,7 @@ function drawRuler(host, o) {
   const lo = Math.min(3.0, Math.floor((Math.min(o.gpa, ...bars) - 0.05) * 10) / 10);
   const hi = 4.0;
   const ml = 6, iw = W - 12;
-  const X = v => ml + (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * iw;
+  const X = v => ml + (clamp(v, lo, hi) - lo) / (hi - lo) * iw;
   const BASE = 62;
   const svg = sv("svg", { width: W, role: "img" });
 
@@ -1100,7 +1569,7 @@ function drawRuler(host, o) {
 
   svg.append(sv("line", { x1: ml, x2: ml + iw, y1: BASE, y2: BASE, class: "g-ink3", "stroke-width": 1 }));
   const px = iw / ((hi - lo) * 100);
-  const labelEvery = px >= 3.2 ? 10 : 20;
+  const labelEvery = px >= 3.2 ? 10 : px >= 1.6 ? 20 : 50;
   for (let k = Math.round(lo * 100); k <= Math.round(hi * 100); k++) {
     let len = 0;
     if (k % 10 === 0) len = 10;
@@ -1136,7 +1605,7 @@ function drawRuler(host, o) {
   needle.append(nl);
   svg.append(needle);
 
-  // zoom window: 0.05 of scale around the needle
+  // zoomed view of the 0.05 around the needle
   const dlo = Math.max(lo, Math.min(hi - 0.05, Math.floor((o.gpa - 0.015) * 100) / 100));
   const dhi = Math.round((dlo + 0.05) * 100) / 100;
   const bx0 = X(dlo), bx1 = X(dhi), BR = BASE + 34;
@@ -1144,7 +1613,7 @@ function drawRuler(host, o) {
 
   const DT = BASE + 60;
   const dl = ml + 16, dr = ml + iw - 16, diw = dr - dl;
-  const DX = v => dl + (Math.max(dlo, Math.min(dhi, v)) - dlo) / (dhi - dlo) * diw;
+  const DX = v => dl + (clamp(v, dlo, dhi) - dlo) / (dhi - dlo) * diw;
   const FS = "12px " + CANVAS_SANS, FM = "12px " + CANVAS_MONO;
 
   const inWin = G.filter(g => g.bar >= dlo - 1e-9 && g.bar <= dhi + 1e-9);
@@ -1152,34 +1621,36 @@ function drawRuler(host, o) {
   const placed = [];
   for (const g of inWin) {
     const names = g.items.map(c => c.uni + " " + shortName(c));
-    const label = names.length > 2 ? names.slice(0, 2).join(", ") + " +" + (names.length - 2) : names.join(", ");
+    const maxNames = narrow ? 1 : 2;
+    let label = names.length > maxNames ? names.slice(0, maxNames).join(", ") + " +" + (names.length - maxNames) : names.join(", ");
     const valS = g.bar.toFixed(2) + " ";
-    const w = textW(valS, FM) + textW(label, FS);
+    let w = textW(valS, FM) + textW(label, FS);
+    while (w > diw && label.length > 8) { label = label.slice(0, -2).trimEnd() + "…"; w = textW(valS, FM) + textW(label, FS); }
     const x = DX(g.bar);
-    const anchorEnd = x + w > dr;
-    const x0 = anchorEnd ? x - w : x, x1 = anchorEnd ? x : x + w;
+    const x0 = clamp(x, dl, Math.max(dl, dr - w));
+    const x1 = x0 + w;
     let row = rowEnds.findIndex(end => x0 > end + 12);
     if (row === -1) { row = rowEnds.length; rowEnds.push(x1); } else rowEnds[row] = x1;
-    placed.push({ g, x, anchorEnd, row, label, valS });
+    placed.push({ g, x, x0, row, label, valS });
   }
   const R = Math.max(1, rowEnds.length);
   const ROWH = 18;
   const ROWBOT = DT + 42 + (R - 1) * ROWH;
   const DB = ROWBOT + 30;
 
-  const youS = o.label + " " + numS;
   const youW = textW(o.label + " ", "600 12px " + CANVAS_SANS) + textW(numS, "600 12px " + CANVAS_MONO);
   const dnx = DX(o.gpa);
-  let youX = Math.max(dl + youW / 2, Math.min(dr - youW / 2, dnx));
+  const youX = Math.max(dl + youW / 2, Math.min(dr - youW / 2, dnx));
   let ceilLabel = null;
   if (hasBand) {
     const cx = DX(o.ceil);
-    const s = "Perfect semester " + o.nextNo + ": ";
-    const w = textW(s, FS) + textW(o.ceil.toFixed(4), FM) + (o.ceil > dhi ? textW(" (off this view)", FS) : 0);
+    const s = o.ceilText + " ";
+    const off = o.ceil > dhi;
+    const w = textW(s, FS) + textW(o.ceil.toFixed(4), FM) + (off ? textW(" (beyond this view)", FS) : 0);
     let x = Math.min(cx + 8, dr - w);
     const row = (x < youX + youW / 2 + 16) ? 1 : 0;
     if (row === 1) x = Math.max(dl, Math.min(dr - w, cx - w / 2));
-    ceilLabel = { s, x, row, off: o.ceil > dhi };
+    ceilLabel = { s, x, row, off };
   }
   const BL = DB + 46;
   const bottomRows = ceilLabel && ceilLabel.row === 1 ? 2 : 1;
@@ -1189,7 +1660,7 @@ function drawRuler(host, o) {
   svg.append(sv("line", { x1: bx0, y1: BR, x2: ml, y2: DT, class: "g-line2", "stroke-width": 1 }));
   svg.append(sv("line", { x1: bx1, y1: BR, x2: ml + iw, y2: DT, class: "g-line2", "stroke-width": 1 }));
   svg.append(sv("rect", { x: ml, y: DT, width: iw, height: DH, rx: 10, class: "f-surface g-line2", "stroke-width": 1 }));
-  svg.append(txt(ml + 16, DT + 22, "Up close: " + dlo.toFixed(2) + " to " + dhi.toFixed(2), "t-sans t-dim"));
+  svg.append(txt(ml + 16, DT + 22, "Zoomed in: " + dlo.toFixed(2) + " to " + dhi.toFixed(2), "t-sans t-dim"));
 
   const bandTop = ROWBOT + 9;
   if (hasBand) svg.append(sv("rect", { x: dnx, y: bandTop, width: Math.max(1.5, DX(Math.min(o.ceil, dhi)) - dnx), height: DB - bandTop, class: "f-you-wash" }));
@@ -1202,7 +1673,7 @@ function drawRuler(host, o) {
   for (const p of placed) {
     const ly = ROWBOT - p.row * ROWH;
     const open = p.g.bar <= o.gpa + 1e-9;
-    const t = sv("text", { x: p.x, y: ly, "text-anchor": p.anchorEnd ? "end" : "start", class: "t-sans halo " + (open ? "t-mid" : "t-dim") });
+    const t = sv("text", { x: p.x0, y: ly, class: "t-sans halo " + (open ? "t-mid" : "t-dim") });
     t.append(sv("tspan", { class: "t-num" }, p.valS), sv("tspan", null, p.label));
     svg.append(t);
   }
@@ -1224,7 +1695,7 @@ function drawRuler(host, o) {
   if (ceilLabel) {
     const ct = sv("text", { x: ceilLabel.x, y: BL + ceilLabel.row * 17, class: "t-sans t-mid" });
     ct.append(sv("tspan", null, ceilLabel.s), sv("tspan", { class: "t-num" }, o.ceil.toFixed(4)));
-    if (ceilLabel.off) ct.append(sv("tspan", null, " (off this view)"));
+    if (ceilLabel.off) ct.append(sv("tspan", null, " (beyond this view)"));
     svg.append(ct);
   }
 
@@ -1261,6 +1732,13 @@ function drawRuler(host, o) {
 }
 
 /* ================= charts ================= */
+/* Gridline values from 4.0 downwards, so the top line is always 4.0. */
+function gpaTicks(lo, step) {
+  const out = [];
+  for (let k = 0; 4 - k * step >= lo - 1e-9; k++) out.push(Math.round((4 - k * step) * 100) / 100);
+  return out;
+}
+
 function trendChart(host, sems) {
   host.textContent = "";
   const W = widthOf(host), H = 240;
@@ -1268,17 +1746,19 @@ function trendChart(host, sems) {
   const m = { t: 14, r: narrow ? 58 : 104, b: narrow ? 24 : 40, l: 36 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const vals = sems.flatMap(s => [s.gpa, s.cgpa]).filter(v => v != null);
-  const lo = Math.max(0, Math.floor((Math.min(...vals) - 0.06) * 10) / 10), hi = 4;
+  const step0 = Math.min(...vals) < 3 ? 0.5 : 0.1;
+  const lo = Math.max(0, Math.floor((Math.min(...vals) - 0.06) / step0) * step0);
+  const hi = 4;
   const step = hi - lo > 1.2 ? 0.5 : hi - lo > 0.6 ? 0.2 : 0.1;
   const n = sems.length;
   const X = i => m.l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
   const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ih;
   const svg = svgRoot(W, H, "Cumulative GPA and semester GPA after each semester");
-  for (let k = 0; lo + k * step <= hi + 1e-9; k++) {
-    const v = Math.round((lo + k * step) * 100) / 100;
-    svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(v), y2: Y(v), class: k === 0 ? "g-base" : "g-grid" }));
+  const ticks = gpaTicks(lo, step);
+  ticks.forEach((v, k) => {
+    svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(v), y2: Y(v), class: k === ticks.length - 1 ? "g-base" : "g-grid" }));
     svg.append(txt(m.l - 8, Y(v) + 3.5, v.toFixed(1), null, "end"));
-  }
+  });
   sems.forEach((s, i) => {
     svg.append(txt(X(i), H - (narrow ? 8 : 24), narrow ? "S" + s.sem : "Sem " + s.sem, "t-mid", "middle"));
     if (!narrow && s.exam) svg.append(txt(X(i), H - 9, fmtExam(s.exam), null, "middle"));
@@ -1300,18 +1780,20 @@ function trendChart(host, sems) {
     if (s.cgpa != null) svg.append(sv("circle", { cx: X(i), cy: Y(s.cgpa), r: 4.5, class: "f-you g-surface", "stroke-width": 2 }));
   });
   const last = sems[n - 1], xe = X(n - 1) + 11;
-  const clampY = y => Math.max(m.t + 4, Math.min(m.t + ih, y));
-  let yc = clampY(Y(last.cgpa) + 4);
-  let yg = last.gpa != null ? clampY(Y(last.gpa) + 4) : null;
-  if (yg != null && Math.abs(yg - yc) < 15) yg = yg >= yc ? yc + 15 : yc - 15;
-  const endLabel = (y, word, val, strong) => {
-    const t = sv("text", { x: xe, y, class: strong ? "t-strong" : "t-mid" });
-    if (!narrow) t.append(sv("tspan", { class: "t-sans" }, word + " "));
-    t.append(sv("tspan", { class: "t-num" }, val));
-    return t;
-  };
-  svg.append(endLabel(yc, "CGPA", last.cgpa.toFixed(4), true));
-  if (yg != null) svg.append(endLabel(yg, "Sem", last.gpa.toFixed(2), false));
+  const clampY = y => clamp(y, m.t + 4, m.t + ih);
+  if (last.cgpa != null) {
+    let yc = clampY(Y(last.cgpa) + 4);
+    let yg = last.gpa != null ? clampY(Y(last.gpa) + 4) : null;
+    if (yg != null && Math.abs(yg - yc) < 15) yg = yg >= yc ? yc + 15 : yc - 15;
+    const endLabel = (y, word, val, strong) => {
+      const t = sv("text", { x: xe, y, class: strong ? "t-strong" : "t-mid" });
+      if (!narrow) t.append(sv("tspan", { class: "t-sans" }, word + " "));
+      t.append(sv("tspan", { class: "t-num" }, val));
+      return t;
+    };
+    svg.append(endLabel(yc, "Overall", last.cgpa.toFixed(4), true));
+    if (yg != null) svg.append(endLabel(yg, "This sem", last.gpa.toFixed(2), false));
+  }
 
   const hair = sv("line", { y1: m.t, y2: m.t + ih, class: "g-base", visibility: "hidden" });
   svg.append(hair);
@@ -1325,8 +1807,8 @@ function trendChart(host, sems) {
     const s = sems[idx];
     tip(e, b => {
       tipTitle(b, "Semester " + s.sem + (s.exam ? ", " + fmtExam(s.exam) : ""));
-      tipRow(b, f4(s.cgpa), "cumulative GPA", "--you");
-      tipRow(b, f4(s.gpa), "semester GPA", "--ctx");
+      tipRow(b, f4(s.cgpa), "overall GPA so far", "--you");
+      tipRow(b, f4(s.gpa), "this semester alone", "--ctx");
     });
   });
   hit.addEventListener("pointerleave", () => hair.setAttribute("visibility", "hidden"));
@@ -1334,19 +1816,21 @@ function trendChart(host, sems) {
   host.append(svg);
 }
 
-function distChart(host, data, mode) {
+function distChart(host, data, mode, drop) {
   host.textContent = "";
   const counts = {};
-  GRADE_ORDER.forEach(g => counts[g] = 0);
-  for (const s of data.semesters) for (const mo of s.modules) if (isGraded(mo.grade)) counts[mo.grade] += mode === "cu" ? mo.cu : 1;
+  Object.keys(GRADE_POINTS).forEach(g => counts[g] = 0);
+  for (const s of data.semesters) for (const mo of s.modules) if (!drop.has(mo.id) && counts[mo.grade] != null) counts[mo.grade] += mode === "cu" ? mo.cu : 1;
+  const extra = Object.keys(GRADE_POINTS).filter(g => !GRADE_ORDER.includes(g) && counts[g] > 0).sort((a, b) => gp(b) - gp(a));
   const bins = GRADE_ORDER.map(g => ({ g, v: counts[g] }));
   while (bins.length > 5 && bins[bins.length - 1].v === 0) bins.pop();
+  extra.forEach(g => bins.push({ g, v: counts[g] }));
   const W = widthOf(host), H = 196;
   const m = { t: 22, r: 4, b: 26, l: 4 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const maxV = Math.max(1, ...bins.map(b => b.v));
   const band = iw / bins.length, bw = Math.min(24, band * 0.5);
-  const svg = svgRoot(W, H, "Grade distribution by " + (mode === "cu" ? "credit units" : "number of modules"));
+  const svg = svgRoot(W, H, "Grades by " + (mode === "cu" ? "credits" : "number of modules"));
   svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih, class: "g-base" }));
   bins.forEach((b, i) => {
     const cx = m.l + band * i + band / 2, x = cx - bw / 2;
@@ -1358,24 +1842,29 @@ function distChart(host, data, mode) {
     svg.append(txt(cx, H - 8, b.g, b.v ? "t-strong" : null, "middle"));
     const hit = sv("rect", { x: m.l + band * i, y: 0, width: band, height: H, fill: "transparent" });
     bindTip(hit, e => tip(e, box => {
-      tipTitle(box, b.g + ", " + GRADE_WORD[b.g].toLowerCase());
-      tipRow(box, fmtCU(b.v), mode === "cu" ? "credit units" : (b.v === 1 ? "module" : "modules"), "--you");
+      tipTitle(box, b.g + ", " + gradeWord(b.g) + " (" + gp(b.g).toFixed(1) + " points)");
+      tipRow(box, fmtCU(b.v), mode === "cu" ? CU() : (b.v === 1 ? "module" : "modules"), "--you");
     }));
     svg.append(hit);
   });
   host.append(svg);
 }
 
-const MIX = [
-  { label: "4.0 (AD, A+, A)", test: p => p === 4, v: "--mix-4" },
-  { label: "3.5 (B+)", test: p => p === 3.5, v: "--mix-3" },
-  { label: "3.0 (B)", test: p => p === 3, v: "--mix-2" },
-  { label: "2.5 or lower", test: p => p < 3, v: "--mix-1" },
-];
-function mixRows(host, sems) {
+function mixBins() {
+  const tops = GRADE_ORDER.filter(g => gp(g) === 4);
+  return [
+    { label: "4.0 (" + tops.join(", ") + ")", test: p => p === 4, v: "--mix-4" },
+    { label: "3.5 (B+)", test: p => p === 3.5, v: "--mix-3" },
+    { label: "3.0 (B)", test: p => p === 3, v: "--mix-2" },
+    { label: "Below 3.0", test: p => p < 3, v: "--mix-1" },
+  ];
+}
+function mixRows(host, sems, drop) {
   host.textContent = "";
+  const MIX = mixBins();
   for (const s of sems) {
-    const total = sumOf(s.modules.map(mo => mo.cu));
+    const mods = s.modules.filter(mo => !drop.has(mo.id));
+    const total = sumOf(mods.map(mo => mo.cu));
     const row = el("div", { class: "mix" });
     row.append(el("div", { class: "mix-l", text: "Sem " + s.sem }));
     const track = el("div", { class: "mix-t" });
@@ -1384,23 +1873,23 @@ function mixRows(host, sems) {
       const seg = el("i", { style: "flex:" + cu + ";background:var(" + colorVar + ")" });
       bindTip(seg, e => tip(e, b => {
         tipTitle(b, "Semester " + s.sem + ", " + label);
-        tipRow(b, fmtCU(cu) + " of " + fmtCU(total), "credit units", colorVar);
+        tipRow(b, fmtCU(cu) + " of " + fmtCU(total), CU(), colorVar);
       }));
       track.append(seg);
     };
-    MIX.forEach(bin => add(sumOf(s.modules.filter(mo => isGraded(mo.grade) && bin.test(gp(mo.grade))).map(mo => mo.cu)), bin.v, bin.label));
-    add(sumOf(s.modules.filter(mo => !isGraded(mo.grade)).map(mo => mo.cu)), "--line-2", "pass/fail");
+    MIX.forEach(bin => add(sumOf(mods.filter(mo => isGraded(mo.grade) && bin.test(gp(mo.grade))).map(mo => mo.cu)), bin.v, bin.label));
+    add(sumOf(mods.filter(mo => !isGraded(mo.grade)).map(mo => mo.cu)), "--line-2", "not counted in GPA");
     row.append(track, el("div", { class: "mix-v", text: f2(s.gpa) }));
     host.append(row);
   }
-  host.append(legend(MIX.map(b => ["sw", b.v, b.label]).concat([["sw", "--line-2", "Pass/fail"]])));
+  host.append(legend(MIX.map(b => ["sw", b.v, b.label]).concat([["sw", "--line-2", "Not counted"]])));
 }
 
 function lossRows(host, base) {
   host.textContent = "";
   const rows = [];
   for (const s of S.data.semesters) for (const mo of s.modules) {
-    if (!isGraded(mo.grade)) continue;
+    if (!isGraded(mo.grade) || base.dropped.has(mo.id)) continue;
     const loss = (4 - gp(mo.grade)) * mo.cu;
     if (loss > 0) rows.push({ mo, sem: s, loss, impact: loss / base.cumCU });
   }
@@ -1409,14 +1898,14 @@ function lossRows(host, base) {
   const shown = rows.slice(0, 8), maxLoss = rows[0].loss;
   for (const r of shown) {
     const row = el("div", { class: "brow" });
-    row.append(el("div", { class: "brow-n", title: titleCase(r.mo.name) }, el("span", { class: "nm", text: titleCase(r.mo.name) }), el("span", { class: "g", text: r.mo.grade + " · " + fmtCU(r.mo.cu) + " CU" })));
+    row.append(el("div", { class: "brow-n", title: titleCase(r.mo.name) }, el("span", { class: "nm", text: titleCase(r.mo.name) }), el("span", { class: "g", text: r.mo.grade + " · " + fmtCU(r.mo.cu) + " " + CU() })));
     const bar = el("div", { class: "brow-b" });
     bar.append(el("i", { style: "width:" + (r.loss / maxLoss * 100) + "%" }));
     row.append(bar, el("div", { class: "brow-v", text: "−" + r.impact.toFixed(4) }));
     bindTip(row, e => tip(e, b => {
       tipTitle(b, titleCase(r.mo.name) + ", Sem " + r.sem.sem);
-      tipRow(b, "−" + r.impact.toFixed(4), "off your CGPA", "--you");
-      tipRow(b, r.mo.grade, fmtCU(r.mo.cu) + " CU at " + gp(r.mo.grade).toFixed(1) + " grade points");
+      tipRow(b, "−" + r.impact.toFixed(4), "off your overall GPA", "--you");
+      tipRow(b, r.mo.grade, fmtCU(r.mo.cu) + " " + CU() + " at " + gp(r.mo.grade).toFixed(1) + " points instead of 4.0");
     }));
     host.append(row);
   }
@@ -1426,27 +1915,25 @@ function lossRows(host, base) {
   }
 }
 
-const DISCIPLINES = [
-  { key: "Cybersecurity", rx: /SECUR|HACK|FORENSIC|MALWARE|CRYPT|THREAT|CYBER|PEN.?TEST|GOVERNANCE/i },
-  { key: "Internship & project", rx: /INTERNSHIP|PROJECT/i },
-  { key: "Tech foundations", rx: /PROGRAM|SCRIPT|NETWORK|SERVER|DATA|COMPUT|MATH|DESIGN|SOFTWARE|IT PROFESSIONALS|\bAI\b/i },
-];
-const classifyModule = name => (DISCIPLINES.find(d => d.rx.test(name)) || { key: "General studies" }).key;
-function typeRows(host) {
+/* Groups that make sense for any diploma. */
+const PROJECT_RX = /INTERNSHIP|PROJECT|CAPSTONE|ATTACHMENT|WORK.?STUDY|INDUSTRY|PRACTICUM|PLACEMENT/i;
+const groupOf = m => PROJECT_RX.test(m.name) ? "Internship & projects" : m.cu <= 2 ? "Small modules (2 " + CU() + " or less)" : "Core modules";
+function typeRows(host, base) {
   host.textContent = "";
   const cats = new Map();
   for (const s of S.data.semesters) for (const mo of s.modules) {
-    if (!isGraded(mo.grade)) continue;
-    const k = classifyModule(mo.name);
+    if (!isGraded(mo.grade) || base.dropped.has(mo.id) || !(mo.cu > 0)) continue;
+    const k = groupOf(mo);
     if (!cats.has(k)) cats.set(k, { pts: 0, cu: 0, mods: [] });
     const c = cats.get(k);
     c.pts += gp(mo.grade) * mo.cu; c.cu += mo.cu; c.mods.push(mo);
   }
   const rows = [...cats.entries()].map(([k, c]) => ({ k, gpa: c.pts / c.cu, cu: c.cu, mods: c.mods })).sort((a, b) => b.gpa - a.gpa);
-  const pct = v => Math.max(0, Math.min(100, (v - 3) * 100));
+  const lo = axisLo(rows.map(r => r.gpa));
+  const pct = v => clamp((v - lo) / (4 - lo) * 100, 0, 100);
   for (const r of rows) {
     const row = el("div", { class: "trow" });
-    row.append(el("div", { class: "trow-n" }, r.k, el("small", { text: plural(r.mods.length, "module") + ", " + fmtCU(r.cu) + " CU" })));
+    row.append(el("div", { class: "trow-n" }, r.k, el("small", { text: plural(r.mods.length, "module") + ", " + fmtCU(r.cu) + " " + CU() })));
     const strip = el("div", { class: "strip" });
     strip.append(el("span", { class: "track" }), el("span", { class: "me", style: "left:" + pct(r.gpa) + "%" }));
     row.append(strip, el("div", { class: "trow-v", text: r.gpa.toFixed(4) }));
@@ -1467,16 +1954,41 @@ function mulberry32(a) {
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 }
-function monteCarlo(base, blocks, trials) {
-  const w = {}; let tot = 0;
-  for (const s of S.data.semesters) for (const m of s.modules) if (isGraded(m.grade)) { w[m.grade] = (w[m.grade] || 0) + m.cu; tot += m.cu; }
+/* Pieces to simulate: listed modules as they are, other semesters split into typical-size modules. */
+function simPieces(blocks, base) {
+  const sizes = [];
+  for (const s of S.data.semesters) for (const m of s.modules) if (isGraded(m.grade) && m.cu > 0 && !base.dropped.has(m.id)) sizes.push(m.cu);
+  const typical = Math.max(1, median(sizes) || 4);
+  const out = [];
+  for (const b of blocks) {
+    if (b.mods) { b.mods.forEach(m => out.push(m.cu)); continue; }
+    const n = Math.max(1, Math.round(b.cu / typical));
+    for (let i = 0; i < n; i++) out.push(b.cu / n);
+  }
+  return out;
+}
+function monteCarlo(base, pieces, trials) {
+  const w = {}; let count = 0;
+  for (const s of S.data.semesters) for (const m of s.modules) if (isGraded(m.grade) && !base.dropped.has(m.id)) { w[m.grade] = (w[m.grade] || 0) + (m.cu || 0); count++; }
+  if (count < 8) {
+    // With few modules on record, let each grade spill a little onto its neighbours.
+    const sm = {};
+    for (const [g, v] of Object.entries(w)) {
+      const up = stepUp(g), dn = stepDown(g);
+      sm[g] = (sm[g] || 0) + v * (0.85 + (up ? 0 : 0.075) + (dn ? 0 : 0.075));
+      if (up) sm[up] = (sm[up] || 0) + v * 0.075;
+      if (dn) sm[dn] = (sm[dn] || 0) + v * 0.075;
+    }
+    Object.assign(w, sm);
+  }
+  const tot = sumOf(Object.values(w));
   const cum = []; let acc = 0;
   for (const g of Object.keys(w)) { acc += w[g] / tot; cum.push([acc, g]); }
   const rnd = mulberry32(20260918);
   const out = new Array(trials);
   for (let t = 0; t < trials; t++) {
     let pts = base.cumPts, cu = base.cumCU;
-    for (const b of blocks) {
+    for (const b of pieces) {
       const r = rnd();
       let g = cum[cum.length - 1][1];
       for (const [c, gg] of cum) if (r <= c) { g = gg; break; }
@@ -1486,23 +1998,23 @@ function monteCarlo(base, blocks, trials) {
   }
   return out.sort((a, b) => a - b);
 }
-const qtile = (sorted, p) => sorted[Math.max(0, Math.min(sorted.length - 1, Math.round(p * (sorted.length - 1))))];
+const qtile = (sorted, p) => sorted[clamp(Math.round(p * (sorted.length - 1)), 0, sorted.length - 1)];
 
 function histChart(host, sims) {
   host.textContent = "";
   const lo = sims[0], hi = sims[sims.length - 1];
-  if (hi - lo < 1e-6) { host.append(el("p", { class: "empty-note", text: "Every run lands on " + lo.toFixed(4) + ", because your record so far only has one grade in it." })); return; }
+  if (hi - lo < 1e-6) { host.append(el("p", { class: "empty-note", text: "Every run finishes on " + lo.toFixed(4) + ", because all your grades so far are worth the same points." })); return; }
   const W = widthOf(host), H = 204;
   const m = { t: 30, r: 8, b: 26, l: 8 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const NB = Math.min(28, Math.max(14, Math.round(iw / 22)));
+  const NB = Math.min(28, Math.max(12, Math.round(iw / 22)));
   const bw = (hi - lo) / NB;
   const bins = new Array(NB).fill(0);
   for (const v of sims) bins[Math.min(NB - 1, Math.floor((v - lo) / bw))]++;
   const maxB = Math.max(...bins);
   const X = v => m.l + (v - lo) / (hi - lo) * iw;
   const colW = Math.min(24, iw / NB - 2);
-  const svg = svgRoot(W, H, "Distribution of 6,000 simulated finishing CGPAs");
+  const svg = svgRoot(W, H, "How 6,000 simulated finishes are spread");
   svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih, class: "g-base" }));
   bins.forEach((cnt, i) => {
     const slot = iw / NB, cx = m.l + (i + 0.5) * slot;
@@ -1514,26 +2026,23 @@ function histChart(host, sims) {
     const hit = sv("rect", { x: m.l + i * slot, y: 0, width: slot, height: H, fill: "transparent" });
     const b0 = lo + i * bw;
     bindTip(hit, e => tip(e, b => {
-      tipTitle(b, b0.toFixed(3) + " to " + (b0 + bw).toFixed(3));
+      tipTitle(b, "Finishing between " + b0.toFixed(3) + " and " + (b0 + bw).toFixed(3));
       tipRow(b, (cnt / sims.length * 100).toFixed(1) + "%", "of runs", "--you");
     }));
     svg.append(hit);
   });
   const p10 = qtile(sims, 0.1), med = qtile(sims, 0.5), p90 = qtile(sims, 0.9);
-  const mark = (v, label, solid, anchor, dx) => {
-    svg.append(sv("line", { x1: X(v), x2: X(v), y1: m.t - 6, y2: m.t + ih, class: solid ? "g-ink2" : "g-ink3", "stroke-width": solid ? 1.5 : 1, "stroke-dasharray": solid ? null : "3 3" }));
-    const t = sv("text", { x: X(v) + dx, y: m.t - 12, "text-anchor": anchor, class: solid ? "t-strong" : "t-mid" });
-    if (label) t.append(sv("tspan", { class: "t-sans" }, label + " "));
-    t.append(sv("tspan", { class: "t-num" }, v.toFixed(3)));
-    svg.append(t);
+  const dashed = (v, anchor, dx) => {
+    svg.append(sv("line", { x1: X(v), x2: X(v), y1: m.t - 6, y2: m.t + ih, class: "g-ink3", "stroke-width": 1, "stroke-dasharray": "3 3" }));
+    svg.append(sv("text", { x: X(v) + dx, y: m.t - 12, "text-anchor": anchor, class: "t-mid" }, v.toFixed(3)));
   };
-  mark(p10, "", false, "end", -5);
-  mark(p90, "", false, X(p90) + 60 > W ? "end" : "start", X(p90) + 60 > W ? -5 : 5);
+  dashed(p10, "end", -5);
+  dashed(p90, X(p90) + 60 > W ? "end" : "start", X(p90) + 60 > W ? -5 : 5);
   const mw = 100;
-  const mx = Math.max(m.l + mw / 2, Math.min(W - m.r - mw / 2, X(med)));
+  const mx = clamp(X(med), m.l + mw / 2, W - m.r - mw / 2);
   svg.append(sv("line", { x1: X(med), x2: X(med), y1: m.t - 6, y2: m.t + ih, class: "g-ink2", "stroke-width": 1.5 }));
-  const mt = sv("text", { x: mx, y: m.t - 12 - 14, "text-anchor": "middle", class: "t-strong" });
-  mt.append(sv("tspan", { class: "t-sans" }, "Median "), sv("tspan", { class: "t-num" }, med.toFixed(3)));
+  const mt = sv("text", { x: mx, y: m.t - 26, "text-anchor": "middle", class: "t-strong" });
+  mt.append(sv("tspan", { class: "t-sans" }, "Most likely "), sv("tspan", { class: "t-num" }, med.toFixed(3)));
   svg.append(mt);
   [lo, hi].forEach((v, i) => svg.append(txt(i ? W - m.r : m.l, H - 8, v.toFixed(3), null, i ? "end" : "start")));
   svg.setAttribute("height", H + 14);
@@ -1541,46 +2050,64 @@ function histChart(host, sims) {
   host.append(svg);
 }
 
-function coneChart(host, sems, proj, nextNo) {
+/* Past CGPA, then branches running through every remaining semester. */
+function coneChart(host, base, blocks, branches) {
   host.textContent = "";
-  const W = widthOf(host), H = 224;
+  const sems = base.sems.filter(s => s.cgpa != null);
+  const W = widthOf(host), H = 232;
   const narrow = W < 460;
-  const m = { t: 14, r: narrow ? 58 : 132, b: 26, l: 36 };
+  const m = { t: 14, r: narrow ? 58 : 150, b: 26, l: 36 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const n = sems.length;
-  const vals = sems.map(s => s.cgpa).concat([proj.floor, proj.ceil]);
-  const lo = Math.floor((Math.min(...vals) - 0.05) * 20) / 20, hi = 4.0;
-  const X = i => m.l + (i / n) * iw;
+  const nPast = sems.length, n = nPast + blocks.length;
+  const path = gFn => {
+    let pts = base.cumPts, cu = base.cumCU;
+    return blocks.map(b => { pts += gFn(b); cu += b.cu; return pts / cu; });
+  };
+  const lines = branches.map(br => ({ ...br, vals: path(br.g) }));
+  const all = sems.map(s => s.cgpa).concat(lines.flatMap(l => l.vals));
+  const lo = Math.max(0, Math.floor((Math.min(...all) - 0.05) * 10) / 10), hi = 4.0;
+  const X = i => m.l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
   const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ih;
-  const svg = svgRoot(W, H, "CGPA so far and three ways semester " + nextNo + " could go");
-  const step = hi - lo > 0.6 ? 0.2 : 0.1;
-  for (let k = 0; lo + k * step <= hi + 1e-9; k++) {
-    const v = Math.round((lo + k * step) * 100) / 100;
-    svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(v), y2: Y(v), class: k === 0 ? "g-base" : "g-grid" }));
+  const svg = svgRoot(W, H, "Overall GPA so far and how your remaining semesters could move it");
+  const step = hi - lo > 1.2 ? 0.5 : hi - lo > 0.6 ? 0.2 : 0.1;
+  const ticks = gpaTicks(lo, step);
+  ticks.forEach((v, k) => {
+    svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(v), y2: Y(v), class: k === ticks.length - 1 ? "g-base" : "g-grid" }));
     svg.append(txt(m.l - 8, Y(v) + 3.5, v.toFixed(1), null, "end"));
-  }
-  sems.forEach((s, i) => svg.append(txt(X(i), H - 8, narrow ? "S" + s.sem : "Sem " + s.sem, "t-mid", "middle")));
-  svg.append(txt(X(n), H - 8, narrow ? "S" + nextNo : "Sem " + nextNo, "t-strong", "middle"));
-  const lx = X(n - 1), ly = Y(sems[n - 1].cgpa);
-  svg.append(sv("polygon", { points: `${lx},${ly} ${X(n)},${Y(proj.ceil)} ${X(n)},${Y(proj.floor)}`, class: "f-you-wash" }));
+  });
+  const labelStep = n > 8 && narrow ? 2 : 1;
+  sems.forEach((s, i) => { if (i % labelStep === 0) svg.append(txt(X(i), H - 8, "S" + s.sem, "t-mid", "middle")); });
+  blocks.forEach((b, j) => { if ((nPast + j) % labelStep === 0 || j === blocks.length - 1) svg.append(txt(X(nPast + j), H - 8, "S" + b.sem, "t-strong", "middle")); });
+  const lx = X(nPast - 1), ly = Y(sems[nPast - 1].cgpa);
+  const best = lines[0], low = lines[lines.length - 1];
+  const fan = [`${lx},${ly}`].concat(best.vals.map((v, j) => `${X(nPast + j)},${Y(v)}`), low.vals.map((v, j) => `${X(nPast + j)},${Y(v)}`).reverse());
+  svg.append(sv("polygon", { points: fan.join(" "), class: "f-you-wash" }));
   svg.append(sv("path", { d: sems.map((s, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(s.cgpa).toFixed(1)).join(" "), fill: "none", class: "g-you", "stroke-width": 2.5, "stroke-linejoin": "round", "stroke-linecap": "round" }));
-  const branches = [[proj.ceil, "All A"], [proj.usual, "At your average"], [proj.floor, "All B"]];
-  for (const [v] of branches) svg.append(sv("path", { d: `M${lx} ${ly}L${X(n)} ${Y(v)}`, fill: "none", class: "g-you", "stroke-width": 1.5, "stroke-dasharray": "4 4" }));
+  for (const l of lines) {
+    const d = `M${lx} ${ly}` + l.vals.map((v, j) => `L${X(nPast + j)} ${Y(v)}`).join("");
+    svg.append(sv("path", { d, fill: "none", class: l.strong ? "g-ink2" : "g-you", "stroke-width": l.strong ? 2 : 1.5, "stroke-dasharray": l.strong ? null : "4 4" }));
+  }
   sems.forEach((s, i) => svg.append(sv("circle", { cx: X(i), cy: Y(s.cgpa), r: 3.5, class: "f-you g-surface", "stroke-width": 2 })));
-  const labs = branches.map(([v, w]) => ({ v, w, y: Y(v) + 4 })).sort((a, b) => a.y - b.y);
+  const labs = lines.map(l => ({ v: l.vals[l.vals.length - 1], w: l.label, strong: l.strong, y: Y(l.vals[l.vals.length - 1]) + 4 })).sort((a, b) => a.y - b.y);
   for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 15) labs[i].y = labs[i - 1].y + 15;
   for (const L of labs) {
-    svg.append(sv("circle", { cx: X(n), cy: Y(L.v), r: 3.5, class: "f-you g-surface", "stroke-width": 2 }));
-    const t = sv("text", { x: X(n) + 10, y: L.y, class: "t-mid" });
+    svg.append(sv("circle", { cx: X(n - 1), cy: Y(L.v), r: 3.5, class: (L.strong ? "f-ink2" : "f-you") + " g-surface", "stroke-width": 2 }));
+    const t = sv("text", { x: X(n - 1) + 10, y: L.y, class: L.strong ? "t-strong" : "t-mid" });
     if (!narrow) t.append(sv("tspan", { class: "t-sans" }, L.w + " "));
     t.append(sv("tspan", { class: "t-num" }, L.v.toFixed(4)));
     svg.append(t);
   }
-  const hit = sv("rect", { x: lx, y: 0, width: W - lx, height: H, fill: "transparent" });
-  bindTip(hit, e => tip(e, b => {
-    tipTitle(b, "Semester " + nextNo + ", " + fmtCU(proj.cu) + " CU");
-    branches.forEach(([v, w]) => tipRow(b, v.toFixed(4), w.toLowerCase(), "--you"));
-  }));
+  const hit = sv("rect", { x: lx, y: 0, width: Math.max(10, W - lx), height: H, fill: "transparent" });
+  bindTip(hit, e => {
+    const r = svg.getBoundingClientRect();
+    const px = e.clientX - r.left;
+    let j = 0, bd = Infinity;
+    blocks.forEach((_, k) => { const d = Math.abs(X(nPast + k) - px); if (d < bd) { bd = d; j = k; } });
+    tip(e, b => {
+      tipTitle(b, "After semester " + blocks[j].sem);
+      lines.forEach(l => tipRow(b, l.vals[j].toFixed(4), l.label.toLowerCase(), l.strong ? "--ink-2" : "--you"));
+    });
+  });
   svg.append(hit);
   host.append(svg);
 }
@@ -1592,9 +2119,9 @@ function eligCurve(host, gpa, label, courses) {
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const N = courses.length;
   const bars = courses.map(x => x.bar).sort((a, b) => a - b);
-  const lo = Math.min(3.1, Math.floor(((bars[0] ?? 3.1) - 0.02) * 10) / 10), hi = 4.0;
+  const lo = axisLo([gpa, ...bars]), hi = 4.0;
   const count = g => { let k = 0; for (const t of bars) { if (t <= g + 1e-9) k++; else break; } return k; };
-  const X = v => m.l + (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * iw;
+  const X = v => m.l + (clamp(v, lo, hi) - lo) / (hi - lo) * iw;
   const Y = k => m.t + (1 - k / Math.max(1, N)) * ih;
   const svg = svgRoot(W, H, "Number of courses whose entry bar is at or below each GPA");
   const step = N > 40 ? 15 : N > 20 ? 10 : 5;
@@ -1605,7 +2132,8 @@ function eligCurve(host, gpa, label, courses) {
     svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(k), y2: Y(k), class: k === 0 ? "g-base" : "g-grid" }));
     svg.append(txt(m.l - 8, Y(k) + 3.5, String(k), null, "end"));
   }
-  const tickStep = W < 420 ? 2 : 1;
+  const span = Math.round((hi - lo) * 10);
+  const tickStep = W < 420 || span > 12 ? 2 : 1;
   for (let k = Math.ceil(lo * 10); k <= 40; k += tickStep) svg.append(txt(X(k / 10), H - 8, (k / 10).toFixed(1), null, "middle"));
   let d = `M${X(lo)} ${Y(count(lo))}`;
   for (const t of [...new Set(bars)]) { if (t <= lo || t > hi) continue; d += ` H${X(t)} V${Y(count(t))}`; }
@@ -1615,7 +2143,7 @@ function eligCurve(host, gpa, label, courses) {
   const k0 = count(gpa);
   svg.append(sv("line", { x1: X(gpa), x2: X(gpa), y1: m.t - 6, y2: m.t + ih, class: "g-you", "stroke-width": 1.5 }));
   svg.append(sv("circle", { cx: X(gpa), cy: Y(k0), r: 4.5, class: "f-you g-surface", "stroke-width": 2 }));
-  const s = label + " " + gpa.toFixed(4) + ", " + k0 + " in reach";
+  const s = label + " " + gpa.toFixed(4) + ": " + k0 + " in reach";
   const endSide = X(gpa) + 8 + textW(s, "600 12px " + CANVAS_SANS) > W - 4;
   svg.append(txt(endSide ? X(gpa) - 8 : X(gpa) + 8, m.t - 10, s, "t-sans t-strong", endSide ? "end" : "start"));
   const hair = sv("line", { y1: m.t, y2: m.t + ih, class: "g-base", visibility: "hidden" });
@@ -1627,9 +2155,9 @@ function eligCurve(host, gpa, label, courses) {
     if (g < lo || g > hi) { hair.setAttribute("visibility", "hidden"); untip(); return; }
     hair.setAttribute("x1", X(g)); hair.setAttribute("x2", X(g)); hair.setAttribute("visibility", "visible");
     tip(e, b => {
-      tipTitle(b, "At a GPA of " + g.toFixed(2));
+      tipTitle(b, "With a GPA of " + g.toFixed(2));
       tipRow(b, String(count(g)), "courses in reach", "--ink-2");
-      tipRow(b, signed(g - gpa, 2), "from your GPA", "--you");
+      tipRow(b, signed(g - gpa, 2), "from the GPA you're testing", "--you");
     });
   });
   hit.addEventListener("pointerleave", () => hair.setAttribute("visibility", "hidden"));
@@ -1644,17 +2172,18 @@ function payScatter(host, gpa, courses) {
   const W = widthOf(host), H = 250;
   const m = { t: 24, r: 16, b: 28, l: 42 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const xLo = Math.min(3.1, Math.floor((Math.min(...pts.map(p => p.bar)) - 0.02) * 10) / 10), xHi = 4.0;
+  const xLo = axisLo([gpa, ...pts.map(p => p.bar)]), xHi = 4.0;
   const pays = pts.map(p => p.c.pay);
   const yLo = Math.floor(Math.min(...pays) / 1000) * 1000, yHi = Math.ceil(Math.max(...pays) / 1000) * 1000;
-  const X = v => m.l + (Math.max(xLo, Math.min(xHi, v)) - xLo) / (xHi - xLo) * iw;
+  const X = v => m.l + (clamp(v, xLo, xHi) - xLo) / (xHi - xLo) * iw;
   const Y = v => m.t + (1 - (v - yLo) / Math.max(1, yHi - yLo)) * ih;
   const svg = svgRoot(W, H, "Median graduate pay against entry bar for each course");
   for (let v = yLo; v <= yHi; v += 1000) {
     svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(v), y2: Y(v), class: v === yLo ? "g-base" : "g-grid" }));
     svg.append(txt(m.l - 8, Y(v) + 3.5, "$" + v / 1000 + "k", null, "end"));
   }
-  for (let k = Math.ceil(xLo * 10); k <= 40; k += (W < 420 ? 2 : 1)) svg.append(txt(X(k / 10), H - 8, (k / 10).toFixed(1), null, "middle"));
+  const span = Math.round((xHi - xLo) * 10);
+  for (let k = Math.ceil(xLo * 10); k <= 40; k += (W < 420 || span > 12 ? 2 : 1)) svg.append(txt(X(k / 10), H - 8, (k / 10).toFixed(1), null, "middle"));
   svg.append(sv("line", { x1: X(gpa), x2: X(gpa), y1: m.t - 6, y2: m.t + ih, class: "g-you", "stroke-width": 1.5 }));
   const lab = "GPA " + gpa.toFixed(4);
   const endSide = X(gpa) + 8 + textW(lab, "600 12px " + CANVAS_SANS) > W - 4;
@@ -1678,7 +2207,7 @@ function payScatter(host, gpa, courses) {
       tipTitle(b, best.p.c.uni + " " + best.p.c.name);
       tipRow(b, fmtPay(best.p.c.pay), "median monthly pay");
       tipRow(b, best.p.bar.toFixed(2), "entry bar");
-      tipFoot(b, best.inReach ? "In reach at your GPA." : (best.p.bar - gpa).toFixed(4) + " above your GPA.");
+      tipFoot(b, best.inReach ? "In reach at this GPA." : (best.p.bar - gpa).toFixed(4) + " above this GPA.");
     });
   });
   svg.append(hit);
@@ -1690,15 +2219,20 @@ function renderWho() {
   const w = document.getElementById("who");
   w.textContent = "";
   const st = S.data.student, sems = S.data.semesters;
-  w.append(el("h1", { text: titleCase(st.name || "Your results") }));
-  const bits = [];
+  const t = el("div", { class: "who-text" });
+  t.append(el("h1", { text: titleCase(st.name || "Your results") }));
+  const bits = [POLY.name];
   if (st.course) bits.push(titleCase(st.course));
   const first = sems[0], last = sems[sems.length - 1];
-  if (first && last) bits.push(sems.length === 1 ? "Semester " + first.sem + ", " + fmtExam(first.exam)
-    : "Semesters " + first.sem + " to " + last.sem + ", " + fmtExam(first.exam) + " to " + fmtExam(last.exam));
+  bits.push((sems.length === 1 ? "Semester " + first.sem : "Semesters " + first.sem + " to " + last.sem) + " of " + S.data.totalSems);
+  if (first.exam && last.exam) bits.push(sems.length === 1 ? fmtExam(first.exam) : fmtExam(first.exam) + " to " + fmtExam(last.exam));
   const minors = [...new Set((S.data.learningUnits || []).map(u => u.minor.replace(/^Minor in\s*/i, "")))];
   if (minors.length) bits.push((minors.length === 1 ? "Minor in " : "Minors in ") + listJoin(minors));
-  w.append(el("p", { text: bits.join(" · ") }));
+  t.append(el("p", { text: bits.join(" · ") }));
+  w.append(t);
+  const edit = el("button", { class: "btn btn-sm", type: "button", id: "editBtn", html: ICON.edit + "<span>Edit modules</span>" });
+  edit.addEventListener("click", () => openReview(structuredClone(S.data), { fresh: false, reason: "edit" }));
+  w.append(edit);
 }
 
 function standingCaption(gpa, courses, lead, noun) {
@@ -1710,142 +2244,148 @@ function standingCaption(gpa, courses, lead, noun) {
   if (counts.line) extra.push((counts.line === 1 ? "one is" : numWord(counts.line) + " are") + " on the line");
   if (counts.close) extra.push((counts.close === 1 ? "one is" : numWord(counts.close) + " are") + " close");
   if (extra.length) p.append(" " + cap(listJoin(extra)) + ".");
-  return { p, counts };
+  return p;
 }
+const remainingPhrase = blocks => blocks.length === 1 ? "semester " + blocks[0].sem : "your last " + numWord(blocks.length) + " semesters";
+const ceilText = blocks => blocks.length === 1 ? "Straight A's in semester " + blocks[0].sem + ":" : "Straight A's from here:";
 
 /* ================= view: results ================= */
 function viewResults(root) {
-  const base = computeAll(S.data, null, null);
-  if (base.cgpa == null) { root.append(el("p", { class: "empty-note", text: "This transcript has no graded modules yet, so there's no GPA to show." })); return; }
-  const sems = base.sems, last = sems[sems.length - 1], prev = sems[sems.length - 2];
-  const nextNo = nextSemNo();
-  const P = sumOf(remainingBlocks());
-  const ceil = ceilingAfter(base, P);
+  const base = computeAll(S.data, null);
+  if (base.cgpa == null) { root.append(el("p", { class: "empty-note", text: "No graded modules yet, so there's no GPA to show. Use Edit modules to add some." })); return; }
+  const sems = base.sems, last = sems[sems.length - 1];
+  const prev = [...sems.slice(0, -1)].reverse().find(s => s.gpa != null);
+  const blocks = planBlocks();
+  const P = sumOf(blocks.map(b => b.cu));
+  const ceil = blocks.length ? allAt(base, blocks, 4) : null;
 
   const hero = el("section", { class: "hero" });
   const main = el("div");
-  main.append(el("p", { class: "eyebrow", text: "Cumulative GPA" }), el("p", { class: "hero-num", text: base.cgpa.toFixed(4) }));
+  main.append(el("p", { class: "eyebrow", text: "Overall GPA (cumulative)" }), el("p", { class: "hero-num", text: base.cgpa.toFixed(4) }));
   const note = el("p", { class: "hero-note" });
-  const printed = last.printedCGPA;
+  const lastP = [...sems].reverse().find(s => s.printedCGPA != null);
   if (S.data.sample) note.textContent = "Worked out from the made-up grades in this sample.";
-  else if (printed != null && !isNaN(printed) && Math.abs(printed - base.cgpa) < 0.00005) note.append(el("span", { class: "ok", html: ICON.check }), "Matches the CGPA printed on your transcript.");
-  else if (printed != null && !isNaN(printed)) note.textContent = "Your transcript prints " + printed.toFixed(4) + ". Transferred or exempted modules usually explain the gap.";
+  else if (lastP && lastP === last && Math.abs(lastP.printedCGPA - base.cgpa) < matchTol(lastP.printedDp)) note.append(el("span", { class: "ok", html: ICON.check }), "Matches the GPA printed on your transcript.");
+  else if (lastP && lastP === last) note.textContent = "Your transcript prints " + lastP.printedCGPA.toFixed(Math.max(2, lastP.printedDp)) + ". Exempted, transferred or dropped modules usually explain a gap. Use Edit modules to check.";
   else note.textContent = "Worked out from your module grades.";
   main.append(note);
   hero.append(main);
 
   let aCU = 0, dist = 0;
   for (const s of S.data.semesters) for (const mo of s.modules) {
-    if (!isGraded(mo.grade)) continue;
+    if (!isGraded(mo.grade) || base.dropped.has(mo.id)) continue;
     if (gp(mo.grade) === 4) aCU += mo.cu;
-    if (mo.grade === "AD") dist++;
+    if (POLY.dist && mo.grade === POLY.dist) dist++;
   }
   const facts = el("dl", { class: "facts" });
   const fact = (dt, dd, small) => facts.append(el("div", { class: "fact" }, el("dt", { text: dt }), el("dd", null, dd, el("small", { text: small }))));
   let latest = "Sem " + last.sem + (last.exam ? ", " + fmtExam(last.exam) : "");
-  if (prev && prev.gpa != null && last.gpa != null) {
+  if (prev && last.gpa != null) {
     const d = last.gpa - prev.gpa;
     latest += Math.abs(d) < 0.005 ? ". Same as Sem " + prev.sem + "." : (d > 0 ? ". Up " : ". Down ") + Math.abs(d).toFixed(2) + " on Sem " + prev.sem + ".";
   }
   fact("Latest semester", f2(last.gpa), latest);
-  fact("Credit units", fmtCU(base.cumEarned), fmtCU(base.cumCU) + " of them count toward your GPA");
-  fact("At A or better", Math.round(aCU / base.cumCU * 100) + "%", fmtCU(aCU) + " of " + fmtCU(base.cumCU) + " graded credit units");
-  fact("Distinctions", String(dist), dist ? (dist === 1 ? "One module graded AD" : numWord(dist).replace(/^./, c => c.toUpperCase()) + " modules graded AD") : "No AD grades yet");
+  fact(cap(POLY.creditLong), fmtCU(base.cumEarned), fmtCU(base.cumCU) + " of them count toward your GPA");
+  fact("At A or better", Math.round(aCU / base.cumCU * 100) + "%", "of your graded " + POLY.creditLong);
+  if (POLY.dist) fact("Distinctions", String(dist), dist ? plural(dist, "module") + " graded " + POLY.dist : "No " + POLY.dist + " grades yet");
+  else fact("Semesters left", String(blocks.length), blocks.length ? "about " + fmtCU(P) + " " + CU() + " to go" : "Course complete");
   hero.append(facts);
   root.append(hero);
 
   const courses = IGP.map(c => ({ c, bar: c.p10 }));
-  const within = courses.filter(x => x.bar > base.cgpa + 1e-9 && x.bar <= ceil + 1e-9).length;
-  const stand = el("section", { class: "standing", "aria-label": "Where your CGPA sits" });
+  const within = ceil != null ? courses.filter(x => x.bar > base.cgpa + 1e-9 && x.bar <= ceil + 1e-9).length : 0;
+  const stand = el("section", { class: "standing", "aria-label": "Where your GPA sits" });
   const p = el("p", { class: "standing-cap" });
-  p.append("You clear the entry bar for ", el("b", { text: courses.filter(x => x.bar <= base.cgpa + 1e-9).length + " of " + courses.length }), " university courses listed for 2026.");
-  if (within > 0) p.append(" ", el("b", { text: within === 1 ? "One more" : cap(numWord(within)) + " more" }), (within === 1 ? " is" : " are") + " within reach if semester " + nextNo + " goes perfectly.");
-  else if (courses.some(x => x.bar > base.cgpa + 1e-9)) p.append(" A perfect semester " + nextNo + " wouldn't open a new one, but it would widen your margins.");
+  p.append("You clear the entry bar for ", el("b", { text: courses.filter(x => x.bar <= base.cgpa + 1e-9).length + " of " + courses.length }), " NUS, NTU and SMU courses.");
+  if (within > 0) p.append(" ", el("b", { text: within === 1 ? "One more" : cap(numWord(within)) + " more" }), (within === 1 ? " is" : " are") + " within reach if " + remainingPhrase(blocks) + (blocks.length === 1 ? " goes" : " go") + " perfectly.");
+  else if (ceil != null && courses.some(x => x.bar > base.cgpa + 1e-9)) p.append(" Straight A's from here wouldn't open a new one, but would widen your margins.");
   stand.append(p);
   const rh = el("div", { class: "ruler" });
   stand.append(rh);
-  stand.append(el("p", { class: "standing-key", text: "Each tick above the scale is one course's entry bar: the 10th percentile GPA of poly students offered a place in 2025. Taller ticks mean several courses share a bar. The blue band is how far a perfect semester " + nextNo + " (" + fmtCU(P) + " CU) could take you." }));
+  stand.append(el("p", { class: "standing-key", text: "How to read this: each grey tick above the line is one course's entry bar (the GPA that the bottom 10% of poly students offered a place had). Blue is you. Ticks to the left of you are courses you already clear." + (ceil != null ? " The blue band shows how far straight A's in " + remainingPhrase(blocks) + " (" + fmtCU(P) + " " + CU() + ") could take you." : "") }));
   root.append(stand);
 
   const g1 = el("div", { class: "grid" });
-  const cTrend = card("c7", "How your GPA moved", "Your cumulative GPA after each semester, next to how each semester went on its own.");
+  const cTrend = card("c7", "Your GPA, semester by semester", "The blue line is your overall GPA. The grey line is how each semester went on its own.");
   const trendBox = el("div", { class: "chart" });
-  cTrend.append(trendBox, legend([["line", "--you", "Cumulative GPA"], ["line", "--ctx", "Semester GPA"]]));
+  cTrend.append(trendBox, legend([["line", "--you", "Overall GPA"], ["line", "--ctx", "That semester alone"]]));
   g1.append(cTrend);
-  const cSem = card("c5", "Semesters", "Weight is each semester's share of the credit units behind your CGPA.");
-  const tbl = el("table", { class: "tbl" });
-  tbl.append(el("thead", null, el("tr", null, el("th", { text: "Semester" }), el("th", { class: "n", text: "GPA" }), el("th", { class: "n", text: "CGPA" }), el("th", { class: "n", text: "Weight" }))));
-  const tb = el("tbody");
-  const maxShare = Math.max(...sems.map(s => s.gradedCU));
-  for (const s of sems) {
-    const share = s.gradedCU / base.cumCU;
-    tb.append(el("tr", null,
-      el("td", null, "Sem " + s.sem, el("span", { class: "sub", text: fmtExam(s.exam) + (s.result && !/^passed$/i.test(s.result) ? ", " + s.result : "") })),
-      el("td", { class: "n", text: f4(s.gpa) }),
-      el("td", { class: "n", text: f4(s.cgpa) }),
-      el("td", { class: "n" }, el("span", { class: "wbar", style: "width:" + Math.max(3, s.gradedCU / maxShare * 44) + "px" }), Math.round(share * 100) + "%")));
-  }
-  tbl.append(tb);
-  cSem.append(el("div", { style: "overflow-x:auto" }, tbl));
-  g1.append(cSem);
-  root.append(g1);
-
-  const g2 = el("div", { class: "grid" });
-  const toggle = segmented("distLbl", [["count", "Modules"], ["cu", "Credit units"]], S.distMode, key => { S.distMode = key; drawDist(); }, "dist-");
-  const cDist = card("c5", "Grades", null, toggle);
-  cDist.querySelector(".card-t").id = "distLbl";
+  const toggle = segmented(null, [["count", "Modules"], ["cu", cap(POLY.creditLong)]], S.distMode, key => { S.distMode = key; drawDist(); }, "dist-", "Count grades by");
+  const cDist = card("c5", "Your grades", "How many of each grade you've scored.", toggle);
   const distBox = el("div", { class: "chart" });
   const distCap = el("p", { class: "caption" });
   cDist.append(distBox, distCap);
-  g2.append(cDist);
-  const cMix = card("c7", "Grade mix by semester", "How each semester's credit units split across grade points.");
-  const mixBox = el("div");
-  cMix.append(mixBox);
-  g2.append(cMix);
-  root.append(g2);
+  g1.append(cDist);
+  root.append(g1);
 
-  const g3 = el("div", { class: "grid" });
-  const cLoss = card("c7", "Where the points went", "A perfect record is 4.0000. You're " + (4 - base.cgpa).toFixed(4) + " short, and these modules account for all of it.");
+  const g2 = el("div", { class: "grid" });
+  const cLoss = card("", "Where you lost points", "A perfect record is 4.0000. You're " + (4 - base.cgpa).toFixed(4) + " below that, and these modules are the reason, biggest first.");
   const lossBox = el("div");
   cLoss.append(lossBox);
-  g3.append(cLoss);
-  const cType = card("c5", "By module type", "Your GPA for each kind of module. Hover or tap a row to see which modules are in it.");
-  const typeBox = el("div");
-  cType.append(typeBox);
-  g3.append(cType);
-  root.append(g3);
+  g2.append(cLoss);
+  root.append(g2);
 
-  const g4 = el("div", { class: "grid" });
-  const cPat = card("", "Patterns", null);
-  const pats = patterns(base);
-  const pg = el("div", { class: "pats", style: "--cols:" + (pats.length % 3 === 0 || pats.length > 4 ? 3 : 2) });
-  for (const it of pats) pg.append(el("div", { class: "pat" }, el("div", { class: "pat-v", text: it.v }), el("div", { class: "pat-l", text: it.l }), el("div", { class: "pat-d", text: it.d })));
-  cPat.append(pg);
-  g4.append(cPat);
-  root.append(g4);
+  const later = [];
+  moreSection(root, "results", body => {
+    const g3 = el("div", { class: "grid" });
+    const cSem = card("c5", "Semesters", "Weight is how much of your overall GPA each semester carries.");
+    const tbl = el("table", { class: "tbl" });
+    tbl.append(el("thead", null, el("tr", null, el("th", { text: "Semester" }), el("th", { class: "n", text: "GPA" }), el("th", { class: "n", text: "Overall" }), el("th", { class: "n", text: "Weight" }))));
+    const tb = el("tbody");
+    const maxShare = Math.max(1e-9, ...sems.map(s => s.gradedCU));
+    for (const s of sems) {
+      const share = base.cumCU ? s.gradedCU / base.cumCU : 0;
+      tb.append(el("tr", null,
+        el("td", null, "Sem " + s.sem, el("span", { class: "sub", text: [fmtExam(s.exam), s.result && !/^passed$/i.test(s.result) ? s.result : null].filter(Boolean).join(", ") || " " })),
+        el("td", { class: "n", text: f4(s.gpa) }),
+        el("td", { class: "n", text: f4(s.cgpa) }),
+        el("td", { class: "n" }, el("span", { class: "wbar", style: "width:" + Math.max(3, s.gradedCU / maxShare * 44) + "px" }), Math.round(share * 100) + "%")));
+    }
+    tbl.append(tb);
+    cSem.append(el("div", { style: "overflow-x:auto" }, tbl));
+    g3.append(cSem);
+    const cMix = card("c7", "Grade mix by semester", "What each semester's " + POLY.creditLong + " were made of. The strongest blue is 4.0.");
+    const mixBox = el("div");
+    cMix.append(mixBox);
+    g3.append(cMix);
+    body.append(g3);
+    const g4 = el("div", { class: "grid" });
+    const cType = card("c5", "Module groups", "Your GPA in each kind of module. Hover or tap a row to see what's in it.");
+    const typeBox = el("div");
+    cType.append(typeBox);
+    g4.append(cType);
+    const cPat = card("c7", "Patterns", null);
+    const pg = el("div", { class: "pats", style: "--cols:2" });
+    for (const it of patterns(base)) pg.append(el("div", { class: "pat" }, el("div", { class: "pat-v", text: it.v }), el("div", { class: "pat-l", text: it.l }), el("div", { class: "pat-d", text: it.d })));
+    cPat.append(pg);
+    g4.append(cPat);
+    body.append(g4);
+    later.push(() => { mixRows(mixBox, sems, base.dropped); typeRows(typeBox, base); });
+  });
 
   function drawDist() {
-    distChart(distBox, S.data, S.distMode);
+    distChart(distBox, S.data, S.distMode, base.dropped);
     const tally = {};
     let pf = 0;
     for (const s of S.data.semesters) for (const mo of s.modules) {
+      if (base.dropped.has(mo.id)) continue;
       if (isGraded(mo.grade)) tally[mo.grade] = (tally[mo.grade] || 0) + (S.distMode === "cu" ? mo.cu : 1);
       else pf++;
     }
     const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
-    let s = top ? (S.distMode === "cu" ? "Most credit units: " + top[0] + ", with " + fmtCU(top[1]) + " CU." : "Most common: " + top[0] + ", " + plural(top[1], "time") + ".") : "";
-    if (pf) s += " " + (pf === 1 ? "One pass/fail module isn't" : cap(numWord(pf)) + " pass/fail modules aren't") + " counted.";
+    let s = top ? (S.distMode === "cu" ? "Most " + POLY.creditLong + ": " + top[0] + ", with " + fmtCU(top[1]) + "." : "Most common: " + top[0] + ", " + plural(top[1], "time") + ".") : "";
+    if (pf) s += " " + (pf === 1 ? "One module isn't" : cap(numWord(pf)) + " modules aren't") + " counted in GPA (pass/fail or exempted).";
     distCap.textContent = s.trim();
   }
 
   requestAnimationFrame(() => {
-    drawRuler(rh, { gpa: base.cgpa, label: "You", ceil, nextNo, courses, animate: fontsReady && !S.needleDone });
+    if (!rh.isConnected) return;
+    drawRuler(rh, { gpa: base.cgpa, label: "You", ceil, ceilText: ceilText(blocks), courses, animate: fontsReady && !S.needleDone });
     if (fontsReady) S.needleDone = true;
-    trendChart(trendBox, sems);
+    trendChart(trendBox, sems.filter(s => s.gpa != null || s.cgpa != null));
     drawDist();
-    mixRows(mixBox, sems);
     lossRows(lossBox, base);
-    typeRows(typeBox);
+    later.forEach(f => f());
   });
 }
 
@@ -1853,22 +2393,24 @@ function patterns(base) {
   const items = [];
   const sems = base.sems;
   const seq = [];
-  for (const s of S.data.semesters) for (const mo of s.modules) if (isGraded(mo.grade)) seq.push({ mo, sem: s });
+  for (const s of S.data.semesters) for (const mo of s.modules) if (isGraded(mo.grade) && !base.dropped.has(mo.id)) seq.push({ mo, sem: s });
   let longest = 0, run = 0;
   for (const x of seq) { if (gp(x.mo.grade) === 4) { run++; longest = Math.max(longest, run); } else run = 0; }
   let current = 0, brk = null;
   for (let i = seq.length - 1; i >= 0; i--) { if (gp(seq[i].mo.grade) === 4) current++; else { brk = seq[i]; break; } }
   if (longest > 0) {
     let d;
-    if (current === longest && brk) d = "Still going. The last grade below A was " + article(brk.mo.grade) + " " + brk.mo.grade + " in " + titleCase(brk.mo.name) + ", " + fmtExam(brk.sem.exam) + ".";
+    if (current === longest && brk) d = "Still going. The last grade below A was " + article(brk.mo.grade) + " " + brk.mo.grade + " in " + titleCase(brk.mo.name) + (brk.sem.exam ? ", " + fmtExam(brk.sem.exam) : ", Sem " + brk.sem.sem) + ".";
     else if (current === longest) d = "Every graded module so far.";
     else d = "Your current run is " + current + ".";
-    items.push({ v: String(longest), l: "modules in a row at A or better", d });
+    items.push({ v: String(longest), l: (longest === 1 ? "module" : "modules") + " in a row at A or better", d });
   }
 
   const all = S.data.semesters.flatMap(s => s.modules);
-  const firstTry = all.filter(m => (m.attempt || 1) === 1 && m.grade !== "F").length;
-  items.push({ v: firstTry + " of " + all.length, l: "modules passed on the first try", d: firstTry === all.length ? "Your transcript has no repeats: every attempt column reads 1." : plural(all.length - firstTry, "module") + " took another attempt." });
+  const keys = new Set(all.map(modKey));
+  const retakes = all.filter(m => (m.attempt || 1) > 1 || base.dropped.has(m.id));
+  const firstTry = all.filter(m => (m.attempt || 1) === 1 && !NOT_EARNED.has(m.grade) && !base.dropped.has(m.id)).length;
+  items.push({ v: firstTry + " of " + keys.size, l: "modules passed on the first try", d: retakes.length ? plural(retakes.length, "module") + " needed another attempt." : "No repeats anywhere on your transcript." });
 
   const gpas = sems.filter(s => s.gpa != null);
   if (gpas.length >= 2) {
@@ -1876,7 +2418,7 @@ function patterns(base) {
     const without = s => (base.cumPts - s.pts) / (base.cumCU - s.gradedCU);
     if (worst !== best && base.cumCU > worst.gradedCU && base.cumCU > best.gradedCU) {
       const w = without(worst);
-      items.push({ v: w.toFixed(4), l: "your CGPA without Sem " + worst.sem, d: "Your weakest semester costs you " + (w - base.cgpa).toFixed(4) + ". Take out your best one (Sem " + best.sem + ") instead and you'd be at " + without(best).toFixed(4) + "." });
+      items.push({ v: w.toFixed(4), l: "your GPA without Sem " + worst.sem, d: "Your weakest semester costs you " + (w - base.cgpa).toFixed(4) + ". Take out your best one (Sem " + best.sem + ") instead and you'd be at " + without(best).toFixed(4) + "." });
     }
   }
 
@@ -1884,14 +2426,14 @@ function patterns(base) {
   for (const x of seq) { if (x.mo.cu >= 4) { hCU += x.mo.cu; hPts += gp(x.mo.grade) * x.mo.cu; } else { lCU += x.mo.cu; lPts += gp(x.mo.grade) * x.mo.cu; } }
   if (hCU && lCU) {
     const h = hPts / hCU, l = lPts / lCU;
-    items.push({ v: h.toFixed(2) + " vs " + l.toFixed(2), l: "big modules against small ones", d: "GPA on modules worth 4 CU or more, then on the smaller ones. " + (Math.abs(h - l) < 0.02 ? "Size makes no real difference for you." : h > l ? "You do better on the heavier ones." : "The smaller ones go better for you.") });
+    items.push({ v: h.toFixed(2) + " vs " + l.toFixed(2), l: "big modules against small ones", d: "GPA on modules worth 4 " + CU() + " or more, then on smaller ones. " + (Math.abs(h - l) < 0.02 ? "Size makes no real difference for you." : h > l ? "You do better on the heavier ones." : "The smaller ones go better for you.") });
   }
 
   if (gpas.length >= 2) {
     const mean = sumOf(gpas.map(s => s.gpa)) / gpas.length;
     const sigma = Math.sqrt(sumOf(gpas.map(s => (s.gpa - mean) ** 2)) / gpas.length);
     const odd = [...gpas].sort((a, b) => Math.abs(b.gpa - mean) - Math.abs(a.gpa - mean))[0];
-    items.push({ v: sigma.toFixed(3), l: "spread between semesters", d: "The standard deviation of your semester GPAs. Sem " + odd.sem + ", at " + f2(odd.gpa) + ", sits furthest from the rest." });
+    items.push({ v: sigma.toFixed(3), l: "spread between semesters", d: sigma < 0.005 ? "Every semester landed on the same GPA." : "How much your semester GPAs vary (standard deviation). Sem " + odd.sem + ", at " + f2(odd.gpa) + ", is the furthest from the rest." });
     let rb = null;
     for (let i = 1; i < gpas.length; i++) { const d = gpas[i].gpa - gpas[i - 1].gpa; if (!rb || d > rb.d) rb = { d, a: gpas[i - 1], b: gpas[i] }; }
     if (rb && rb.d > 0.005) items.push({ v: "+" + rb.d.toFixed(2), l: "biggest bounce-back", d: "From Sem " + rb.a.sem + " (" + f2(rb.a.gpa) + ") to Sem " + rb.b.sem + " (" + f2(rb.b.gpa) + ")." });
@@ -1901,14 +2443,14 @@ function patterns(base) {
 
 /* ================= view: what if ================= */
 function viewWhatIf(root) {
-  const base = computeAll(S.data, null, null);
-  const sim = computeAll(S.data, S.overrides, null);
-  if (base.cgpa == null) { root.append(el("p", { class: "empty-note", text: "This transcript has no graded modules yet." })); return; }
+  const base = computeAll(S.data, null);
+  const sim = computeAll(S.data, S.overrides);
+  if (base.cgpa == null) { root.append(el("p", { class: "empty-note", text: "No graded modules yet. Use Edit modules to add some." })); return; }
   const changes = [];
   for (const s of S.data.semesters) for (const mo of s.modules) if (S.overrides[mo.id]) changes.push({ mo, sem: s, from: mo.grade, to: S.overrides[mo.id] });
 
   const wrap = el("div", { class: "wi" });
-  const ed = card("", "Change a grade", "Give any module a different grade. The CGPA alongside is what your transcript would have printed.");
+  const ed = card("", "Change a past grade", "Pick a different grade for any module. The number alongside is the overall GPA your transcript would have shown.");
   for (const s of S.data.semesters) {
     const ss = sim.sems.find(x => x.sem === s.sem);
     const block = el("div", { class: "sem-b" });
@@ -1916,7 +2458,7 @@ function viewWhatIf(root) {
       el("h3", { text: "Semester " + s.sem }),
       el("span", { class: "when", text: fmtExam(s.exam) }),
       el("span", { class: "gpa" }, "GPA", el("b", { text: f4(ss.gpa) }))));
-    for (const mo of s.modules) block.append(modRow(mo));
+    for (const mo of s.modules) block.append(modRow(mo, base.dropped.has(mo.id)));
     ed.append(block);
   }
   const side = el("div", { class: "wi-side" });
@@ -1924,69 +2466,114 @@ function viewWhatIf(root) {
   wrap.append(ed, side);
   root.append(wrap);
 
-  const nextNo = nextSemNo();
-  const blocks = remainingBlocks();
-  const P = sumOf(blocks);
-  const planned = S.planner.filter(p => p.cu > 0);
-  root.append(secHead("Planning semester " + nextNo, planned.length
-    ? "Everything below uses the " + plural(planned.length, "module") + " in your plan (" + fmtCU(P) + " CU)."
-    : "Until you add modules to your plan, everything below assumes " + fmtCU(P) + " CU, the same as five 4-CU modules."));
-
+  const blocks = planBlocks();
+  if (!blocks.length) {
+    root.append(secHead("Your course is complete", "Your transcript has all " + S.data.totalSems + " semesters, so there's nothing left to plan."));
+    root.append(finishedCard());
+    return;
+  }
+  const P = sumOf(blocks.map(b => b.cu));
+  root.append(secHead("Plan your remaining semesters", "You have " + plural(blocks.length, "semester") + " left (" + (blocks.length === 1 ? "semester " + blocks[0].sem : "semesters " + blocks[0].sem + " to " + blocks[blocks.length - 1].sem) + "), about " + fmtCU(P) + " " + CU() + ". " + (blocks.length === 1 ? "Give it a target GPA, or list its modules and the grades you expect." : "Give each one a target GPA, or list its modules and the grades you expect.")));
   const g1 = el("div", { class: "grid" });
-  g1.append(planCard(base, nextNo, P));
-  const usual = base.cgpa;
-  const proj = { cu: P, ceil: ceilingAfter(base, P), usual: (base.cumPts + usual * P) / (base.cumCU + P), floor: (base.cumPts + 3 * P) / (base.cumCU + P) };
-  const cCone = card("c7", "Where you could finish", "Your CGPA so far, then three ways semester " + nextNo + " could go: straight A's, your average, or all B's.");
-  const coneBox = el("div", { class: "chart" });
-  cCone.append(coneBox, legend([["line", "--you", "CGPA so far and projected"]]));
-  g1.append(cCone);
+  const outputs = el("div", { class: "c5", style: "display:grid;gap:16px;align-content:start" });
+  g1.append(planCard(base, sim, () => refreshOutputs()), outputs);
   root.append(g1);
+  const moreHost = el("div");
+  root.append(moreHost);
 
-  const sims = monteCarlo(base, blocks, 6000);
+  function refreshOutputs() {
+    const bl = planBlocks();
+    outputs.textContent = "";
+    outputs.append(targetCard(base, bl));
+    const finish = document.getElementById("planFinish");
+    if (finish) fillFinish(finish, sim, bl);
+    moreHost.textContent = "";
+    moreSection(moreHost, "whatif", body => buildPlanMore(body, base, bl));
+  }
+  refreshOutputs();
+}
+
+function buildPlanMore(body, base, blocks) {
+  const hasPlan = blocks.some(b => b.pts != null);
+  const low = Math.max(0, base.cgpa - 0.5);
+  const branches = [{ label: "All A", g: b => 4 * b.cu }];
+  if (hasPlan) branches.push({ label: "Your plan", g: b => b.pts != null ? b.pts : base.cgpa * b.cu, strong: true });
+  branches.push({ label: "At your average", g: b => base.cgpa * b.cu }, { label: "Half a grade worse", g: b => low * b.cu });
+  const g = el("div", { class: "grid" });
+  const cCone = card("c7", "Where you could finish", "Your overall GPA so far, then how it moves through each remaining semester if you score straight A's, your usual average" + (hasPlan ? ", your plan" : "") + ", or half a grade worse.");
+  const coneBox = el("div", { class: "chart" });
+  cCone.append(coneBox, legend([["line", "--you", "So far"], ["dash", "--you", "Possible paths"]].concat(hasPlan ? [["line", "--ink-2", "Your plan"]] : [])));
+  g.append(cCone);
+  g.append(targetsCard(base, blocks));
+  body.append(g);
+  const sims = monteCarlo(base, simPieces(blocks, base), 6000);
   const g2 = el("div", { class: "grid" });
-  const cHist = card("c7", "Likely finishing CGPA", "We played semester " + nextNo + " out 6,000 times, drawing each module's grade from the mix you've actually scored. Eight runs in ten finish between " + qtile(sims, 0.1).toFixed(3) + " and " + qtile(sims, 0.9).toFixed(3) + ".");
+  const cHist = card("", "How likely each finish is", "We played out your remaining semesters 6,000 times, drawing each module's grade from the mix you've actually scored. Eight runs in ten finish between " + qtile(sims, 0.1).toFixed(3) + " and " + qtile(sims, 0.9).toFixed(3) + ". Taller bars mean more likely.");
   const histBox = el("div", { class: "chart" });
   cHist.append(histBox);
   g2.append(cHist);
-  g2.append(targetsCard(base, P));
-  root.append(g2);
-
+  body.append(g2);
   requestAnimationFrame(() => {
-    coneChart(coneBox, base.sems, proj, nextNo);
+    if (!coneBox.isConnected) return;
+    coneChart(coneBox, base, blocks, branches);
     histChart(histBox, sims);
   });
 }
 
-function modRow(mo) {
+function finishedCard() {
+  const c = card("", "Is your course longer?", "Some diplomas run longer than " + S.data.totalSems + " semesters. Add semesters here to plan them.");
+  c.append(semCountControl());
+  return c;
+}
+function semCountControl() {
+  const last = lastSemNo();
+  const w = el("div", { class: "plan-foot" });
+  w.append(el("span", { id: "semCountLbl", text: "Semesters in your course" }));
+  const st = el("span", { class: "stepper", role: "group", "aria-labelledby": "semCountLbl" });
+  const minus = iconBtn(ICON.minus, "One fewer semester", "semMinus");
+  const plus = iconBtn(ICON.plus, "One more semester", "semPlus");
+  if (S.data.totalSems <= last) minus.disabled = true;
+  if (S.data.totalSems >= 12) plus.disabled = true;
+  const set = (v, id) => { S.data.totalSems = clamp(v, last, 12); reconcilePlan(); persist(); renderWho(); S.focusId = id; render(); };
+  minus.addEventListener("click", () => set(S.data.totalSems - 1, "semMinus"));
+  plus.addEventListener("click", () => set(S.data.totalSems + 1, "semPlus"));
+  st.append(minus, el("output", { text: String(S.data.totalSems) }), plus);
+  w.append(st);
+  return w;
+}
+
+function modRow(mo, retaken) {
   const over = S.overrides[mo.id];
-  const row = el("div", { class: "mod" + (over ? " changed" : "") });
+  const row = el("div", { class: "mod" + (over ? " changed" : "") + (retaken ? " retaken" : "") });
   const n = el("div", { class: "mod-n" }, titleCase(mo.name));
   if (over) n.append(el("span", { class: "was", text: "was " + mo.grade }));
-  if (mo.attempt > 1) n.append(el("span", { class: "tag", text: "Attempt " + mo.attempt }));
-  row.append(n, el("div", { class: "mod-cu", text: fmtCU(mo.cu) + " CU" }));
-  if (isGraded(mo.grade)) {
+  if (retaken) n.append(el("span", { class: "tag", text: "Retaken later" }));
+  else if (mo.attempt > 1) n.append(el("span", { class: "tag", text: "Attempt " + mo.attempt }));
+  row.append(n, el("div", { class: "mod-cu", text: fmtCU(mo.cu) + " " + CU() }));
+  if (isGraded(mo.grade) && !retaken) {
     const id = "g-" + mo.id;
     const sel = el("select", { class: "gsel" + (over ? " changed" : ""), id, "aria-label": "Grade for " + titleCase(mo.name) });
-    for (const g of GRADE_ORDER) sel.append(el("option", { value: g, text: g }));
+    const opts = GRADE_ORDER.includes(mo.grade) ? GRADE_ORDER : [...GRADE_ORDER, mo.grade];
+    for (const g of opts) sel.append(el("option", { value: g, text: g }));
     sel.value = over || mo.grade;
     sel.addEventListener("change", () => {
       if (sel.value === mo.grade) delete S.overrides[mo.id]; else S.overrides[mo.id] = sel.value;
       S.focusId = id; persist(); render();
     });
     row.append(sel);
-  } else row.append(el("div", { class: "pf", text: mo.grade === "PX" ? "Pass/fail" : mo.grade }));
+  } else row.append(el("div", { class: "pf", text: retaken ? mo.grade : mo.grade + ", not in GPA" }));
   return row;
 }
 
 function resultCard(base, sim, changes) {
-  const c = el("section", { class: "card result", "aria-live": "polite" });
-  c.append(el("p", { class: "eyebrow", text: "CGPA with your changes" }), el("p", { class: "res-num", text: sim.cgpa.toFixed(4) }));
+  const c = el("section", { class: "card result", id: "wiResult", tabindex: "-1" });
+  c.append(el("p", { class: "eyebrow", text: "Overall GPA with your changes" }), el("p", { class: "res-num", text: sim.cgpa.toFixed(4) }));
   if (!changes.length) {
-    c.append(el("p", { class: "res-note", text: "No changes yet, so this is your transcript CGPA. Pick a different grade for any module to see what it would have done." }));
+    c.append(el("p", { class: "res-note", text: "No changes yet, so this is your real overall GPA. Change any grade in the list to see what it would have been." }));
     return c;
   }
   const d = sim.cgpa - base.cgpa;
-  c.append(el("p", { class: "res-delta " + (d >= 0 ? "is-up" : "is-down"), text: signed(d) + " on your " + base.cgpa.toFixed(4) }));
+  c.append(el("p", { class: "res-delta " + (d >= 0 ? "is-up" : "is-down"), text: signed(d) + " compared with your real " + base.cgpa.toFixed(4) }));
   const ul = el("ul", { class: "changes" });
   changes.forEach(ch => ul.append(el("li", null, el("span", { text: titleCase(ch.mo.name) }), el("span", { class: "chg", text: ch.from + " → " + ch.to }))));
   c.append(ul);
@@ -1998,151 +2585,248 @@ function resultCard(base, sim, changes) {
     c.append(el("p", { class: "res-cross", text: (d > 0 ? "That would clear the entry bar for " : "That would drop you below the entry bar for ") + listJoin(shown) + "." }));
   }
   const reset = el("button", { class: "btn btn-sm", type: "button", html: ICON.undo + "<span>Undo all changes</span>" });
-  reset.addEventListener("click", () => { S.overrides = {}; persist(); render(); });
+  reset.addEventListener("click", () => { S.overrides = {}; persist(); S.focusId = "wiResult"; render(); });
   c.append(reset);
   return c;
 }
 
 function oneGradeCard(base) {
-  const c = card("", "One grade different", "Your CGPA if a single module had come out one grade higher or lower. Select a row to try it.");
+  const c = card("", "One grade different", "Your overall GPA if a single module had come out one grade higher or lower. Select a row to try it.");
   const ups = [], downs = [];
   for (const s of S.data.semesters) for (const mo of s.modules) {
-    if (!isGraded(mo.grade)) continue;
+    if (!isGraded(mo.grade) || base.dropped.has(mo.id) || !(mo.cu > 0)) continue;
     const u = stepUp(mo.grade), dn = stepDown(mo.grade);
     if (u) ups.push({ mo, to: u, d: mo.cu * (gp(u) - gp(mo.grade)) / base.cumCU });
     if (dn) downs.push({ mo, to: dn, d: mo.cu * (gp(dn) - gp(mo.grade)) / base.cumCU });
   }
   ups.sort((a, b) => b.d - a.d);
   downs.sort((a, b) => a.d - b.d);
-  const addRow = x => {
-    const b = el("button", { class: "og", type: "button" });
-    b.append(el("span", { class: "og-n", text: titleCase(x.mo.name) }), el("span", { class: "og-g", text: x.mo.grade + " → " + x.to + " · " + fmtCU(x.mo.cu) + " CU" }));
+  const addRow = (x, dir) => {
+    const id = "og-" + dir + "-" + x.mo.id;
+    const b = el("button", { class: "og", type: "button", id });
+    b.append(el("span", { class: "og-n", text: titleCase(x.mo.name) }), el("span", { class: "og-g", text: x.mo.grade + " → " + x.to + " · " + fmtCU(x.mo.cu) + " " + CU() }));
     b.append(el("span", { class: "og-v" }, el("b", { text: (base.cgpa + x.d).toFixed(4) }), el("small", { class: x.d >= 0 ? "is-up" : "is-down", text: signed(x.d) })));
-    b.addEventListener("click", () => { S.overrides[x.mo.id] = x.to; persist(); render(); });
+    b.addEventListener("click", () => { S.overrides[x.mo.id] = x.to; persist(); S.focusId = id; render(); });
     c.append(b);
   };
   if (!ups.length) c.append(el("p", { class: "empty-note", text: "Every graded module is already at 4.0, so there's nothing to raise." }));
-  ups.slice(0, 5).forEach(addRow);
+  ups.slice(0, 5).forEach(x => addRow(x, "up"));
   if (downs.length) {
     c.append(el("p", { class: "og-sep", text: "And the other way" }));
-    downs.slice(0, 3).forEach(addRow);
+    downs.slice(0, 3).forEach(x => addRow(x, "dn"));
   }
   return c;
 }
 
-function planCard(base, nextNo, P) {
-  const c = card("c5", "Your plan", "Add the modules you're taking in semester " + nextNo + " and the grade you're aiming for in each.");
-  if (!S.planner.length) c.append(el("p", { class: "plan-empty", text: "No modules yet." }));
-  S.planner.forEach((p, i) => {
-    const r = el("div", { class: "plan-row" });
-    const name = el("input", { type: "text", id: "pl-n-" + i, value: p.name || "", placeholder: "Module " + (i + 1), "aria-label": "Module name" });
-    name.addEventListener("change", () => { p.name = name.value; persist(); });
-    const cuWrap = el("label", { class: "cu-in" });
-    const cu = el("input", { type: "number", id: "pl-c-" + i, min: "0.5", max: "40", step: "0.5", value: String(p.cu), inputmode: "decimal", "aria-label": "Credit units" });
-    cu.addEventListener("change", () => { p.cu = Math.min(40, Math.max(0.5, parseFloat(cu.value) || 0.5)); S.focusId = cu.id; persist(); render(); });
-    cuWrap.append(cu, el("span", { text: "CU" }));
-    const gs = el("select", { id: "pl-g-" + i, class: "gsel", "aria-label": "Target grade" });
-    GRADE_ORDER.forEach(g => gs.append(el("option", { value: g, text: g })));
-    gs.value = p.grade;
-    gs.addEventListener("change", () => { p.grade = gs.value; S.focusId = gs.id; persist(); render(); });
-    const rm = el("button", { class: "btn btn-sm btn-quiet icon-btn", type: "button", "aria-label": "Remove " + (p.name || "module " + (i + 1)), html: ICON.x });
-    rm.addEventListener("click", () => { S.planner.splice(i, 1); persist(); render(); });
-    r.append(name, cuWrap, gs, rm);
-    c.append(r);
-  });
-  const add = el("button", { class: "btn btn-sm", type: "button", id: "pl-add", html: ICON.plus + "<span>Add module</span>" });
-  add.addEventListener("click", () => { S.planner.push({ name: "", cu: 4, grade: "A" }); S.focusId = "pl-n-" + (S.planner.length - 1); persist(); render(); });
-  c.append(add);
-  const pr = computeAll(S.data, null, S.planner);
-  if (pr.plannedCU > 0) {
-    const d = pr.projected - base.cgpa;
-    c.append(el("div", { class: "plan-out" }, el("span", { text: "Finishing CGPA with these grades" }), el("b", { text: pr.projected.toFixed(4) }), el("small", { class: d >= 0 ? "is-up" : "is-down", text: signed(d) })));
+/* Planner inputs update state and the numbers beside them in place, so typing never loses focus. */
+function planCard(base, sim, onChange) {
+  const c = card("c7", "Your remaining semesters", "Semesters without a target count at your current average (" + base.cgpa.toFixed(2) + ").");
+  const changed = () => { persist(); onChange(); };
+  for (const p of S.plan.sems) {
+    const box = el("div", { class: "pl-sem" });
+    const fill = () => {
+      box.textContent = "";
+      const head = el("div", { class: "pl-head" });
+      head.append(el("h3", { text: "Semester " + p.sem }));
+      head.append(segmented(null, [["gpa", "Target GPA"], ["modules", "List modules"]], p.mode, key => {
+        p.mode = key;
+        if (key === "modules" && !p.modules.length) {
+          const n = Math.max(1, Math.round(p.cu / 4));
+          for (let i = 0; i < n; i++) p.modules.push({ name: "", cu: Math.round(p.cu / n * 2) / 2, grade: "A" });
+        }
+        fill(); changed();
+        const btn = document.getElementById("pm-" + p.sem + "-" + key);
+        if (btn) btn.focus();
+      }, "pm-" + p.sem + "-", "How to plan semester " + p.sem));
+      box.append(head);
+      if (p.mode === "gpa") {
+        const row = el("div", { class: "pl-gpa" });
+        const cuL = el("label", null, cap(POLY.creditLong));
+        const cuW = el("span", { class: "num-in" });
+        const cuIn = el("input", { type: "number", id: "pc-" + p.sem, min: "0.5", max: "60", step: "0.5", value: String(p.cu), inputmode: "decimal" });
+        cuIn.addEventListener("input", () => { const v = parseFloat(cuIn.value); cuIn.classList.toggle("bad", !(v > 0 && v <= 60)); if (v > 0 && v <= 60) { p.cu = v; changed(); } });
+        cuW.append(cuIn, el("span", { text: CU() }));
+        cuL.append(cuW);
+        const tL = el("label", null, "Target GPA");
+        const tIn = el("input", { type: "number", class: "gpa-in", id: "pt-" + p.sem, min: "0", max: "4", step: "0.01", value: p.targetGpa != null ? String(p.targetGpa) : "", placeholder: base.cgpa.toFixed(2), inputmode: "decimal" });
+        tIn.addEventListener("input", () => {
+          const raw = tIn.value.trim(), v = parseFloat(raw);
+          const ok = raw === "" || (v >= 0 && v <= 4);
+          tIn.classList.toggle("bad", !ok);
+          if (ok) { p.targetGpa = raw === "" ? null : v; changed(); }
+        });
+        tL.append(tIn);
+        row.append(cuL, tL);
+        box.append(row);
+      } else {
+        const list = el("div");
+        const addModRow = (m, i) => {
+          const r = el("div", { class: "plan-row" });
+          const name = el("input", { type: "text", id: "pn-" + p.sem + "-" + i, value: m.name, placeholder: "Module " + (i + 1), "aria-label": "Module name" });
+          name.addEventListener("input", () => { m.name = name.value; persist(); });
+          const cuW = el("label", { class: "num-in" });
+          const cu = el("input", { type: "number", min: "0.5", max: "40", step: "0.5", value: String(m.cu), inputmode: "decimal", "aria-label": cap(POLY.creditLong) });
+          cu.addEventListener("input", () => { const v = parseFloat(cu.value); cu.classList.toggle("bad", !(v > 0 && v <= 40)); if (v > 0 && v <= 40) { m.cu = v; changed(); } });
+          cuW.append(cu, el("span", { text: CU() }));
+          const gs = el("select", { class: "gsel", "aria-label": "Expected grade" });
+          GRADE_ORDER.forEach(g => gs.append(el("option", { value: g, text: g })));
+          gs.value = GRADE_ORDER.includes(m.grade) ? m.grade : "A";
+          gs.addEventListener("change", () => { m.grade = gs.value; changed(); });
+          const rm = iconBtn(ICON.x, "Remove " + (m.name || "module " + (i + 1)));
+          rm.addEventListener("click", () => {
+            p.modules.splice(i, 1);
+            if (!p.modules.length) p.mode = "gpa";
+            fill(); changed();
+            const next = document.getElementById("pa-" + p.sem) || document.getElementById("pm-" + p.sem + "-gpa");
+            if (next) next.focus();
+          });
+          r.append(name, cuW, gs, rm);
+          list.append(r);
+        };
+        p.modules.forEach(addModRow);
+        box.append(list);
+        const add = el("button", { class: "btn btn-sm", type: "button", id: "pa-" + p.sem, html: ICON.plus + "<span>Add module</span>", style: "margin-top:10px" });
+        add.addEventListener("click", () => {
+          p.modules.push({ name: "", cu: 4, grade: "A" });
+          addModRow(p.modules[p.modules.length - 1], p.modules.length - 1);
+          changed();
+          const nm = document.getElementById("pn-" + p.sem + "-" + (p.modules.length - 1));
+          if (nm) nm.focus();
+        });
+        box.append(add);
+      }
+    };
+    fill();
+    c.append(box);
   }
-  c.append(el("hr", { class: "rule" }));
-  c.append(el("h3", { class: "sub-t", id: "targetLbl", text: "Target CGPA" }));
-  const t0 = S.target ?? Math.min(4, Math.ceil((base.cgpa + 0.005) * 100) / 100);
+  const out = el("div", { class: "plan-out", id: "planFinish" });
+  c.append(out);
+  fillFinish(out, sim, planBlocks());
+  c.append(semCountControl());
+  return c;
+}
+function fillFinish(out, sim, blocks) {
+  out.textContent = "";
+  const planned = blocks.filter(b => b.pts != null).length;
+  if (!planned) { out.append(el("span", { text: "Set a target or list modules for any semester to see where you'd finish." })); return; }
+  const f = finishWith(sim, blocks, sim.cgpa);
+  const d = f - sim.cgpa;
+  out.append(el("span", { text: "Finishing GPA with this plan" }), el("b", { text: f.toFixed(4) }), el("small", { class: d >= 0 ? "is-up" : "is-down", text: signed(d) }));
+  if (Object.keys(S.overrides).length) out.append(el("span", { style: "flex-basis:100%;font-size:12px;color:var(--ink-3)", text: "Includes the past grades you changed above." }));
+}
+
+function targetCard(base, blocks) {
+  const P = sumOf(blocks.map(b => b.cu));
+  const c = card("", "Aim for a GPA", "Pick the overall GPA you want to graduate with.");
+  const lo = Math.max(0, Math.floor((base.cgpa - 0.5) * 10) / 10);
+  const t0 = clamp(S.target ?? Math.min(4, Math.ceil((base.cgpa + 0.005) * 100) / 100), lo, 4);
   const row = el("div", { class: "target-row" });
-  const slider = el("input", { type: "range", id: "targetSlider", min: "3.00", max: "4.00", step: "0.01", value: String(t0), "aria-labelledby": "targetLbl" });
+  const slider = el("input", { type: "range", id: "targetSlider", min: lo.toFixed(2), max: "4.00", step: "0.01", value: String(t0), "aria-label": "Target GPA" });
   const out = el("output", { for: "targetSlider", text: t0.toFixed(2) });
   row.append(slider, out);
   const sentence = el("p", { class: "sentence" });
+  const apply = el("button", { class: "btn btn-sm", type: "button", id: "applyTarget", style: "margin-top:12px", text: "Use this as my plan" });
   const solve = () => {
     const t = parseFloat(slider.value);
     out.textContent = t.toFixed(2);
-    sentence.textContent = targetSentence(t, base, P);
+    const need = (t * (base.cumCU + P) - base.cumPts) / P;
+    sentence.textContent = targetSentence(t, need, P, blocks.length);
+    apply.hidden = !(need > 0 && need <= 4 + 1e-9);
+    apply.textContent = blocks.length === 1 ? "Set semester " + blocks[0].sem + " to " + need.toFixed(2) : "Set every remaining semester to " + need.toFixed(2);
   };
-  slider.addEventListener("input", () => { S.target = parseFloat(slider.value); solve(); });
+  slider.addEventListener("input", () => { S.target = parseFloat(slider.value); persist(); solve(); });
+  apply.addEventListener("click", () => {
+    const t = parseFloat(slider.value);
+    const need = clamp(Math.round((t * (base.cumCU + P) - base.cumPts) / P * 100) / 100, 0, 4);
+    S.plan.sems.forEach(p => { p.mode = "gpa"; p.targetGpa = need; });
+    persist(); S.focusId = "applyTarget"; render();
+  });
   solve();
-  c.append(row, sentence);
+  c.append(row, sentence, apply);
+  const slack = [];
+  for (let k = 0; k < 3; k++) {
+    const T = Math.floor(base.cgpa * 10) / 10 - k * 0.1 - (Math.floor(base.cgpa * 10) / 10 >= base.cgpa - 1e-9 ? 0.1 : 0);
+    if (T <= 0) break;
+    const x = (base.cumPts + base.cgpa * P - T * (base.cumCU + P)) / base.cgpa;
+    slack.push({ T, cu: clamp(Math.floor(x * 2) / 2, 0, P) });
+  }
+  if (slack.length) {
+    const [first, ...rest] = slack;
+    let s = "Room for error: if everything else lands at your average, you could fail up to " + fmtCU(first.cu) + " " + CU() + " and still finish at " + first.T.toFixed(1) + " or above.";
+    if (rest.length) s += " For " + listJoin(rest.map(r => r.T.toFixed(1) + " it's " + fmtCU(r.cu) + " " + CU())) + ".";
+    c.append(el("p", { class: "slack", text: s }));
+  }
   return c;
 }
-
-function targetSentence(t, base, P) {
-  const need = (t * (base.cumCU + P) - base.cumPts) / P;
-  if (need <= 0) return "You'd stay at " + t.toFixed(2) + " or above even with an F in every module.";
-  if (need > 4 + 1e-9) return t.toFixed(2) + " isn't reachable this semester. It would take a " + need.toFixed(2) + " average over " + fmtCU(P) + " CU, and grades stop at 4.0.";
+function targetSentence(t, need, P, k) {
+  const over = "over " + (k === 1 ? "your last semester" : "your remaining " + numWord(k) + " semesters") + " (" + fmtCU(P) + " " + CU() + ")";
+  if (need <= 0) return "You'd stay at " + t.toFixed(2) + " or above even with an F in every remaining module.";
+  if (need > 4 + 1e-9) return t.toFixed(2) + " is out of reach from here. It would take a " + need.toFixed(2) + " average " + over + ", and grades stop at 4.0.";
   const letter = LADDER.find(g => gp(g) >= need - 1e-9) || "A";
-  return "To finish at " + t.toFixed(2) + ", average at least " + need.toFixed(3) + " over " + fmtCU(P) + " CU. That means " + article(letter) + " " + letter + (letter === "A" ? "" : " or better") + " in every module, or a mix that averages the same.";
+  return "To finish at " + t.toFixed(2) + ", average at least " + need.toFixed(2) + " " + over + ". That's roughly " + article(letter) + " " + letter + (gp(letter) >= 4 ? "" : " or better") + " in every module.";
 }
 
-function targetsCard(base, P) {
-  const c = card("c5", "What each target takes", "The average semester " + nextSemNo() + " would need, and how many 4-CU modules would have had to come out one grade higher instead.");
-  const targets = [3.85, 3.88, 3.90, 3.92, 3.95, 4.00].filter(t => t > base.cgpa + 1e-4).slice(0, 4);
+function targetsCard(base, blocks) {
+  const P = sumOf(blocks.map(b => b.cu));
+  const c = card("c5", "What each target takes", "The average you'd need from here, and how many past modules would have needed one grade higher to get there already.");
+  const step = base.cgpa >= 3.5 ? 0.05 : 0.1;
+  const first = Math.ceil((base.cgpa + 1e-6) / step) * step;
+  const targets = [];
+  for (let t = first; t <= 4 + 1e-9 && targets.length < 4; t += step) targets.push(Math.round(t * 100) / 100);
+  const raises = [];
+  for (const s of S.data.semesters) for (const mo of s.modules) {
+    if (!isGraded(mo.grade) || base.dropped.has(mo.id) || !(mo.cu > 0)) continue;
+    const u = stepUp(mo.grade);
+    if (u) raises.push(mo.cu * (gp(u) - gp(mo.grade)) / base.cumCU);
+  }
+  raises.sort((a, b) => b - a);
+  const raisesFor = gap => { let acc = 0; for (let i = 0; i < raises.length; i++) { acc += raises[i]; if (acc >= gap - 1e-9) return i + 1; } return null; };
   if (!targets.length) {
-    c.append(el("p", { class: "empty-note", text: "You're already above every target in this table." }));
+    c.append(el("p", { class: "empty-note", text: "You're already at 4.0." }));
   } else {
     const tbl = el("table", { class: "tbl" });
-    tbl.append(el("thead", null, el("tr", null, el("th", { text: "Target" }), el("th", { class: "n", text: "Average needed" }), el("th", { class: "n", text: "Past swaps" }))));
+    tbl.append(el("thead", null, el("tr", null, el("th", { text: "Target" }), el("th", { class: "n", text: "Average needed" }), el("th", { class: "n", text: "Past raises" }))));
     const tb = el("tbody");
     for (const t of targets) {
       const need = (t * (base.cumCU + P) - base.cumPts) / P;
-      const swaps = Math.ceil((t - base.cgpa) * base.cumCU / 2 - 1e-9);
-      const verdict = need <= 4 + 1e-9 ? (need <= base.cgpa ? "At your usual level" : "Reachable") : "Not in one semester";
+      const r = raisesFor(t - base.cgpa);
+      const verdict = need <= 4 + 1e-9 ? (need <= base.cgpa ? "At your usual level" : "Reachable") : "Out of reach from here";
       tb.append(el("tr", null,
         el("td", null, el("span", { style: "font-family:var(--mono)", text: t.toFixed(2) }), el("span", { class: "sub", text: verdict })),
-        el("td", { class: "n", text: need <= 4 + 1e-9 ? need.toFixed(3) : "over 4.0" }),
-        el("td", { class: "n", text: String(swaps) })));
+        el("td", { class: "n", text: need <= 4 + 1e-9 ? Math.max(0, need).toFixed(2) : "over 4.0" }),
+        el("td", { class: "n", text: r == null ? "not enough" : String(r) })));
     }
     tbl.append(tb);
     c.append(el("div", { style: "overflow-x:auto" }, tbl));
-  }
-  const slack = [];
-  for (const T of [3.8, 3.7, 3.5]) {
-    if (base.cgpa <= T) continue;
-    const x = (base.cumPts + base.cgpa * P - T * (base.cumCU + P)) / base.cgpa;
-    slack.push({ T, cu: Math.max(0, Math.min(P, Math.floor(x * 2) / 2)) });
-  }
-  if (slack.length) {
-    const first = slack[0], rest = slack.slice(1);
-    let s = "Room for error: if the rest lands at your average, you could fail up to " + fmtCU(first.cu) + " CU and still finish at " + first.T.toFixed(2) + " or above.";
-    if (rest.length) s += " For " + listJoin(rest.map(r => r.T.toFixed(2) + " it's " + fmtCU(r.cu) + " CU")) + ".";
-    c.append(el("p", { class: "slack", text: s }));
   }
   return c;
 }
 
 /* ================= view: universities ================= */
 function viewUnis(root) {
-  const base = computeAll(S.data, null, null);
-  if (base.cgpa == null) { root.append(el("p", { class: "empty-note", text: "This transcript has no graded modules yet." })); return; }
-  const sim = computeAll(S.data, S.overrides, S.planner);
-  const hasPlan = S.planner.some(p => p.cu > 0);
+  const base = computeAll(S.data, null);
+  if (base.cgpa == null) { root.append(el("p", { class: "empty-note", text: "No graded modules yet. Use Edit modules to add some." })); return; }
+  const sim = computeAll(S.data, S.overrides);
+  const blocks = planBlocks();
+  const hasPlan = blocks.some(b => b.pts != null);
   const nChanged = Object.keys(S.overrides).length;
   const hasWhatIf = nChanged > 0 || hasPlan;
-  const whatIf = hasPlan ? sim.projected : sim.cgpa;
+  const whatIf = hasPlan ? finishWith(sim, blocks, sim.cgpa) : sim.cgpa;
   if (S.igp.source === "whatif" && !hasWhatIf) S.igp.source = "transcript";
+  const customLo = Math.min(2, Math.floor(base.cgpa * 10) / 10);
+  if (S.igp.custom < customLo) S.igp.custom = customLo;
 
   const bar = el("div", { class: "toolbar" });
   const g1 = el("div", { class: "tgroup" });
   g1.append(el("span", { class: "tlabel", id: "srcLbl", text: "GPA to test" }));
   g1.append(segmented("srcLbl", [
-    ["transcript", "Transcript", base.cgpa.toFixed(4)],
+    ["transcript", "Yours now", base.cgpa.toFixed(4)],
     ["whatif", "What if", hasWhatIf ? whatIf.toFixed(4) : null, !hasWhatIf, hasWhatIf ? null : "Change a grade or plan a semester in the What if tab first"],
-    ["custom", "Custom", null],
+    ["custom", "Any GPA", null],
   ], S.igp.source, key => { S.igp.source = key; S.focusId = "src-" + key; render(); }, "src-"));
   if (S.igp.source === "custom") {
     const w = el("span", { class: "slider" });
-    const sl = el("input", { type: "range", id: "customGpa", min: "3.00", max: "4.00", step: "0.01", value: String(S.igp.custom), "aria-label": "Custom GPA" });
+    const sl = el("input", { type: "range", id: "customGpa", min: customLo.toFixed(2), max: "4.00", step: "0.01", value: String(S.igp.custom), "aria-label": "GPA to test" });
     const out = el("output", { for: "customGpa", text: S.igp.custom.toFixed(2) });
     sl.addEventListener("input", () => { S.igp.custom = parseFloat(sl.value); out.textContent = S.igp.custom.toFixed(2); renderBoard(); });
     w.append(sl, out);
@@ -2167,7 +2851,7 @@ function viewUnis(root) {
 
   const sensUp = [];
   for (const s of S.data.semesters) for (const mo of s.modules) {
-    if (!isGraded(mo.grade)) continue;
+    if (!isGraded(mo.grade) || base.dropped.has(mo.id) || !(mo.cu > 0)) continue;
     const u = stepUp(mo.grade);
     if (u) sensUp.push({ mo, to: u, d: mo.cu * (gp(u) - gp(mo.grade)) / base.cumCU });
   }
@@ -2180,54 +2864,54 @@ function viewUnis(root) {
     const label = src === "custom" ? "Testing" : src === "whatif" ? "What if" : "You";
     const list = IGP.filter(c => S.igp.filter === "all" || c.uni === S.igp.filter);
     const courses = list.map(c => ({ c, bar: barFor(c, S.igp.bonus) }));
-    const nextNo = nextSemNo();
-    const P = sumOf(remainingBlocks());
-    const ceil = ceilingAfter(base, P);
+    const P = sumOf(blocks.map(b => b.cu));
+    const ceil = blocks.length ? allAt(base, blocks, 4) : null;
 
     const bits = [];
     if (src === "whatif") {
-      if (nChanged) bits.push(plural(nChanged, "changed grade"));
-      if (hasPlan) bits.push("your semester " + nextNo + " plan");
-      note.textContent = "Testing the GPA from your What if tab: " + listJoin(bits) + ".";
+      if (nChanged) bits.push(plural(nChanged, "changed past grade"));
+      if (hasPlan) bits.push("your plan for the semesters left");
+      note.textContent = "Testing the finishing GPA from your What if tab: " + listJoin(bits) + ".";
     } else if (src === "custom") note.textContent = "Drag the slider to test any GPA against every course.";
     else note.textContent = "";
     note.hidden = !note.textContent;
 
     const stand = el("section", { class: "standing", "aria-label": "Where this GPA sits" });
     const noun = S.igp.filter === "all" ? "courses" : S.igp.filter + " courses";
-    const { p } = standingCaption(gpa, courses, "At " + gpa.toFixed(src === "custom" ? 2 : 4) + " you clear the entry bar for ", noun);
-    stand.append(p);
+    stand.append(standingCaption(gpa, courses, "At " + gpa.toFixed(src === "custom" ? 2 : 4) + " you clear the entry bar for ", noun));
     const rh = el("div", { class: "ruler" });
     stand.append(rh);
-    stand.append(el("p", { class: "standing-key", text: "Each tick is one course's entry bar" + (S.igp.bonus ? ", with NUS non-interview bars lowered by the 0.04 bonus" : "") + ". Taller ticks mean several courses share a bar." + (src === "transcript" ? " The blue band is how far a perfect semester " + nextNo + " could take you." : "") }));
+    stand.append(el("p", { class: "standing-key", text: "Each grey tick is one course's entry bar" + (S.igp.bonus ? ", with NUS non-interview bars lowered by the 0.04 bonus" : "") + ". Blue is the GPA you're testing; ticks to its left are courses it clears." + (src === "transcript" && ceil != null ? " The blue band is how far straight A's in " + remainingPhrase(blocks) + " could take you." : "") }));
     board.append(stand);
 
     const gA = el("div", { class: "grid" });
-    gA.append(reachCard(base, courses, P, ceil, nextNo));
-    const cCurve = card("c7", "Courses in reach at each GPA", densestNote(courses));
-    const curveBox = el("div", { class: "chart" });
-    cCurve.append(curveBox);
-    gA.append(cCurve);
+    if (ceil != null) gA.append(reachCard(base, courses, blocks, P, ceil));
+    gA.append(payCard(gpa, courses, ceil != null ? "c7" : ""));
     board.append(gA);
-
-    const gB = el("div", { class: "grid" });
-    const cScatter = card("c7", "Pay against entry bar", "Each dot is a course. Further right is harder to get into, higher up pays more. Filled dots are in reach at the GPA you're testing.");
-    const scatterBox = el("div", { class: "chart" });
-    cScatter.append(scatterBox, legend([["dot", null, "In reach"], ["ring", null, "Not yet"], ["line", "--you", "GPA being tested"]]));
-    gB.append(cScatter);
-    gB.append(payCard(gpa, courses));
-    board.append(gB);
-
     const gC = el("div", { class: "grid" });
     gC.append(courseList(gpa, courses, src === "transcript" ? sensUp : null));
     board.append(gC);
 
+    let curveBox = null, scatterBox = null;
+    moreSection(board, "unis", body => {
+      const gB = el("div", { class: "grid" });
+      const cCurve = card("c6", "Courses in reach at each GPA", densestNote(courses));
+      curveBox = el("div", { class: "chart" });
+      cCurve.append(curveBox);
+      gB.append(cCurve);
+      const cScatter = card("c6", "Pay against entry bar", "Each dot is a course. Further right is harder to get into, higher up pays more. Filled dots are in reach.");
+      scatterBox = el("div", { class: "chart" });
+      cScatter.append(scatterBox, legend([["dot", null, "In reach"], ["ring", null, "Not yet"], ["line", "--you", "GPA being tested"]]));
+      gB.append(cScatter);
+      body.append(gB);
+    });
     board.append(notesBlock());
 
     requestAnimationFrame(() => {
-      drawRuler(rh, { gpa, label, ceil: src === "transcript" ? ceil : null, nextNo, courses, animate: false });
-      eligCurve(curveBox, gpa, label, courses);
-      payScatter(scatterBox, gpa, courses);
+      if (!rh.isConnected) return;
+      drawRuler(rh, { gpa, label, ceil: src === "transcript" ? ceil : null, ceilText: ceilText(blocks), courses, animate: false });
+      if (curveBox) eligCurve(curveBox, gpa, label, courses);
+      if (scatterBox) payScatter(scatterBox, gpa, courses);
     });
   }
   renderBoard();
@@ -2245,26 +2929,26 @@ function densestNote(courses) {
   return "How many courses open up as your GPA rises. The busiest stretch is " + best.a.toFixed(2) + " to " + best.b.toFixed(2) + ", where " + best.n + " courses set their bar.";
 }
 
-function reachCard(base, courses, P, ceil, nextNo) {
-  const c = card("c5", "Within reach in semester " + nextNo, "A perfect semester " + nextNo + " (4.0 across " + fmtCU(P) + " CU) would take your transcript CGPA from " + base.cgpa.toFixed(4) + " to " + ceil.toFixed(4) + ".");
+function reachCard(base, courses, blocks, P, ceil) {
+  const c = card("c5", "Within reach by graduation", "Straight A's in " + remainingPhrase(blocks) + " (" + fmtCU(P) + " " + CU() + ") would take your overall GPA from " + base.cgpa.toFixed(4) + " to " + ceil.toFixed(4) + ".");
   const above = courses.filter(x => x.bar > base.cgpa + 1e-9).sort((a, b) => a.bar - b.bar);
-  if (!above.length) { c.append(el("p", { class: "empty-note", text: "Your transcript already clears every course in this list." })); return c; }
+  if (!above.length) { c.append(el("p", { class: "empty-note", text: "You already clear every course in this list." })); return c; }
   const newly = above.filter(x => x.bar <= ceil + 1e-9);
-  c.append(el("p", { class: "sub-h", text: newly.length ? "Courses above your CGPA, and what each would need:" : "Nothing new opens in one semester. What each course would need:" }));
+  c.append(el("p", { class: "sub-h", text: newly.length ? "Courses above you, and the average each would need from here:" : "Nothing new opens up, even with straight A's. What each course would need:" }));
   for (const x of above.slice(0, 8)) {
     const need = (x.bar * (base.cumCU + P) - base.cumPts) / P;
     const ok = need <= 4 + 1e-9;
     const row = el("div", { class: "reach-row" });
     row.append(el("div", { class: "reach-n", text: x.c.uni + " " + x.c.name }), el("div", { class: "reach-m", text: "entry bar " + x.bar.toFixed(2) }));
-    row.append(el("div", { class: "reach-s" + (ok ? " is-up" : "") , style: ok ? null : "color:var(--ink-3)", text: ok ? "needs " + need.toFixed(2) + " average" : "not in one semester" }));
+    row.append(el("div", { class: "reach-s" + (ok ? " is-up" : ""), style: ok ? null : "color:var(--ink-3)", text: ok ? "needs a " + Math.max(0, need).toFixed(2) + " average" : "out of reach" }));
     c.append(row);
   }
   if (above.length > 8) c.append(el("p", { class: "more", text: plural(above.length - 8, "more course") + " above that." }));
   return c;
 }
 
-function payCard(gpa, courses) {
-  const c = card("c5", "Best-paid courses in reach", "Median monthly pay for the Class of 2025, about six months after graduating (GES 2025).");
+function payCard(gpa, courses, span) {
+  const c = card(span, "Best-paid courses in reach", "Median monthly pay for the Class of 2025, about six months after graduating (GES 2025).");
   const withPay = courses.filter(x => x.c.pay != null);
   const reach = withPay.filter(x => x.bar <= gpa + 1e-9).sort((a, b) => b.c.pay - a.c.pay).slice(0, 5);
   const locked = withPay.filter(x => x.bar > gpa + 1e-9).sort((a, b) => b.c.pay - a.c.pay).slice(0, 3);
@@ -2282,28 +2966,30 @@ function payCard(gpa, courses) {
 }
 
 function courseList(gpa, courses, sensUp) {
-  const sortSeg = segmented("sortLbl", [["bar", "Entry bar"], ["pay", "Pay"]], S.igp.sort, key => { S.igp.sort = key; const host = c.querySelector(".clist"); fill(host); }, "sort-");
+  let c = null;
+  const sortSeg = segmented("sortLbl", [["bar", "Entry bar"], ["pay", "Pay"]], S.igp.sort, key => { S.igp.sort = key; fill(c.querySelector(".clist")); }, "sort-");
   const sortWrap = el("div", { class: "tgroup" }, el("span", { class: "tlabel", id: "sortLbl", text: "Sort by" }), sortSeg);
-  const c = card("", "All courses", "Your GPA against each course's range of offers. The grey band runs from the 10th to the 90th percentile where the university publishes both.", sortWrap);
+  c = card("", "All courses", "Each row compares your GPA (blue) with that course's entry bar (dark tick). The grey band is the middle range of GPAs that got offers, where the university publishes it.", sortWrap);
   const host = el("div", { class: "clist" });
   c.append(host);
+  const lo = axisLo([gpa, ...courses.map(x => x.c.p10)]);
   function fill(h) {
     h.textContent = "";
-    h.append(el("div", { class: "list-h", "aria-hidden": "true" }, el("span", { text: "Course" }), el("span", { text: "Range of offers" }), el("span", { class: "r", text: "Entry bar" }), el("span", { class: "r", text: "Pay" }), el("span", { class: "r", text: "For you" })));
+    h.append(el("div", { class: "list-h", "aria-hidden": "true" }, el("span", { text: "Course" }), el("span", { text: "Your GPA vs offers" }), el("span", { class: "r", text: "Entry bar" }), el("span", { class: "r", text: "Pay" }), el("span", { class: "r", text: "For you" })));
     for (const uni of ["NUS", "NTU", "SMU"]) {
       const group = courses.filter(x => x.c.uni === uni);
       if (!group.length) continue;
       group.sort(S.igp.sort === "pay" ? (a, b) => (b.c.pay ?? -1) - (a.c.pay ?? -1) : (a, b) => b.c.p10 - a.c.p10);
       const inN = group.filter(x => x.bar <= gpa + 1e-9).length;
       h.append(el("div", { class: "uni-h" }, el("h3", { text: uni }), el("span", { text: inN + " of " + group.length + " in reach" })));
-      group.forEach(x => h.append(courseRow(x, gpa, sensUp)));
+      group.forEach(x => h.append(courseRow(x, gpa, sensUp, lo)));
     }
   }
   fill(host);
   return c;
 }
 
-function courseRow(x, gpa, sensUp) {
+function courseRow(x, gpa, sensUp, lo) {
   const c = x.c;
   const bonus = x.bar < c.p10 - 1e-9;
   const eff = gpa + (c.p10 - x.bar);
@@ -2314,16 +3000,16 @@ function courseRow(x, gpa, sensUp) {
   if (bonus) n.append(el("span", { class: "tag", text: "Bonus applied" }));
   n.append(el("span", { class: "crow-meta", text: "Entry bar " + c.p10.toFixed(2) + (c.pay != null ? " · " + fmtPay(c.pay) : "") }));
   wrap.append(n);
-  const pct = v => Math.max(0, Math.min(100, (v - 3) * 100));
+  const pct = v => clamp((v - lo) / (4 - lo) * 100, 0, 100);
   const strip = el("div", { class: "strip" });
   strip.append(el("span", { class: "track" }));
   if (c.p90) strip.append(el("span", { class: "band", style: "left:" + pct(c.p10) + "%;width:" + Math.max(1.5, pct(c.p90) - pct(c.p10)) + "%" }));
   strip.append(el("span", { class: "bar", style: "left:" + pct(c.p10) + "%" }), el("span", { class: "me", style: "left:" + pct(eff) + "%" }));
   bindTip(strip, e => tip(e, b => {
     tipTitle(b, c.uni + " " + c.name);
-    tipRow(b, eff.toFixed(4), "your GPA" + (bonus ? " with the bonus" : ""), "--you");
-    tipRow(b, c.p10.toFixed(2), "entry bar (10th percentile)", "--ink-2");
-    if (c.p90) tipRow(b, c.p90.toFixed(2), "90th percentile");
+    tipRow(b, eff.toFixed(4), "GPA tested" + (bonus ? ", with the bonus" : ""), "--you");
+    tipRow(b, c.p10.toFixed(2), "entry bar (bottom 10% of offers)", "--ink-2");
+    if (c.p90) tipRow(b, c.p90.toFixed(2), "top 10% of offers start here");
     if (c.pay != null) tipRow(b, fmtPay(c.pay), "median monthly pay");
     if (s.key === "line") tipFoot(b, "Entry bars are rounded to two decimals, so " + (-s.m).toFixed(4) + " short could go either way.");
   }));
@@ -2345,10 +3031,274 @@ function courseRow(x, gpa, sensUp) {
 function notesBlock() {
   const n = el("section", { class: "notes" });
   n.append(el("h2", { text: "How to read this" }));
-  n.append(el("p", { text: "The entry bar is the 10th percentile GPA among poly students offered a place in the AY2025/26 intake, so one offer in ten went to someone below it. Treat it as a guide rather than a cut-off. Universities also look at how relevant your diploma is and at subject prerequisites, and some courses add interviews, tests or portfolios (marked Extra selection). Entry bars are published to two decimal places, so a GPA within 0.005 below one shows as on the line." }));
+  n.append(el("p", { text: "The entry bar is the 10th percentile GPA among poly students offered a place in the AY2025/26 intake, so one offer in ten went to someone below it. The same figures apply to students from every poly. Treat it as a guide rather than a cut-off: universities also look at how relevant your diploma is and at subject prerequisites, and some courses add interviews, tests or portfolios (marked Extra selection). Entry bars are published to two decimal places, so a GPA within 0.005 below one shows as on the line." }));
   n.append(el("p", { text: "The NUS first-choice bonus adds up to 0.04 when a non-interview NUS course is your first choice. Pay is the median gross monthly salary of the whole Class of 2025, not just poly graduates, surveyed about six months after finals. n/a means the survey doesn't report that course on its own. SUTD, SIT and SUSS don't publish GPA profiles, so they aren't listed." }));
   n.append(el("p", { text: "Sources: NTU entry bars from NTU's IGP document and NTU pay from MOE's GES 2025 report. NUS and SMU entry bars compiled by universities.sg and Eclat Institute, NUS and SMU pay from SGSchoolKaki's GES 2025 tables, and the bonus from the NUS Office of Admissions." }));
   return n;
+}
+
+/* ================= review screen ================= */
+function blankDraft(poly) {
+  return {
+    v: 2, poly: poly || "NP", polySource: "user", source: "manual", confidence: 1, totalSems: 6, rules: { retake: "latest" },
+    student: { name: null, course: null }, learningUnits: [], issues: [], sample: false,
+    semesters: [{ sem: 1, label: null, exam: null, printedCGPA: null, printedDp: 0, result: null, modules: [blankMod()] }],
+  };
+}
+let uidSeq = 0;
+function blankMod() { return { id: "u" + Date.now().toString(36) + "_" + (uidSeq++), code: null, name: "", cu: POLY.defaultCU || 4, grade: "A", attempt: 1, flag: null }; }
+const FLAG_TEXT = {
+  "cu": "Credits not found. Fill them in.",
+  "cu-guess": "Credits not printed, so we assumed the usual amount. Check it.",
+  "grade": "This grade code isn't on this poly's grade table. Check it, or pick the poly that matches.",
+  "p": "P means different things at different polys. Check whether it counts toward your GPA.",
+};
+
+function openReview(draft, opts) {
+  S.review = { draft, opts: opts || {} };
+  setPoly(draft.poly);
+  document.getElementById("uploadView").hidden = true;
+  document.getElementById("appView").hidden = true;
+  document.getElementById("bannerSlot").hidden = true;
+  document.getElementById("uploadBtn").hidden = true;
+  document.body.classList.remove("on-whatif");
+  updateWiBar();
+  document.getElementById("reviewView").hidden = false;
+  buildReview();
+  scrollTo({ top: 0 });
+}
+function closeReview() {
+  S.review = null;
+  document.getElementById("reviewView").hidden = true;
+  document.getElementById("reviewView").textContent = "";
+  if (S.data) setPoly(S.data.poly);
+  mount();
+}
+
+function buildReview(focusId) {
+  const { draft, opts } = S.review;
+  const rv = document.getElementById("reviewView");
+  rv.textContent = "";
+  setPoly(draft.poly);
+  rv.append(el("h1", { text: opts.reason === "manual" ? "Type in your results" : opts.reason === "edit" ? "Edit your modules" : "Check what we read" }));
+  const intro = {
+    generic: "This PDF isn't laid out like an NP results statement, so we read it with our general reader. Check each semester below and fix anything that's off before using it.",
+    flags: "Most of your transcript read cleanly, but a few things need a look. They're highlighted below.",
+    manual: "Add each semester's modules with their credits and grades. Your overall GPA updates as you type.",
+    paste: "We read the text you pasted. Check each semester below and fix anything that's off.",
+    edit: "Change anything here and the whole dashboard updates when you save.",
+  }[opts.reason] || "Check each semester below before using it.";
+  rv.append(el("p", { class: "rv-intro", text: intro }));
+
+  const ctr = el("div", { class: "rv-controls" });
+  const polyF = el("label", { class: "field" }, "Your poly" + (draft.polySource === "guess" ? " (our best guess, please check)" : ""));
+  const polySel = el("select", { id: "rv-poly" });
+  POLY_KEYS.forEach(k => polySel.append(el("option", { value: k, text: POLYS[k].name })));
+  polySel.value = draft.poly;
+  polySel.addEventListener("change", () => {
+    draft.poly = polySel.value; draft.polySource = "user";
+    for (const s of draft.semesters) for (const m of s.modules) {
+      if (m.flag === "grade" || m.flag === "p") m.flag = null;
+      if (m.cu === 0 && POLYS[draft.poly].defaultCU) { m.cu = POLYS[draft.poly].defaultCU; m.flag = "cu-guess"; }
+    }
+    setPoly(draft.poly);
+    for (const s of draft.semesters) for (const m of s.modules) {
+      if (!isKnown(m.grade)) m.flag = "grade";
+      else if (m.grade === "P" && (draft.poly === "RP" || draft.poly === "NP")) m.flag = "p";
+    }
+    buildReview("rv-poly");
+  });
+  polyF.append(polySel);
+  const nameF = el("label", { class: "field" }, "Name (optional)");
+  const nameIn = el("input", { type: "text", id: "rv-name", value: draft.student.name ? titleCase(draft.student.name) : "", placeholder: "Your name" });
+  nameIn.addEventListener("input", () => { draft.student.name = nameIn.value; });
+  nameF.append(nameIn);
+  const courseF = el("label", { class: "field" }, "Course (optional)");
+  const courseIn = el("input", { type: "text", id: "rv-course", value: draft.student.course ? titleCase(draft.student.course) : "", placeholder: "e.g. Diploma in Business" });
+  courseIn.addEventListener("input", () => { draft.student.course = courseIn.value; });
+  courseF.append(courseIn);
+  const totF = el("label", { class: "field" }, "Semesters in your course");
+  const totSel = el("select", { id: "rv-total" });
+  for (let n = 2; n <= 12; n++) totSel.append(el("option", { value: String(n), text: String(n) }));
+  totSel.value = String(clamp(draft.totalSems || 6, 2, 12));
+  totSel.addEventListener("change", () => { draft.totalSems = +totSel.value; refresh(); });
+  totF.append(totSel);
+  ctr.append(polyF, nameF, courseF, totF);
+  rv.append(ctr);
+  const retake = el("label", { class: "check", style: "margin-bottom:16px" });
+  const rcb = el("input", { type: "checkbox", id: "rv-retake" });
+  rcb.checked = draft.rules.retake !== "all";
+  rcb.addEventListener("change", () => { draft.rules.retake = rcb.checked ? "latest" : "all"; refresh(); });
+  retake.append(rcb, "If you retook a failed module, count only the latest attempt");
+  rv.append(retake);
+
+  const bar = el("div", { class: "rv-bar", "aria-live": "polite" });
+  rv.append(bar);
+  const issues = [...(draft.issues || [])];
+  const flagged = flaggedCount(draft);
+  if (flagged) issues.push(plural(flagged, "row") + " didn't read cleanly. " + (flagged === 1 ? "It's" : "They're") + " highlighted below.");
+  if (POLYS[draft.poly].key === "RP") issues.push("RP's official grade table is only on its student portal, so we use the standard A to F scale. Check that your grades below look right.");
+  if (issues.length) {
+    const box = el("div", { class: "rv-issues" }, el("b", { text: "Worth checking" }));
+    const ul = el("ul");
+    issues.forEach(t => ul.append(el("li", { text: t })));
+    box.append(ul);
+    rv.append(box);
+  }
+
+  const semsHost = el("div");
+  rv.append(semsHost);
+  const sumEls = new Map();
+  const gradeOptions = cur => {
+    const opts2 = [...GRADE_ORDER, ...POLY.excluded.filter(g => !GRADE_ORDER.includes(g))];
+    if (cur && !opts2.includes(cur)) opts2.unshift(cur);
+    return opts2;
+  };
+  draft.semesters.forEach((s, si) => {
+    const box = el("section", { class: "rv-sem" });
+    const h = el("div", { class: "rv-sem-h" });
+    const numIn = el("input", { type: "number", class: "semno", min: "1", max: "12", step: "1", value: String(s.sem), "aria-label": "Semester number", id: "rv-sem-" + si });
+    numIn.addEventListener("input", () => { s.sem = Math.round(+numIn.value); refresh(); });
+    h.append(el("h3", { text: "Semester" }), numIn);
+    if (s.label) h.append(el("span", { class: "lbl", text: s.label }));
+    const sum = el("span", { class: "sum" });
+    sumEls.set(s, sum);
+    h.append(sum);
+    const rmS = iconBtn(ICON.x, "Remove this semester", "rv-rms-" + si);
+    rmS.addEventListener("click", () => { draft.semesters.splice(si, 1); if (!draft.semesters.length) draft.semesters.push({ sem: 1, modules: [blankMod()] }); buildReview("rv-addsem"); });
+    h.append(rmS);
+    box.append(h);
+    box.append(el("div", { class: "rv-cols", "aria-hidden": "true" }, el("span", { text: "Code" }), el("span", { text: "Module" }), el("span", { text: cap(POLY.creditLong) }), el("span", { text: "Grade" }), el("span")));
+    const list = el("div");
+    const addRow = (m) => {
+      const r = el("div", { class: "rv-row" + (m.flag ? " flagged" : "") });
+      const code = el("input", { type: "text", class: "c-code", value: m.code || "", placeholder: "Code", "aria-label": "Module code (optional)" });
+      code.addEventListener("input", () => { m.code = code.value.trim().toUpperCase() || null; });
+      const name = el("input", { type: "text", class: "c-name", id: "rv-n-" + m.id, value: m.name ? titleCase(m.name) : "", placeholder: "Module name", "aria-label": "Module name" });
+      name.addEventListener("input", () => { m.name = name.value; name.classList.remove("bad"); });
+      const cuIn = el("input", { type: "number", class: "c-cu cu", min: "0", max: "40", step: "0.5", value: m.cu ? String(m.cu) : "", placeholder: CU(), inputmode: "decimal", "aria-label": cap(POLY.creditLong) });
+      cuIn.addEventListener("input", () => { m.cu = parseFloat(cuIn.value); if (m.flag === "cu" || m.flag === "cu-guess") { m.flag = null; r.classList.remove("flagged"); why.hidden = true; } cuIn.classList.remove("bad"); refresh(); });
+      const gs = el("select", { class: "c-grade gsel", "aria-label": "Grade" });
+      gradeOptions(m.grade).forEach(g => gs.append(el("option", { value: g, text: isGraded(g) ? g : POLY.excluded.includes(g) ? g + " (no GPA)" : g + " (?)" })));
+      gs.value = m.grade;
+      gs.addEventListener("change", () => { m.grade = gs.value; if (m.flag === "grade" || m.flag === "p") { m.flag = null; r.classList.remove("flagged"); why.hidden = true; } refresh(); });
+      const rm = iconBtn(ICON.x, "Remove module", null, "c-x");
+      rm.addEventListener("click", () => { s.modules.splice(s.modules.indexOf(m), 1); r.remove(); refresh(); });
+      const why = el("div", { class: "rv-why", text: FLAG_TEXT[m.flag] || "" });
+      why.hidden = !m.flag;
+      r.append(code, name, cuIn, gs, rm, why);
+      if (draft.semesters.length === 1 && s.modules.length > 6 && s.modules.indexOf(m) > 0) {
+        const split = el("button", { class: "btn btn-sm btn-quiet split", type: "button", text: "Start a new semester from this module" });
+        split.addEventListener("click", () => {
+          const i = s.modules.indexOf(m);
+          const moved = s.modules.splice(i);
+          draft.semesters.splice(si + 1, 0, { sem: s.sem + 1, label: null, exam: null, printedCGPA: null, printedDp: 0, modules: moved });
+          draft.semesters.slice(si + 2).forEach(x => { x.sem += 1; });
+          buildReview();
+        });
+        r.append(split);
+      }
+      list.append(r);
+      return name;
+    };
+    s.modules.forEach(addRow);
+    box.append(list);
+    const acts = el("div", { class: "rv-acts" });
+    const add = el("button", { class: "btn btn-sm", type: "button", id: "rv-add-" + si, html: ICON.plus + "<span>Add module</span>" });
+    add.addEventListener("click", () => { const m = blankMod(); s.modules.push(m); addRow(m).focus(); refresh(); });
+    acts.append(add);
+    box.append(acts);
+    semsHost.append(box);
+  });
+  const addSem = el("button", { class: "btn", type: "button", id: "rv-addsem", html: ICON.plus + "<span>Add semester</span>" });
+  addSem.addEventListener("click", () => {
+    const next = Math.max(0, ...draft.semesters.map(s => +s.sem || 0)) + 1;
+    draft.semesters.push({ sem: next, label: null, exam: null, printedCGPA: null, printedDp: 0, modules: [blankMod()] });
+    buildReview("rv-n-" + draft.semesters[draft.semesters.length - 1].modules[0].id);
+  });
+  rv.append(addSem);
+
+  const paste = el("details");
+  paste.append(el("summary", { text: "Paste text from your student portal instead" }));
+  paste.append(el("p", { text: "Copy your results page (select all, then copy) and paste it here. We'll look for rows with a module, its credits and a grade. This replaces what's above." }));
+  const ta = el("textarea", { id: "rv-paste", rows: "7", placeholder: "IT1234  Programming Fundamentals  4  A" });
+  const readBtn = el("button", { class: "btn btn-sm", type: "button", text: "Read this text", style: "margin-top:8px" });
+  const pasteErr = el("p", { class: "rv-err" });
+  readBtn.addEventListener("click", () => {
+    try {
+      const d = readAny(pagesFromText(ta.value), "paste");
+      if (draft.polySource === "user" && d.polySource !== "auto") { d.poly = draft.poly; d.polySource = "user"; }
+      S.review.draft = d; S.review.opts.reason = "paste";
+      buildReview();
+    } catch (e) { pasteErr.textContent = e.message; }
+  });
+  paste.append(ta, readBtn, pasteErr);
+  rv.append(paste);
+
+  const foot = el("div", { class: "rv-foot" });
+  const use = el("button", { class: "btn btn-ink", type: "button", id: "rv-use", text: opts.reason === "edit" ? "Save changes" : "Use these results" });
+  const cancel = el("button", { class: "btn", type: "button", text: "Cancel" });
+  const err = el("span", { class: "rv-err", role: "alert" });
+  use.addEventListener("click", () => commitReview(err));
+  cancel.addEventListener("click", closeReview);
+  foot.append(use, cancel, err);
+  rv.append(foot);
+
+  function refresh() {
+    bar.textContent = "";
+    const valid = { ...draft, semesters: draft.semesters.map(s => ({ ...s, modules: s.modules.filter(m => m.cu > 0 || !isGraded(m.grade)) })) };
+    const c = computeAll(valid, null);
+    const rows = sumOf(draft.semesters.map(s => s.modules.length));
+    draft.semesters.forEach((s, i) => {
+      const cs = c.sems[i];
+      const e = sumEls.get(s);
+      if (e) e.textContent = (cs && cs.gpa != null ? "GPA " + cs.gpa.toFixed(4) + " · " : "") + fmtCU(cs ? cs.earned : 0) + " " + CU();
+    });
+    if (c.cgpa == null) { bar.append(el("span", { text: "Add at least one graded module with credits to see your overall GPA." })); return; }
+    bar.append(el("span", null, "We calculate ", el("b", { text: c.cgpa.toFixed(4) }), " from " + plural(rows, "module") + "."));
+    const lastP = [...draft.semesters].sort((a, b) => a.sem - b.sem).reverse().find(s => s.printedCGPA != null);
+    if (lastP) {
+      const okMatch = Math.abs(lastP.printedCGPA - c.cgpa) < matchTol(lastP.printedDp);
+      bar.append(okMatch
+        ? el("span", { class: "ok", html: ICON.check + "<span>Matches the " + lastP.printedCGPA.toFixed(Math.max(2, lastP.printedDp)) + " printed on your transcript</span>" })
+        : el("span", { class: "off", text: "Your transcript prints " + lastP.printedCGPA.toFixed(Math.max(2, lastP.printedDp)) + ". If that's not close, a row below is probably wrong." }));
+    }
+  }
+  refresh();
+  if (focusId) { const f = document.getElementById(focusId); if (f) f.focus(); }
+}
+
+function commitReview(errEl) {
+  const { draft, opts } = S.review;
+  const rv = document.getElementById("reviewView");
+  rv.querySelectorAll(".bad").forEach(x => x.classList.remove("bad"));
+  setPoly(draft.poly);
+  let firstBad = null;
+  const mark = node => { if (node) { node.classList.add("bad"); firstBad = firstBad || node; } };
+  const rows = [...rv.querySelectorAll(".rv-row")];
+  let i = 0, graded = 0;
+  for (const s of draft.semesters) for (const m of s.modules) {
+    const r = rows[i++];
+    const blank = !String(m.name || "").trim() && !(m.cu > 0);
+    if (blank) { m._skip = true; continue; }
+    m._skip = false;
+    if (!String(m.name || "").trim()) mark(r && r.querySelector(".c-name"));
+    if (!(m.cu >= 0 && m.cu <= 40) || (isGraded(m.grade) && !(m.cu > 0))) mark(r && r.querySelector(".c-cu"));
+    if (isGraded(m.grade) && m.cu > 0) graded++;
+  }
+  const nums = draft.semesters.filter(s => s.modules.some(m => !m._skip)).map(s => s.sem);
+  const numIns = [...rv.querySelectorAll(".semno")];
+  draft.semesters.forEach((s, k) => { if (!(s.sem >= 1 && s.sem <= 12) || nums.filter(n => n === s.sem).length > 1) mark(numIns[k]); });
+  if (firstBad) { errEl.textContent = "Fix the highlighted boxes first: every module needs a name and credits, and semester numbers can't repeat."; firstBad.focus(); return; }
+  if (!graded) { errEl.textContent = "Add at least one module with a grade that counts toward GPA."; return; }
+  const clean = { ...draft, semesters: draft.semesters.map(s => ({ ...s, modules: s.modules.filter(m => !m._skip).map(m => { const { _skip, ...rest } = m; return { ...rest, flag: null }; }) })) };
+  clean.totalSems = Math.max(+clean.totalSems || 6, ...clean.semesters.filter(s => s.modules.length).map(s => s.sem));
+  const d = sanitize(clean);
+  if (!d) { errEl.textContent = "Add at least one module before continuing."; return; }
+  d.source = draft.source || "manual";
+  d.polySource = "user";
+  d.confidence = 1;
+  commitData(d, !!opts.fresh);
 }
 
 /* ================= empty state ================= */
@@ -2358,38 +3308,52 @@ function uploadView() {
   const dz = el("section", { class: "drop" });
   dz.append(el("div", { html: ICON.page }));
   dz.append(el("h1", { text: "Drop in your results PDF" }));
-  dz.append(el("p", { text: "Use your Statement of Examination Results, the PDF that lists each semester's modules, grades and cumulative GPA. It's read inside this tab and never uploaded." }));
+  dz.append(el("p", { text: "Works with results from NP, SP, NYP, RP and TP. It's read inside this tab and never uploaded. If anything doesn't read cleanly, you'll get to check and fix it before using it." }));
   const pick = el("button", { class: "btn btn-ink", type: "button", text: "Choose PDF" });
   pick.addEventListener("click", () => document.getElementById("fileInput").click());
-  const demo = el("button", { class: "btn", type: "button", text: "Look at a sample student" });
-  demo.addEventListener("click", () => { S.data = sampleData(); S.overrides = {}; S.planner = []; S.view = "results"; S.needleDone = false; mount(); });
-  dz.append(el("div", { class: "acts" }, pick, demo));
+  const type = el("button", { class: "btn", type: "button", text: "Type in my modules" });
+  type.addEventListener("click", () => openReview(blankDraft(), { fresh: true, reason: "manual" }));
+  const demo = el("button", { class: "btn btn-quiet", type: "button", text: "Look at a sample student" });
+  demo.addEventListener("click", () => commitData(sampleData(), true));
+  dz.append(el("div", { class: "acts" }, pick, type, demo));
   dz.append(el("div", { class: "parse-log", id: "parseLog", role: "status" }), el("div", { class: "err", id: "parseErr", role: "alert", hidden: "" }));
+  const paste = el("details", { class: "paste" });
+  paste.append(el("summary", { text: "Or paste text from your student portal" }));
+  paste.append(el("p", { text: "Open your results page, select everything, copy it and paste it here." }));
+  const ta = el("textarea", { id: "pasteBox", rows: "6", placeholder: "IT1234  Programming Fundamentals  4  A" });
+  const go = el("button", { class: "btn btn-sm", type: "button", text: "Read this text", style: "margin-top:8px" });
+  const perr = el("p", { class: "rv-err" });
+  go.addEventListener("click", () => {
+    try { openReview(readAny(pagesFromText(ta.value), "paste"), { fresh: true, reason: "paste" }); }
+    catch (e) { perr.textContent = e.message; }
+  });
+  paste.append(ta, go, perr);
+  dz.append(paste);
   root.append(dz);
 }
 
 /* ================= mount / render ================= */
-let fontsReady = !document.fonts || document.fonts.status === "loaded";
-let renderedEarly = false;
-if (!fontsReady) document.fonts.ready.then(() => { fontsReady = true; if (renderedEarly && S.data) render(); });
+let fontsReady = !document.fonts;
+if (document.fonts) document.fonts.ready.then(() => { fontsReady = true; if (S.data && !S.review) render(); });
 
 function mount() {
   const has = !!S.data;
   const real = has && !S.data.sample;
+  document.getElementById("reviewView").hidden = true;
   document.getElementById("uploadView").hidden = has;
   document.getElementById("appView").hidden = !has;
   document.getElementById("bannerSlot").hidden = !(has && S.data.sample);
   document.getElementById("uploadBtn").hidden = !has;
   document.getElementById("uploadLbl").textContent = real ? "Replace transcript" : "Upload transcript";
   document.getElementById("clearBtn").hidden = !real;
-  if (!has) { document.body.classList.remove("on-whatif"); uploadView(); return; }
+  if (!has) { document.body.classList.remove("on-whatif"); updateWiBar(); uploadView(); return; }
+  setPoly(S.data.poly);
   renderWho();
   render();
 }
 
 function render() {
-  if (!S.data) return;
-  if (!fontsReady) renderedEarly = true;
+  if (!S.data || S.review) return;
   untip();
   const root = document.getElementById("view");
   root.textContent = "";
@@ -2398,6 +3362,7 @@ function render() {
     t.setAttribute("aria-selected", String(on));
     t.tabIndex = on ? 0 : -1;
   });
+  root.setAttribute("aria-labelledby", "tab-" + S.view);
   document.body.classList.toggle("on-whatif", S.view === "whatif");
   if (S.view === "results") viewResults(root);
   else if (S.view === "whatif") viewWhatIf(root);
@@ -2413,14 +3378,15 @@ function render() {
 function updateWiBar() {
   const bar = document.getElementById("wiBar");
   bar.textContent = "";
-  if (S.view !== "whatif" || !S.data) return;
-  const base = computeAll(S.data, null, null), sim = computeAll(S.data, S.overrides, null);
+  if (S.view !== "whatif" || !S.data || S.review) return;
+  const base = computeAll(S.data, null), sim = computeAll(S.data, S.overrides);
   if (base.cgpa == null) return;
-  bar.append(el("span", { text: "CGPA with your changes" }), el("b", { text: sim.cgpa.toFixed(4) }));
+  bar.append(el("span", { text: "Overall GPA with your changes" }), el("b", { text: sim.cgpa.toFixed(4) }));
   const d = sim.cgpa - base.cgpa;
   if (Math.abs(d) > 1e-9) bar.append(el("span", { class: "res-delta " + (d > 0 ? "is-up" : "is-down"), text: signed(d) }));
 }
 
+const TAB_ORDER = ["results", "whatif", "unis"];
 function selectTab(view, focus) {
   if (S.view === view) return;
   S.view = view;
@@ -2428,18 +3394,22 @@ function selectTab(view, focus) {
   const tabs = document.getElementById("tabs");
   const top = tabs.getBoundingClientRect().top;
   if (top < 0) scrollBy({ top: top - 12 });
-  if (focus) tabs.querySelector('[data-view="' + view + '"]').focus();
+  if (focus) document.getElementById("tab-" + view).focus();
 }
 document.getElementById("tabs").addEventListener("click", e => {
   const t = e.target.closest(".tab");
   if (t) selectTab(t.dataset.view, false);
 });
 document.getElementById("tabs").addEventListener("keydown", e => {
-  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-  const order = ["results", "whatif", "unis"];
-  const i = order.indexOf(S.view);
-  selectTab(order[(i + (e.key === "ArrowRight" ? 1 : order.length - 1)) % order.length], true);
+  const i = TAB_ORDER.indexOf(S.view);
+  let next = null;
+  if (e.key === "ArrowRight") next = TAB_ORDER[(i + 1) % TAB_ORDER.length];
+  else if (e.key === "ArrowLeft") next = TAB_ORDER[(i + TAB_ORDER.length - 1) % TAB_ORDER.length];
+  else if (e.key === "Home") next = TAB_ORDER[0];
+  else if (e.key === "End") next = TAB_ORDER[TAB_ORDER.length - 1];
+  if (!next) return;
   e.preventDefault();
+  selectTab(next, true);
 });
 document.getElementById("uploadBtn").addEventListener("click", () => document.getElementById("fileInput").click());
 document.getElementById("fileInput").addEventListener("change", e => {
@@ -2449,28 +3419,33 @@ document.getElementById("fileInput").addEventListener("change", e => {
 });
 document.getElementById("clearBtn").addEventListener("click", () => {
   clearStored();
-  S.data = null; S.overrides = {}; S.planner = []; S.view = "results";
+  S.data = null; S.overrides = {}; S.plan = { sems: [] }; S.target = null; S.view = "results";
+  S.igp.source = "transcript";
   notice(null);
   mount();
   scrollTo({ top: 0 });
 });
 
-let dragDepth = 0;
+/* The drag overlay hides itself shortly after the last dragover, so it can't get stuck. */
+let dragT = null;
 const hasFiles = e => [...((e.dataTransfer && e.dataTransfer.types) || [])].includes("Files");
-addEventListener("dragenter", e => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; document.body.classList.add("dragging"); });
-addEventListener("dragover", e => { if (hasFiles(e)) e.preventDefault(); });
-addEventListener("dragleave", e => {
+const hideVeil = () => document.body.classList.remove("dragging");
+addEventListener("dragover", e => {
   if (!hasFiles(e)) return;
-  dragDepth = Math.max(0, dragDepth - 1);
-  if (!dragDepth) document.body.classList.remove("dragging");
+  e.preventDefault();
+  document.body.classList.add("dragging");
+  clearTimeout(dragT);
+  dragT = setTimeout(hideVeil, 250);
 });
 addEventListener("drop", e => {
   if (!hasFiles(e)) return;
   e.preventDefault();
-  dragDepth = 0;
-  document.body.classList.remove("dragging");
+  clearTimeout(dragT);
+  hideVeil();
   const f = e.dataTransfer.files[0];
-  if (f) handleFile(f);
+  if (!f) return;
+  if (S.review) closeReview();
+  handleFile(f);
 });
 
 let lastW = innerWidth, resizeT;
@@ -2478,13 +3453,13 @@ addEventListener("resize", () => {
   if (Math.abs(innerWidth - lastW) < 2) return;
   lastW = innerWidth;
   clearTimeout(resizeT);
-  resizeT = setTimeout(render, 150);
+  resizeT = setTimeout(() => { if (!S.review) render(); }, 150);
 });
 
-window.__gradeops = { parseTranscript, computeAll, extractPageLines, handleFile, S, mount, render, titleCase };
+window.__gradeops = { parseTranscript, readAny, readGeneric, pagesFromText, finalise, computeAll, planBlocks, sanitize, extractPageLines, handleFile, commitData, openReview, S, mount, render, setPoly, titleCase };
 
 restore();
-if (!S.data) S.data = sampleData();
+if (!S.data) commitData(sampleData(), true);
+else { S.needleDone = false; mount(); }
 paintThemeButton();
-mount();
 </script>
